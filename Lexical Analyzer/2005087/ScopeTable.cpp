@@ -76,7 +76,7 @@ public:
         {
             parent->setNext(sInfo);
         }
-        cout << "\tInserted  at position <" << hashFunction(sInfo) + 1 << ", " << Position(sInfo) + 1 << "> of ScopeTable# " << id << endl;
+        //cout << "\tInserted  at position <" << hashFunction(sInfo) + 1 << ", " << Position(sInfo) + 1 << "> of ScopeTable# " << id << endl;
         return true;
     }
     bool Delete(SymbolInfo *sInfo)
@@ -96,7 +96,7 @@ public:
         }
         else
         {
-            cout << "\tDeleted '" << sInfo->getName() << "' from position <" << hashFunction(sInfo) + 1 << ", " << Position(sInfo) + 1 << "> of ScopeTable# " << id << endl;
+            //cout << "\tDeleted '" << sInfo->getName() << "' from position <" << hashFunction(sInfo) + 1 << ", " << Position(sInfo) + 1 << "> of ScopeTable# " << id << endl;
             if (previous == NULL)
             {
                 scopeTable[index] = current->getNext();
@@ -140,29 +140,29 @@ public:
         }
         return chainIndex;
     }
-    void Print()
+    void Print(ofstream& fout)
     {
-        cout << "\tScopeTable# " << id << endl;
+        fout << "\tScopeTable# " << id << endl;
         for (unsigned long long i = 0; i < tableSize; i++)
         {
-            cout << "\t";
+            fout << "\t";
             if (scopeTable[i] == NULL)
             {
-                cout << i + 1 << endl;
+                fout << i + 1 << endl;
             }
             else
             {
-                cout << i + 1 << " --> ";
+                fout << i + 1 << " --> ";
                 SymbolInfo *current = scopeTable[i];
                 while (current != NULL)
                 {
                     if (current->getNext() == NULL)
                     {
-                        cout << "(" << current->getName() << "," << current->getType() << ")" << endl;
+                        fout << "(" << current->getName() << "," << current->getType() << ")" << endl;
                     }
                     else
                     {
-                        cout << "(" << current->getName() << "," << current->getType() << ") --> ";
+                        fout << "(" << current->getName() << "," << current->getType() << ") --> ";
                     }
                     current = current->getNext();
                 }

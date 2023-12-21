@@ -11,24 +11,27 @@ public:
         this->bucketSize = bucketSize;
         currentScope = new ScopeTable(bucketSize);
         currentScope->setId("1");
-        cout<< "\tScopeTable# " << currentScope->getId() << " created" << endl;
+        // cout<< "\tScopeTable# " << currentScope->getId() << " created" << endl;
     }
     ScopeTable *getCurrentScope() { return currentScope; }
     void EnterScope()
     {
         ScopeTable *newScope = new ScopeTable(bucketSize);
         newScope->setParentScope(currentScope);
-        currentScope->setScopeNo(currentScope->getScopeNo()+1);
-        newScope->setId(currentScope->getId()+"."+to_string(currentScope->getScopeNo()));
+        currentScope->setScopeNo(currentScope->getScopeNo() + 1);
+        newScope->setId(currentScope->getId() + "." + to_string(currentScope->getScopeNo()));
         currentScope = newScope;
-        cout << "\tScopeTable# " << currentScope->getId() << " created" << endl;
+        // cout << "\tScopeTable# " << currentScope->getId() << " created" << endl;
     }
     void ExitScope()
     {
-        cout<<"\tScopeTable# "<<currentScope->getId()<<" deleted"<<endl;
-        ScopeTable *temp = currentScope->getParentScope();
-        delete currentScope;
-        currentScope = temp;
+        // cout<<"\tScopeTable# "<<currentScope->getId()<<" deleted"<<endl;
+        if (currentScope->getId() != "1")
+        {
+            ScopeTable *temp = currentScope->getParentScope();
+            delete currentScope;
+            currentScope = temp;
+        }
     }
     bool Insert(SymbolInfo *sInfo)
     {
@@ -41,7 +44,7 @@ public:
     SymbolInfo *Lookup(SymbolInfo *sInfo)
     {
         ScopeTable *current = currentScope;
-        while (current!= NULL)
+        while (current != NULL)
         {
             SymbolInfo *searched = current->Lookup(sInfo);
             if (searched != NULL)
@@ -53,26 +56,26 @@ public:
         }
         return NULL;
     }
-    void PrintCurrentScope()
+    void PrintCurrentScope(ofstream &fout)
     {
-        currentScope->Print();
+        currentScope->Print(fout);
     }
-    void PrintAllScope()
+    void PrintAllScope(ofstream &fout)
     {
         ScopeTable *current = currentScope;
         while (current != NULL)
         {
-            current->Print();
+            current->Print(fout);
             current = current->getParentScope();
         }
     }
-    ~SymbolTable(){
+    ~SymbolTable()
+    {
         while (currentScope != NULL)
-            {
-                ScopeTable *parent = currentScope->getParentScope();
-                ExitScope();
-                currentScope = parent;
-            }
+        {
+            ScopeTable *parent = currentScope->getParentScope();
+            ExitScope();
+            currentScope = parent;
+        }
     }
-
 };

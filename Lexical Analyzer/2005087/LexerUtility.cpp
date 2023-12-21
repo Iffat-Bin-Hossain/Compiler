@@ -13,6 +13,12 @@ public:
         tokenFout.open("token.txt");
         errorCount = 0;
     }
+    ofstream& getLogFout(){
+        return logFout;
+    }
+    ofstream& gettokenFout(){
+        return tokenFout;
+    }
     
 
     void printLog(std::string token, std::string symbol, int lineNo)
@@ -70,5 +76,8 @@ public:
     {
         errorCount++;
         logFout << "Error at line# " << lineNo << ": " << error << " " << text << std::endl;
+    }
+    int getErrorCount(){
+        return errorCount;
     }
 };
