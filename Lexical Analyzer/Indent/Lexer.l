@@ -13,11 +13,6 @@ using namespace std;
 SymbolTable sTable(10);
 LexerUtility lexUtil;
 int startLineNo ;
-int tabNeeded=0;
-int tabGot;
-int spaceNeeded=0;
-int spaceGot;
-
 std::string singlelineComment = "";
 std::string multilineComment = "";
 std::string String="";
@@ -70,7 +65,7 @@ std::string stringToken="";
 %}
 
 KEYWORD (if|else|for|while|do|break|int|char|float|double|void|return|switch|case|default|continue)
-WHITESPACE [ \n\t\f\r\v]+ 
+WHITESPACE [\n\f\r\v]+ 
 SPECIAL [ntafbvr0\'\"\\]
 LETTER [a-zA-Z]
 WORD {LETTER}+
@@ -151,11 +146,9 @@ lexUtil.printError("UNFINISHED_CONST_CHAR", "\'" + current,yylineno);
 "("|")"|"{"|"}"|"["|"]"|","|";" {
     if(yytext[0]=='{'){
         sTable.EnterScope();
-        tabNeeded++;
     }
     if(yytext[0]=='}'){
         sTable.ExitScope();
-        tabNeeded--;
     }
     lexUtil.printPunctuation(yytext,yylineno);
 }
@@ -260,7 +253,6 @@ startLineNo= yylineno;
 {WHITESPACE} {
     // Skip whitespace
 }
-
 . {
    lexUtil.printError("UNRECOGNIZED_CHAR", yytext, yylineno);
 }

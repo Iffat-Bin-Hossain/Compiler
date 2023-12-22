@@ -1,4 +1,5 @@
 Line# 1: Token <VOID> Lexeme void found
+Error at line# 1: UNRECOGNIZED_CHAR  
 Line# 1: Token <ID> Lexeme main found
 	ScopeTable# 1
 	1
@@ -13,8 +14,11 @@ Line# 1: Token <ID> Lexeme main found
 	10
 Line# 1: Token <LPAREN> Lexeme ( found
 Line# 1: Token <RPAREN> Lexeme ) found
+Error at line# 1: UNRECOGNIZED_CHAR  
 Line# 1: Token <LCURL> Lexeme { found
+Error at line# 2: UNRECOGNIZED_CHAR 	
 Line# 2: Token <INT> Lexeme int found
+Error at line# 2: UNRECOGNIZED_CHAR  
 Line# 2: Token <ID> Lexeme x found
 	ScopeTable# 1.1
 	1 --> (x,ID)
@@ -39,6 +43,7 @@ Line# 2: Token <ID> Lexeme x found
 	9
 	10
 Line# 2: Token <COMMA> Lexeme , found
+Error at line# 2: UNRECOGNIZED_CHAR  
 Line# 2: Token <ID> Lexeme y found
 	ScopeTable# 1.1
 	1 --> (x,ID)
@@ -63,23 +68,36 @@ Line# 2: Token <ID> Lexeme y found
 	9
 	10
 Line# 2: Token <SEMICOLON> Lexeme ; found
+Error at line# 3: UNRECOGNIZED_CHAR 	
 Line# 3: Token <ID> Lexeme x found
 	x already exists in the current ScopeTable
+Error at line# 3: UNRECOGNIZED_CHAR  
 Line# 3: Token <ASSIGNOP> Lexeme = found
+Error at line# 3: UNRECOGNIZED_CHAR  
 Line# 3: Token <ID> Lexeme x found
 	x already exists in the current ScopeTable
+Error at line# 3: UNRECOGNIZED_CHAR  
 Line# 3: Token <ADDOP> Lexeme + found
+Error at line# 3: UNRECOGNIZED_CHAR  
 Line# 3: Token <CONST_INT> Lexeme 1 found
 Line# 3: Token <SEMICOLON> Lexeme ; found
+Error at line# 4: UNRECOGNIZED_CHAR 	
 Line# 4: Token <ID> Lexeme y found
 	y already exists in the current ScopeTable
+Error at line# 4: UNRECOGNIZED_CHAR  
 Line# 4: Token <ASSIGNOP> Lexeme = found
+Error at line# 4: UNRECOGNIZED_CHAR  
 Line# 4: Token <ID> Lexeme y found
 	y already exists in the current ScopeTable
+Error at line# 4: UNRECOGNIZED_CHAR  
 Line# 4: Token <MULOP> Lexeme * found
+Error at line# 4: UNRECOGNIZED_CHAR  
 Line# 4: Token <CONST_INT> Lexeme 2 found
 Line# 4: Token <SEMICOLON> Lexeme ; found
+Error at line# 5: UNRECOGNIZED_CHAR 	
+Error at line# 6: UNRECOGNIZED_CHAR 	
 Line# 6: Token <FLOAT> Lexeme float found
+Error at line# 6: UNRECOGNIZED_CHAR  
 Line# 6: Token <ID> Lexeme f found
 	ScopeTable# 1.1
 	1 --> (x,ID)
@@ -104,22 +122,34 @@ Line# 6: Token <ID> Lexeme f found
 	9
 	10
 Line# 6: Token <SEMICOLON> Lexeme ; found
+Error at line# 7: UNRECOGNIZED_CHAR 	
 Line# 7: Token <ID> Lexeme f found
 	f already exists in the current ScopeTable
+Error at line# 7: UNRECOGNIZED_CHAR  
 Line# 7: Token <ASSIGNOP> Lexeme = found
+Error at line# 7: UNRECOGNIZED_CHAR  
 Line# 7: Token <ID> Lexeme f found
 	f already exists in the current ScopeTable
+Error at line# 7: UNRECOGNIZED_CHAR  
 Line# 7: Token <ADDOP> Lexeme - found
+Error at line# 7: UNRECOGNIZED_CHAR  
 Line# 7: Token <CONST_FLOAT> Lexeme 3.14 found
 Line# 7: Token <SEMICOLON> Lexeme ; found
+Error at line# 8: UNRECOGNIZED_CHAR 	
 Line# 8: Token <ID> Lexeme f found
 	f already exists in the current ScopeTable
+Error at line# 8: UNRECOGNIZED_CHAR  
 Line# 8: Token <ASSIGNOP> Lexeme = found
+Error at line# 8: UNRECOGNIZED_CHAR  
 Line# 8: Token <ID> Lexeme f found
 	f already exists in the current ScopeTable
+Error at line# 8: UNRECOGNIZED_CHAR  
 Line# 8: Token <MULOP> Lexeme * found
+Error at line# 8: UNRECOGNIZED_CHAR  
 Line# 8: Token <CONST_FLOAT> Lexeme 2.81E0 found
 Line# 8: Token <SEMICOLON> Lexeme ; found
+Error at line# 9: UNRECOGNIZED_CHAR 	
+Error at line# 9: UNRECOGNIZED_CHAR 	
 Line# 9: Token <ID> Lexeme u found
 	ScopeTable# 1.1
 	1 --> (x,ID)
@@ -173,7 +203,11 @@ Line# 9: Token <BITOP> Lexeme >> found
 Line# 9: Token <CONST_INT> Lexeme 3 found
 Line# 9: Token <BITOP> Lexeme ^ found
 Line# 9: Token <CONST_INT> Lexeme 4 found
+Error at line# 10: UNRECOGNIZED_CHAR 	
+Error at line# 11: UNRECOGNIZED_CHAR 	
+Error at line# 11: UNRECOGNIZED_CHAR  
 Line# 11: Token <CHAR> Lexeme char found
+Error at line# 11: UNRECOGNIZED_CHAR  
 Line# 11: Token <ID> Lexeme ch found
 	ScopeTable# 1.1
 	1 --> (x,ID)
@@ -197,15 +231,22 @@ Line# 11: Token <ID> Lexeme ch found
 	8
 	9
 	10
+Error at line# 11: UNRECOGNIZED_CHAR  
 Line# 11: Token <ASSIGNOP> Lexeme = found
+Error at line# 11: UNRECOGNIZED_CHAR  
 Line# 11: Token <CONST_CHAR> Lexeme z found
 Line# 11: Token <SEMICOLON> Lexeme ; found
 Line# 13: Token <ID> Lexeme ch found
 	ch already exists in the current ScopeTable
+Error at line# 13: UNRECOGNIZED_CHAR  
 Line# 13: Token <ASSIGNOP> Lexeme = found
+Error at line# 13: UNRECOGNIZED_CHAR  
 Line# 13: Token <CONST_CHAR> Lexeme 	 found
 Line# 13: Token <SEMICOLON> Lexeme ; found
+Error at line# 14: UNRECOGNIZED_CHAR 	
+Error at line# 15: UNRECOGNIZED_CHAR 	
 Line# 15: Token <CHAR> Lexeme char found
+Error at line# 15: UNRECOGNIZED_CHAR  
 Line# 15: Token <ID> Lexeme str found
 	ScopeTable# 1.1
 	1 --> (x,ID)
@@ -231,10 +272,14 @@ Line# 15: Token <ID> Lexeme str found
 	10
 Line# 15: Token <LSQUARE> Lexeme [ found
 Line# 15: Token <RSQUARE> Lexeme ] found
+Error at line# 15: UNRECOGNIZED_CHAR  
 Line# 15: Token <ASSIGNOP> Lexeme = found
+Error at line# 15: UNRECOGNIZED_CHAR  
 Line# 15: Token <SINGLE LINE STRING> Lexeme "hello\tworld" found
 Line# 15: Token <SEMICOLON> Lexeme ; found
+Error at line# 16: UNRECOGNIZED_CHAR 	
 Line# 16: Token <CHAR> Lexeme char found
+Error at line# 16: UNRECOGNIZED_CHAR  
 Line# 16: Token <ID> Lexeme str2 found
 	ScopeTable# 1.1
 	1 --> (x,ID)
@@ -260,16 +305,23 @@ Line# 16: Token <ID> Lexeme str2 found
 	10
 Line# 16: Token <LSQUARE> Lexeme [ found
 Line# 16: Token <RSQUARE> Lexeme ] found
+Error at line# 16: UNRECOGNIZED_CHAR  
 Line# 16: Token <ASSIGNOP> Lexeme = found
+Error at line# 16: UNRECOGNIZED_CHAR  
 Line# 16: Token <SINGLE LINE STRING> Lexeme "Hello my friends from \n there \t also rem - \" surprise \" - for your good" found
 Line# 16: Token <SEMICOLON> Lexeme ; found
+Error at line# 17: UNRECOGNIZED_CHAR 	
 Line# 17: Token <CHAR> Lexeme char found
+Error at line# 17: UNRECOGNIZED_CHAR  
 Line# 17: Token <ID> Lexeme str found
 	str already exists in the current ScopeTable
 Line# 17: Token <LSQUARE> Lexeme [ found
 Line# 17: Token <RSQUARE> Lexeme ] found
+Error at line# 17: UNRECOGNIZED_CHAR  
 Line# 17: Token <ASSIGNOP> Lexeme = found
+Error at line# 17: UNRECOGNIZED_CHAR  
 Line# 17: Token <SINGLE LINE STRING> Lexeme " forgot to tell 4\\2=2; " found
+Error at line# 17: UNRECOGNIZED_CHAR  
 Error at line# 17: UNRECOGNIZED_CHAR \
 Error at line# 17: UNRECOGNIZED_CHAR \
 Line# 17: Token <ID> Lexeme hehe found
@@ -295,9 +347,13 @@ Line# 17: Token <ID> Lexeme hehe found
 	8
 	9
 	10
+Error at line# 18: UNRECOGNIZED_CHAR 	
 Line# 18: Token <SINGLE LINE COMMENT> Lexeme // ebar ki likhbo found
+Error at line# 19: UNRECOGNIZED_CHAR 	
 Line# 19: Token <SINGLE LINE COMMENT> Lexeme // accha idea found
+Error at line# 20: UNRECOGNIZED_CHAR 	
 Line# 20: Token <INT> Lexeme int found
+Error at line# 20: UNRECOGNIZED_CHAR  
 Line# 20: Token <ID> Lexeme anik found
 	ScopeTable# 1.1
 	1 --> (x,ID)
@@ -321,10 +377,14 @@ Line# 20: Token <ID> Lexeme anik found
 	8
 	9
 	10
+Error at line# 20: UNRECOGNIZED_CHAR  
 Line# 20: Token <ASSIGNOP> Lexeme = found
+Error at line# 20: UNRECOGNIZED_CHAR  
 Line# 20: Token <CONST_INT> Lexeme 1009099 found
 Line# 20: Token <SEMICOLON> Lexeme ; found
+Error at line# 21: UNRECOGNIZED_CHAR 	
 Line# 21: Token <INT> Lexeme int found
+Error at line# 21: UNRECOGNIZED_CHAR  
 Line# 21: Token <ID> Lexeme kabirBrothers found
 	ScopeTable# 1.1
 	1 --> (x,ID)
@@ -348,10 +408,14 @@ Line# 21: Token <ID> Lexeme kabirBrothers found
 	8
 	9
 	10
+Error at line# 21: UNRECOGNIZED_CHAR  
 Line# 21: Token <ASSIGNOP> Lexeme = found
+Error at line# 21: UNRECOGNIZED_CHAR  
 Error at line# 21: INVALID_ID_SUFFIX_NUM_PREFIX 70sd
 Line# 21: Token <SEMICOLON> Lexeme ; found
+Error at line# 22: UNRECOGNIZED_CHAR 	
 Line# 22: Token <INT> Lexeme int found
+Error at line# 22: UNRECOGNIZED_CHAR  
 Line# 22: Token <ID> Lexeme khilgaon found
 	ScopeTable# 1.1
 	1 --> (x,ID)
@@ -376,6 +440,7 @@ Line# 22: Token <ID> Lexeme khilgaon found
 	9
 	10
 Line# 22: Token <COMMA> Lexeme , found
+Error at line# 22: UNRECOGNIZED_CHAR  
 Line# 22: Token <ID> Lexeme malibah found
 	ScopeTable# 1.1
 	1 --> (x,ID)
@@ -400,7 +465,9 @@ Line# 22: Token <ID> Lexeme malibah found
 	9
 	10
 Line# 22: Token <SEMICOLON> Lexeme ; found
+Error at line# 23: UNRECOGNIZED_CHAR 	
 Line# 23: Token <FLOAT> Lexeme float found
+Error at line# 23: UNRECOGNIZED_CHAR  
 Line# 23: Token <ID> Lexeme suhrawardy found
 	ScopeTable# 1.1
 	1 --> (x,ID) --> (suhrawardy,ID)
@@ -425,12 +492,17 @@ Line# 23: Token <ID> Lexeme suhrawardy found
 	9
 	10
 Line# 23: Token <SEMICOLON> Lexeme ; found
+Error at line# 24: UNRECOGNIZED_CHAR 	
 Line# 24: Token <ID> Lexeme malibah found
 	malibah already exists in the current ScopeTable
+Error at line# 24: UNRECOGNIZED_CHAR  
 Line# 24: Token <ASSIGNOP> Lexeme = found
+Error at line# 24: UNRECOGNIZED_CHAR  
 Line# 24: Token <CONST_INT> Lexeme 0 found
 Line# 24: Token <SEMICOLON> Lexeme ; found
+Error at line# 25: UNRECOGNIZED_CHAR 	
 Line# 25: Token <FLOAT> Lexeme float found
+Error at line# 25: UNRECOGNIZED_CHAR  
 Line# 25: Token <ID> Lexeme t found
 	ScopeTable# 1.1
 	1 --> (x,ID) --> (suhrawardy,ID)
@@ -454,9 +526,13 @@ Line# 25: Token <ID> Lexeme t found
 	8
 	9
 	10
+Error at line# 25: UNRECOGNIZED_CHAR  
 Line# 25: Token <ASSIGNOP> Lexeme = found
+Error at line# 25: UNRECOGNIZED_CHAR  
 Error at line# 25: TOO_MANY_DECIMAL_POINTS 1.2.3
+Error at line# 26: UNRECOGNIZED_CHAR 	
 Line# 26: Token <INT> Lexeme int found
+Error at line# 26: UNRECOGNIZED_CHAR  
 Line# 26: Token <ID> Lexeme time found
 	ScopeTable# 1.1
 	1 --> (x,ID) --> (suhrawardy,ID)
@@ -480,9 +556,12 @@ Line# 26: Token <ID> Lexeme time found
 	8
 	9
 	10
+Error at line# 26: UNRECOGNIZED_CHAR  
 Line# 26: Token <ASSIGNOP> Lexeme = found
+Error at line# 26: UNRECOGNIZED_CHAR  
 Line# 26: Token <CONST_INT> Lexeme 3 found
 Line# 26: Token <SEMICOLON> Lexeme ; found
+Error at line# 27: UNRECOGNIZED_CHAR 	
 Line# 27: Token <ID> Lexeme bool found
 	ScopeTable# 1.1
 	1 --> (x,ID) --> (suhrawardy,ID) --> (bool,ID)
@@ -506,6 +585,7 @@ Line# 27: Token <ID> Lexeme bool found
 	8
 	9
 	10
+Error at line# 27: UNRECOGNIZED_CHAR  
 Line# 27: Token <ID> Lexeme Abid found
 	ScopeTable# 1.1
 	1 --> (x,ID) --> (suhrawardy,ID) --> (bool,ID)
@@ -530,15 +610,22 @@ Line# 27: Token <ID> Lexeme Abid found
 	9
 	10
 Line# 27: Token <SEMICOLON> Lexeme ; found
+Error at line# 28: UNRECOGNIZED_CHAR 	
 Line# 28: Token <IF> Lexeme if found
 Line# 28: Token <LPAREN> Lexeme ( found
 Line# 28: Token <ID> Lexeme time found
 	time already exists in the current ScopeTable
+Error at line# 28: UNRECOGNIZED_CHAR  
 Line# 28: Token <RELOP> Lexeme < found
+Error at line# 28: UNRECOGNIZED_CHAR  
 Error at line# 28: INVALID_ID_SUFFIX_NUM_PREFIX 10pm
 Line# 28: Token <RPAREN> Lexeme ) found
+Error at line# 28: UNRECOGNIZED_CHAR  
 Line# 28: Token <LCURL> Lexeme { found
+Error at line# 29: UNRECOGNIZED_CHAR 	
+Error at line# 29: UNRECOGNIZED_CHAR 	
 Line# 29: Token <CHAR> Lexeme char found
+Error at line# 29: UNRECOGNIZED_CHAR  
 Line# 29: Token <ID> Lexeme char1 found
 	ScopeTable# 1.1.1
 	1
@@ -575,9 +662,14 @@ Line# 29: Token <ID> Lexeme char1 found
 	10
 Line# 29: Token <LSQUARE> Lexeme [ found
 Line# 29: Token <RSQUARE> Lexeme ] found
+Error at line# 29: UNRECOGNIZED_CHAR  
 Line# 29: Token <ASSIGNOP> Lexeme = found
+Error at line# 29: UNRECOGNIZED_CHAR  
 Line# 29: Token <SINGLE LINE STRING> Lexeme "Abid not home ||" found
 Line# 29: Token <SEMICOLON> Lexeme ; found
+Error at line# 30: UNRECOGNIZED_CHAR 	
+Error at line# 30: UNRECOGNIZED_CHAR 	
+Error at line# 30: UNRECOGNIZED_CHAR 	
 Line# 30: Token <ID> Lexeme printf found
 	ScopeTable# 1.1.1
 	1
@@ -615,16 +707,22 @@ Line# 30: Token <ID> Lexeme printf found
 Line# 30: Token <LPAREN> Lexeme ( found
 Line# 30: Token <SINGLE LINE STRING> Lexeme "%d" found
 Line# 30: Token <COMMA> Lexeme , found
+Error at line# 30: UNRECOGNIZED_CHAR  
 Line# 30: Token <CHAR> Lexeme char found
 Line# 30: Token <RPAREN> Lexeme ) found
 Line# 30: Token <SEMICOLON> Lexeme ; found
+Error at line# 32: UNRECOGNIZED_CHAR 	
 Line# 32: Token <RCURL> Lexeme } found
+Error at line# 33: UNRECOGNIZED_CHAR 	
 Line# 33: Token <MULTI LINE COMMENT> Lexeme /* we arew in a multi lines
 	command
 	*/ found
+Error at line# 36: UNRECOGNIZED_CHAR 	
 Line# 36: Token <SINGLE LINE COMMENT> Lexeme // not going to put \
 	oops found
+Error at line# 38: UNRECOGNIZED_CHAR 	
 Line# 38: Token <SINGLE LINE COMMENT> Lexeme // not his time found
+Error at line# 39: UNRECOGNIZED_CHAR 	
 Line# 39: Token <ID> Lexeme itsBecameAnID found
 	ScopeTable# 1.1
 	1 --> (x,ID) --> (suhrawardy,ID) --> (bool,ID)
@@ -648,7 +746,10 @@ Line# 39: Token <ID> Lexeme itsBecameAnID found
 	8
 	9
 	10
+Error at line# 40: UNRECOGNIZED_CHAR 	
+Error at line# 41: UNRECOGNIZED_CHAR 	
 Line# 41: Token <SINGLE LINE COMMENT> Lexeme // December 7, 2023 found
+Error at line# 42: UNRECOGNIZED_CHAR 	
 Line# 42: Token <ID> Lexeme printf found
 	ScopeTable# 1.1
 	1 --> (x,ID) --> (suhrawardy,ID) --> (bool,ID)
@@ -678,15 +779,21 @@ Line# 42: Token <MULTI LINE STRING> Lexeme "The day\
 	sunny" found
 Line# 44: Token <RPAREN> Lexeme ) found
 Line# 44: Token <SEMICOLON> Lexeme ; found
+Error at line# 45: UNRECOGNIZED_CHAR 	
+Error at line# 46: UNRECOGNIZED_CHAR 	
 Line# 46: Token <MULTI LINE COMMENT> Lexeme /** ** CSE 310
 	*** Compiler Sessional ***/ found
+Error at line# 48: UNRECOGNIZED_CHAR 	
 Line# 48: Token <SINGLE LINE COMMENT> Lexeme // It is a\
 	fun course found
+Error at line# 50: UNRECOGNIZED_CHAR 	
 Line# 50: Token <RETURN> Lexeme return found
+Error at line# 50: UNRECOGNIZED_CHAR  
 Line# 50: Token <CONST_INT> Lexeme 0 found
 Line# 50: Token <SEMICOLON> Lexeme ; found
 Line# 51: Token <RCURL> Lexeme } found
 Line# 52: Token <DOUBLE> Lexeme double found
+Error at line# 52: UNRECOGNIZED_CHAR  
 Line# 52: Token <ID> Lexeme solve found
 	ScopeTable# 1
 	1
@@ -701,8 +808,11 @@ Line# 52: Token <ID> Lexeme solve found
 	10
 Line# 52: Token <LPAREN> Lexeme ( found
 Line# 52: Token <RPAREN> Lexeme ) found
+Error at line# 52: UNRECOGNIZED_CHAR  
 Line# 52: Token <LCURL> Lexeme { found
+Error at line# 53: UNRECOGNIZED_CHAR 	
 Line# 53: Token <CHAR> Lexeme char found
+Error at line# 53: UNRECOGNIZED_CHAR  
 Line# 53: Token <ID> Lexeme tias found
 	ScopeTable# 1.2
 	1
@@ -726,10 +836,14 @@ Line# 53: Token <ID> Lexeme tias found
 	8
 	9
 	10
+Error at line# 53: UNRECOGNIZED_CHAR  
 Line# 53: Token <ASSIGNOP> Lexeme = found
+Error at line# 53: UNRECOGNIZED_CHAR  
 Error at line# 53: UNFINISHED_CONST_CHAR '\'
 Line# 53: Token <SEMICOLON> Lexeme ; found
+Error at line# 54: UNRECOGNIZED_CHAR 	
 Line# 54: Token <DOUBLE> Lexeme double found
+Error at line# 54: UNRECOGNIZED_CHAR  
 Line# 54: Token <ID> Lexeme miraj found
 	ScopeTable# 1.2
 	1
@@ -753,10 +867,14 @@ Line# 54: Token <ID> Lexeme miraj found
 	8
 	9
 	10
+Error at line# 54: UNRECOGNIZED_CHAR  
 Line# 54: Token <ASSIGNOP> Lexeme = found
+Error at line# 54: UNRECOGNIZED_CHAR  
 Error at line# 54: TOO_MANY_DECIMAL_POINTS 1.2.345
 Line# 54: Token <SEMICOLON> Lexeme ; found
+Error at line# 55: UNRECOGNIZED_CHAR 	
 Line# 55: Token <FLOAT> Lexeme float found
+Error at line# 55: UNRECOGNIZED_CHAR  
 Line# 55: Token <ID> Lexeme home found
 	ScopeTable# 1.2
 	1
@@ -780,10 +898,14 @@ Line# 55: Token <ID> Lexeme home found
 	8
 	9
 	10
+Error at line# 55: UNRECOGNIZED_CHAR  
 Line# 55: Token <ASSIGNOP> Lexeme = found
+Error at line# 55: UNRECOGNIZED_CHAR  
 Error at line# 55: TOO_MANY_DECIMAL_POINTS 192.168.0.1
 Line# 55: Token <SEMICOLON> Lexeme ; found
+Error at line# 56: UNRECOGNIZED_CHAR 	
 Line# 56: Token <FLOAT> Lexeme float found
+Error at line# 56: UNRECOGNIZED_CHAR  
 Line# 56: Token <ID> Lexeme tf found
 	ScopeTable# 1.2
 	1
@@ -807,18 +929,28 @@ Line# 56: Token <ID> Lexeme tf found
 	8
 	9
 	10
+Error at line# 56: UNRECOGNIZED_CHAR  
 Line# 56: Token <ASSIGNOP> Lexeme = found
+Error at line# 56: UNRECOGNIZED_CHAR  
 Error at line# 56: ILLFORMED_NUMBER 1E10.7
 Line# 56: Token <SEMICOLON> Lexeme ; found
+Error at line# 57: UNRECOGNIZED_CHAR 	
 Line# 57: Token <INT> Lexeme int found
+Error at line# 57: UNRECOGNIZED_CHAR  
 Error at line# 57: INVALID_ID_SUFFIX_NUM_PREFIX 12abcd
 Line# 57: Token <SEMICOLON> Lexeme ; found
+Error at line# 58: UNRECOGNIZED_CHAR 	
 Line# 58: Token <CHAR> Lexeme char found
+Error at line# 58: UNRECOGNIZED_CHAR  
 Error at line# 58: UNRECOGNIZED_CHAR #
+Error at line# 58: UNRECOGNIZED_CHAR  
 Line# 58: Token <ASSIGNOP> Lexeme = found
+Error at line# 58: UNRECOGNIZED_CHAR  
 Error at line# 58: UNRECOGNIZED_CHAR @
 Line# 58: Token <SEMICOLON> Lexeme ; found
+Error at line# 59: UNRECOGNIZED_CHAR 	
 Line# 59: Token <CHAR> Lexeme char found
+Error at line# 59: UNRECOGNIZED_CHAR  
 Line# 59: Token <ID> Lexeme bruceWayne found
 	ScopeTable# 1.2
 	1
@@ -844,10 +976,14 @@ Line# 59: Token <ID> Lexeme bruceWayne found
 	10
 Line# 59: Token <LSQUARE> Lexeme [ found
 Line# 59: Token <RSQUARE> Lexeme ] found
+Error at line# 59: UNRECOGNIZED_CHAR  
 Line# 59: Token <ASSIGNOP> Lexeme = found
+Error at line# 59: UNRECOGNIZED_CHAR  
 Line# 59: Token <SINGLE LINE STRING> Lexeme "rude" found
 Line# 59: Token <SEMICOLON> Lexeme ; found
+Error at line# 60: UNRECOGNIZED_CHAR 	
 Line# 60: Token <CHAR> Lexeme char found
+Error at line# 60: UNRECOGNIZED_CHAR  
 Line# 60: Token <ID> Lexeme _ found
 	ScopeTable# 1.2
 	1
@@ -871,10 +1007,14 @@ Line# 60: Token <ID> Lexeme _ found
 	8
 	9
 	10
+Error at line# 60: UNRECOGNIZED_CHAR  
 Line# 60: Token <ASSIGNOP> Lexeme = found
+Error at line# 60: UNRECOGNIZED_CHAR  
 Error at line# 60: MULTICHAR_CONST_CHAR 'ab'
 Line# 60: Token <SEMICOLON> Lexeme ; found
+Error at line# 61: UNRECOGNIZED_CHAR 	
 Line# 61: Token <CHAR> Lexeme char found
+Error at line# 61: UNRECOGNIZED_CHAR  
 Line# 61: Token <ID> Lexeme a23a_ found
 	ScopeTable# 1.2
 	1
@@ -898,9 +1038,13 @@ Line# 61: Token <ID> Lexeme a23a_ found
 	8
 	9
 	10
+Error at line# 61: UNRECOGNIZED_CHAR  
 Line# 61: Token <ASSIGNOP> Lexeme = found
+Error at line# 61: UNRECOGNIZED_CHAR  
 Error at line# 61: UNFINISHED_CONST_CHAR 'a
+Error at line# 62: UNRECOGNIZED_CHAR 	
 Line# 62: Token <CHAR> Lexeme char found
+Error at line# 62: UNRECOGNIZED_CHAR  
 Line# 62: Token <ID> Lexeme ct found
 	ScopeTable# 1.2
 	1
@@ -924,9 +1068,13 @@ Line# 62: Token <ID> Lexeme ct found
 	8
 	9
 	10
+Error at line# 62: UNRECOGNIZED_CHAR  
 Line# 62: Token <ASSIGNOP> Lexeme = found
+Error at line# 62: UNRECOGNIZED_CHAR  
 Error at line# 62: UNFINISHED_CONST_CHAR '
+Error at line# 63: UNRECOGNIZED_CHAR 	
 Line# 63: Token <CHAR> Lexeme char found
+Error at line# 63: UNRECOGNIZED_CHAR  
 Line# 63: Token <ID> Lexeme golam found
 	ScopeTable# 1.2
 	1
@@ -950,10 +1098,14 @@ Line# 63: Token <ID> Lexeme golam found
 	8
 	9
 	10
+Error at line# 63: UNRECOGNIZED_CHAR  
 Line# 63: Token <ASSIGNOP> Lexeme = found
+Error at line# 63: UNRECOGNIZED_CHAR  
 Error at line# 63: MULTICHAR_CONST_CHAR 'love northbengal'
 Line# 63: Token <SEMICOLON> Lexeme ; found
+Error at line# 64: UNRECOGNIZED_CHAR 	
 Line# 64: Token <CHAR> Lexeme char found
+Error at line# 64: UNRECOGNIZED_CHAR  
 Line# 64: Token <ID> Lexeme ____etaki__ found
 	ScopeTable# 1.2
 	1
@@ -977,10 +1129,14 @@ Line# 64: Token <ID> Lexeme ____etaki__ found
 	8
 	9
 	10
+Error at line# 64: UNRECOGNIZED_CHAR  
 Line# 64: Token <ASSIGNOP> Lexeme = found
+Error at line# 64: UNRECOGNIZED_CHAR  
 Error at line# 64: UNFINISHED_CONST_CHAR '\'
 Line# 64: Token <SEMICOLON> Lexeme ; found
+Error at line# 65: UNRECOGNIZED_CHAR 	
 Line# 65: Token <CHAR> Lexeme char found
+Error at line# 65: UNRECOGNIZED_CHAR  
 Line# 65: Token <ID> Lexeme janina found
 	ScopeTable# 1.2
 	1
@@ -1004,9 +1160,12 @@ Line# 65: Token <ID> Lexeme janina found
 	8
 	9
 	10
+Error at line# 65: UNRECOGNIZED_CHAR  
 Line# 65: Token <ASSIGNOP> Lexeme = found
+Error at line# 65: UNRECOGNIZED_CHAR  
 Error at line# 65: EMPTY_CONST_CHAR ''
 Line# 65: Token <SEMICOLON> Lexeme ; found
+Error at line# 66: UNRECOGNIZED_CHAR 	
 Line# 66: Token <IF> Lexeme if found
 Line# 66: Token <LPAREN> Lexeme ( found
 Line# 66: Token <ID> Lexeme jodiIsHoy found
@@ -1033,7 +1192,10 @@ Line# 66: Token <ID> Lexeme jodiIsHoy found
 	9
 	10
 Line# 66: Token <RPAREN> Lexeme ) found
+Error at line# 66: UNRECOGNIZED_CHAR  
 Line# 66: Token <LCURL> Lexeme { found
+Error at line# 67: UNRECOGNIZED_CHAR 	
+Error at line# 67: UNRECOGNIZED_CHAR 	
 Line# 67: Token <ID> Lexeme But found
 	ScopeTable# 1.2.1
 	1
@@ -1068,6 +1230,7 @@ Line# 67: Token <ID> Lexeme But found
 	8
 	9
 	10
+Error at line# 67: UNRECOGNIZED_CHAR  
 Line# 67: Token <ID> Lexeme kintu found
 	ScopeTable# 1.2.1
 	1
@@ -1102,6 +1265,7 @@ Line# 67: Token <ID> Lexeme kintu found
 	8
 	9
 	10
+Error at line# 67: UNRECOGNIZED_CHAR  
 Line# 67: Token <ID> Lexeme what found
 	ScopeTable# 1.2.1
 	1
@@ -1136,6 +1300,7 @@ Line# 67: Token <ID> Lexeme what found
 	8
 	9
 	10
+Error at line# 67: UNRECOGNIZED_CHAR  
 Line# 67: Token <ID> Lexeme ki found
 	ScopeTable# 1.2.1
 	1
@@ -1171,6 +1336,10 @@ Line# 67: Token <ID> Lexeme ki found
 	9
 	10
 Line# 67: Token <SEMICOLON> Lexeme ; found
+Error at line# 68: UNRECOGNIZED_CHAR 	
+Error at line# 68: UNRECOGNIZED_CHAR 	
+Error at line# 68: UNRECOGNIZED_CHAR  
+Error at line# 68: UNRECOGNIZED_CHAR  
 Line# 68: Token <IF> Lexeme if found
 Line# 68: Token <LPAREN> Lexeme ( found
 Line# 68: Token <ID> Lexeme emni found
@@ -1208,8 +1377,14 @@ Line# 68: Token <ID> Lexeme emni found
 	9
 	10
 Line# 68: Token <RPAREN> Lexeme ) found
+Error at line# 69: UNRECOGNIZED_CHAR 	
+Error at line# 69: UNRECOGNIZED_CHAR 	
 Line# 69: Token <LCURL> Lexeme { found
+Error at line# 70: UNRECOGNIZED_CHAR 	
+Error at line# 70: UNRECOGNIZED_CHAR 	
+Error at line# 70: UNRECOGNIZED_CHAR 	
 Line# 70: Token <CHAR> Lexeme char found
+Error at line# 70: UNRECOGNIZED_CHAR  
 Line# 70: Token <ID> Lexeme toProve found
 	ScopeTable# 1.2.1.1
 	1
@@ -1257,12 +1432,19 @@ Line# 70: Token <ID> Lexeme toProve found
 	10
 Line# 70: Token <LSQUARE> Lexeme [ found
 Line# 70: Token <RSQUARE> Lexeme ] found
+Error at line# 70: UNRECOGNIZED_CHAR  
 Line# 70: Token <ASSIGNOP> Lexeme = found
+Error at line# 70: UNRECOGNIZED_CHAR  
 Line# 70: Token <SINGLE LINE STRING> Lexeme "To prove \t" found
 Line# 70: Token <SEMICOLON> Lexeme ; found
+Error at line# 71: UNRECOGNIZED_CHAR 	
+Error at line# 71: UNRECOGNIZED_CHAR 	
 Line# 71: Token <RCURL> Lexeme } found
+Error at line# 72: UNRECOGNIZED_CHAR 	
 Line# 72: Token <RCURL> Lexeme } found
+Error at line# 73: UNRECOGNIZED_CHAR 	
 Line# 73: Token <CHAR> Lexeme char found
+Error at line# 73: UNRECOGNIZED_CHAR  
 Line# 73: Token <ID> Lexeme another found
 	ScopeTable# 1.2
 	1
@@ -1286,9 +1468,13 @@ Line# 73: Token <ID> Lexeme another found
 	8
 	9
 	10
+Error at line# 73: UNRECOGNIZED_CHAR  
 Line# 73: Token <ASSIGNOP> Lexeme = found
+Error at line# 73: UNRECOGNIZED_CHAR  
 Error at line# 73: UNFINISHED_STRING "polashi food fair ;
+Error at line# 74: UNRECOGNIZED_CHAR 	
 Line# 74: Token <CHAR> Lexeme char found
+Error at line# 74: UNRECOGNIZED_CHAR  
 Line# 74: Token <ID> Lexeme lonbgstring found
 	ScopeTable# 1.2
 	1
@@ -1314,10 +1500,14 @@ Line# 74: Token <ID> Lexeme lonbgstring found
 	10
 Line# 74: Token <LSQUARE> Lexeme [ found
 Line# 74: Token <RSQUARE> Lexeme ] found
+Error at line# 74: UNRECOGNIZED_CHAR  
 Line# 74: Token <ASSIGNOP> Lexeme = found
+Error at line# 74: UNRECOGNIZED_CHAR  
 Line# 74: Token <SINGLE LINE STRING> Lexeme "NEwlinw = \n, tab = \t, space =  , whatelse" found
 Line# 74: Token <SEMICOLON> Lexeme ; found
+Error at line# 75: UNRECOGNIZED_CHAR 	
 Line# 75: Token <CHAR> Lexeme char found
+Error at line# 75: UNRECOGNIZED_CHAR  
 Line# 75: Token <ID> Lexeme special found
 	ScopeTable# 1.2
 	1
@@ -1343,10 +1533,14 @@ Line# 75: Token <ID> Lexeme special found
 	10
 Line# 75: Token <LSQUARE> Lexeme [ found
 Line# 75: Token <RSQUARE> Lexeme ] found
+Error at line# 75: UNRECOGNIZED_CHAR  
 Line# 75: Token <ASSIGNOP> Lexeme = found
+Error at line# 75: UNRECOGNIZED_CHAR  
 Line# 75: Token <SINGLE LINE STRING> Lexeme " slash / backslash \\ quotes \' doublequote \" " found
 Line# 75: Token <SEMICOLON> Lexeme ; found
+Error at line# 77: UNRECOGNIZED_CHAR 	
 Line# 77: Token <CHAR> Lexeme char found
+Error at line# 77: UNRECOGNIZED_CHAR  
 Line# 77: Token <ID> Lexeme navid found
 	ScopeTable# 1.2
 	1
@@ -1370,8 +1564,11 @@ Line# 77: Token <ID> Lexeme navid found
 	8
 	9
 	10
+Error at line# 77: UNRECOGNIZED_CHAR  
 Line# 77: Token <ASSIGNOP> Lexeme = found
+Error at line# 77: UNRECOGNIZED_CHAR  
 Error at line# 77: UNFINISHED_STRING "treat\;
+Error at line# 78: UNRECOGNIZED_CHAR 	
 Line# 78: Token <ID> Lexeme dey found
 	ScopeTable# 1.2
 	1 --> (dey,ID)
@@ -1395,6 +1592,7 @@ Line# 78: Token <ID> Lexeme dey found
 	8
 	9
 	10
+Error at line# 79: UNRECOGNIZED_CHAR 	
 Line# 79: Token <ID> Lexeme na found
 	ScopeTable# 1.2
 	1 --> (dey,ID)
@@ -1419,10 +1617,13 @@ Line# 79: Token <ID> Lexeme na found
 	9
 	10
 Error at line# 79: UNFINISHED_STRING ";
+Error at line# 80: UNRECOGNIZED_CHAR 	
 Line# 80: Token <MULTI LINE COMMENT> Lexeme /* it is a multiline comment 
 	for the better understanding
 	anything */ found
+Error at line# 83: UNRECOGNIZED_CHAR 	
 Line# 83: Token <INT> Lexeme int found
+Error at line# 83: UNRECOGNIZED_CHAR  
 Line# 83: Token <ID> Lexeme n found
 	ScopeTable# 1.2
 	1 --> (dey,ID) --> (n,ID)
@@ -1446,34 +1647,54 @@ Line# 83: Token <ID> Lexeme n found
 	8
 	9
 	10
+Error at line# 83: UNRECOGNIZED_CHAR  
 Line# 83: Token <ASSIGNOP> Lexeme = found
+Error at line# 83: UNRECOGNIZED_CHAR  
 Line# 83: Token <CONST_INT> Lexeme 5 found
 Line# 83: Token <SEMICOLON> Lexeme ; found
+Error at line# 84: UNRECOGNIZED_CHAR 	
 Line# 84: Token <ID> Lexeme n found
 	n already exists in the current ScopeTable
+Error at line# 84: UNRECOGNIZED_CHAR  
 Line# 84: Token <ASSIGNOP> Lexeme = found
+Error at line# 84: UNRECOGNIZED_CHAR  
 Line# 84: Token <ID> Lexeme n found
 	n already exists in the current ScopeTable
+Error at line# 84: UNRECOGNIZED_CHAR  
 Line# 84: Token <ADDOP> Lexeme + found
+Error at line# 84: UNRECOGNIZED_CHAR  
 Line# 84: Token <CONST_INT> Lexeme 9 found
+Error at line# 84: UNRECOGNIZED_CHAR  
 Line# 84: Token <ADDOP> Lexeme - found
+Error at line# 84: UNRECOGNIZED_CHAR  
 Line# 84: Token <CONST_INT> Lexeme 8 found
 Line# 84: Token <SEMICOLON> Lexeme ; found
+Error at line# 85: UNRECOGNIZED_CHAR 	
 Line# 85: Token <ID> Lexeme n found
 	n already exists in the current ScopeTable
+Error at line# 85: UNRECOGNIZED_CHAR  
 Line# 85: Token <ASSIGNOP> Lexeme = found
+Error at line# 85: UNRECOGNIZED_CHAR  
 Line# 85: Token <ID> Lexeme n found
 	n already exists in the current ScopeTable
+Error at line# 85: UNRECOGNIZED_CHAR  
 Line# 85: Token <MULOP> Lexeme / found
+Error at line# 85: UNRECOGNIZED_CHAR  
 Line# 85: Token <CONST_INT> Lexeme 2 found
+Error at line# 85: UNRECOGNIZED_CHAR  
 Line# 85: Token <MULOP> Lexeme * found
+Error at line# 85: UNRECOGNIZED_CHAR  
 Line# 85: Token <CONST_INT> Lexeme 9 found
+Error at line# 85: UNRECOGNIZED_CHAR  
 Line# 85: Token <MULOP> Lexeme % found
+Error at line# 85: UNRECOGNIZED_CHAR  
 Line# 85: Token <CONST_INT> Lexeme 67 found
 Line# 85: Token <SEMICOLON> Lexeme ; found
+Error at line# 87: UNRECOGNIZED_CHAR 	
 Line# 87: Token <FOR> Lexeme for found
 Line# 87: Token <LPAREN> Lexeme ( found
 Line# 87: Token <INT> Lexeme int found
+Error at line# 87: UNRECOGNIZED_CHAR  
 Line# 87: Token <ID> Lexeme i found
 	ScopeTable# 1.2
 	1 --> (dey,ID) --> (n,ID)
@@ -1497,20 +1718,30 @@ Line# 87: Token <ID> Lexeme i found
 	8
 	9
 	10
+Error at line# 87: UNRECOGNIZED_CHAR  
 Line# 87: Token <ASSIGNOP> Lexeme = found
+Error at line# 87: UNRECOGNIZED_CHAR  
 Line# 87: Token <CONST_INT> Lexeme 0 found
+Error at line# 87: UNRECOGNIZED_CHAR  
 Line# 87: Token <SEMICOLON> Lexeme ; found
+Error at line# 87: UNRECOGNIZED_CHAR  
 Line# 87: Token <ID> Lexeme i found
 	i already exists in the current ScopeTable
 Line# 87: Token <RELOP> Lexeme < found
+Error at line# 87: UNRECOGNIZED_CHAR  
 Line# 87: Token <ID> Lexeme n found
 	n already exists in the current ScopeTable
 Line# 87: Token <SEMICOLON> Lexeme ; found
+Error at line# 87: UNRECOGNIZED_CHAR  
 Line# 87: Token <ID> Lexeme i found
 	i already exists in the current ScopeTable
 Line# 87: Token <INCOP> Lexeme ++ found
 Line# 87: Token <RPAREN> Lexeme ) found
+Error at line# 87: UNRECOGNIZED_CHAR  
 Line# 87: Token <LCURL> Lexeme { found
+Error at line# 88: UNRECOGNIZED_CHAR 	
+Error at line# 88: UNRECOGNIZED_CHAR 	
+Error at line# 88: UNRECOGNIZED_CHAR 	
 Line# 88: Token <ID> Lexeme printf found
 	ScopeTable# 1.2.2
 	1
@@ -1549,6 +1780,9 @@ Line# 88: Token <LPAREN> Lexeme ( found
 Line# 88: Token <SINGLE LINE STRING> Lexeme "CT!!!!!!!!!!" found
 Line# 88: Token <RPAREN> Lexeme ) found
 Line# 88: Token <SEMICOLON> Lexeme ; found
+Error at line# 89: UNRECOGNIZED_CHAR 	
+Error at line# 89: UNRECOGNIZED_CHAR 	
+Error at line# 89: UNRECOGNIZED_CHAR 	
 Line# 89: Token <IF> Lexeme if found
 Line# 89: Token <LPAREN> Lexeme ( found
 Line# 89: Token <ID> Lexeme n found
@@ -1587,66 +1821,114 @@ Line# 89: Token <ID> Lexeme n found
 	10
 Line# 89: Token <RELOP> Lexeme > found
 Line# 89: Token <CONST_INT> Lexeme 6 found
+Error at line# 89: UNRECOGNIZED_CHAR  
 Line# 89: Token <LOGICOP> Lexeme && found
+Error at line# 89: UNRECOGNIZED_CHAR  
 Line# 89: Token <ID> Lexeme n found
 	n already exists in the current ScopeTable
+Error at line# 89: UNRECOGNIZED_CHAR  
 Line# 89: Token <RELOP> Lexeme <= found
+Error at line# 89: UNRECOGNIZED_CHAR  
 Line# 89: Token <CONST_INT> Lexeme 4 found
+Error at line# 89: UNRECOGNIZED_CHAR  
 Line# 89: Token <LOGICOP> Lexeme || found
+Error at line# 89: UNRECOGNIZED_CHAR  
 Line# 89: Token <ID> Lexeme n found
 	n already exists in the current ScopeTable
 Line# 89: Token <RELOP> Lexeme != found
 Line# 89: Token <CONST_INT> Lexeme 64 found
+Error at line# 89: UNRECOGNIZED_CHAR  
 Line# 89: Token <LOGICOP> Lexeme && found
+Error at line# 89: UNRECOGNIZED_CHAR  
 Line# 89: Token <ID> Lexeme n found
 	n already exists in the current ScopeTable
+Error at line# 89: UNRECOGNIZED_CHAR  
 Line# 89: Token <RELOP> Lexeme == found
+Error at line# 89: UNRECOGNIZED_CHAR  
 Line# 89: Token <CONST_INT> Lexeme 8 found
 Line# 89: Token <RPAREN> Lexeme ) found
+Error at line# 89: UNRECOGNIZED_CHAR  
 Line# 89: Token <CONTINUE> Lexeme continue found
 Line# 89: Token <SEMICOLON> Lexeme ; found
+Error at line# 90: UNRECOGNIZED_CHAR 	
+Error at line# 90: UNRECOGNIZED_CHAR 	
+Error at line# 90: UNRECOGNIZED_CHAR 	
 Line# 90: Token <ELSE> Lexeme else found
+Error at line# 90: UNRECOGNIZED_CHAR  
 Line# 90: Token <BREAK> Lexeme break found
 Line# 90: Token <SEMICOLON> Lexeme ; found
+Error at line# 91: UNRECOGNIZED_CHAR 	
+Error at line# 91: UNRECOGNIZED_CHAR 	
+Error at line# 91: UNRECOGNIZED_CHAR 	
 Line# 91: Token <ID> Lexeme n found
 	n already exists in the current ScopeTable
 Line# 91: Token <INCOP> Lexeme -- found
 Line# 91: Token <SEMICOLON> Lexeme ; found
+Error at line# 92: UNRECOGNIZED_CHAR 	
+Error at line# 92: UNRECOGNIZED_CHAR 	
+Error at line# 92: UNRECOGNIZED_CHAR 	
 Line# 92: Token <ID> Lexeme n found
 	n already exists in the current ScopeTable
+Error at line# 92: UNRECOGNIZED_CHAR  
 Line# 92: Token <ASSIGNOP> Lexeme = found
+Error at line# 92: UNRECOGNIZED_CHAR  
 Line# 92: Token <NOT> Lexeme ! found
 Line# 92: Token <ID> Lexeme n found
 	n already exists in the current ScopeTable
 Line# 92: Token <SEMICOLON> Lexeme ; found
+Error at line# 93: UNRECOGNIZED_CHAR 	
+Error at line# 93: UNRECOGNIZED_CHAR 	
+Error at line# 93: UNRECOGNIZED_CHAR 	
 Line# 93: Token <ID> Lexeme n found
 	n already exists in the current ScopeTable
+Error at line# 93: UNRECOGNIZED_CHAR  
 Line# 93: Token <ASSIGNOP> Lexeme = found
+Error at line# 93: UNRECOGNIZED_CHAR  
 Line# 93: Token <ID> Lexeme n found
 	n already exists in the current ScopeTable
+Error at line# 93: UNRECOGNIZED_CHAR  
 Line# 93: Token <BITOP> Lexeme & found
+Error at line# 93: UNRECOGNIZED_CHAR  
 Line# 93: Token <CONST_INT> Lexeme 8 found
 Line# 93: Token <SEMICOLON> Lexeme ; found
+Error at line# 93: UNRECOGNIZED_CHAR  
+Error at line# 94: UNRECOGNIZED_CHAR 	
+Error at line# 94: UNRECOGNIZED_CHAR 	
+Error at line# 94: UNRECOGNIZED_CHAR 	
 Line# 94: Token <ID> Lexeme n found
 	n already exists in the current ScopeTable
+Error at line# 94: UNRECOGNIZED_CHAR  
 Line# 94: Token <ASSIGNOP> Lexeme = found
+Error at line# 94: UNRECOGNIZED_CHAR  
 Line# 94: Token <ID> Lexeme n found
 	n already exists in the current ScopeTable
+Error at line# 94: UNRECOGNIZED_CHAR  
 Line# 94: Token <BITOP> Lexeme | found
+Error at line# 94: UNRECOGNIZED_CHAR  
 Line# 94: Token <LPAREN> Lexeme ( found
 Line# 94: Token <CONST_INT> Lexeme 3 found
+Error at line# 94: UNRECOGNIZED_CHAR  
 Line# 94: Token <BITOP> Lexeme ^ found
+Error at line# 94: UNRECOGNIZED_CHAR  
 Line# 94: Token <CONST_INT> Lexeme 1 found
 Line# 94: Token <RPAREN> Lexeme ) found
 Line# 94: Token <SEMICOLON> Lexeme ; found
+Error at line# 97: UNRECOGNIZED_CHAR 	
 Line# 97: Token <RCURL> Lexeme } found
+Error at line# 98: UNRECOGNIZED_CHAR 	
 Line# 98: Token <SWITCH> Lexeme switch found
 Line# 98: Token <LPAREN> Lexeme ( found
 Line# 98: Token <ID> Lexeme n found
 	n already exists in the current ScopeTable
 Line# 98: Token <RPAREN> Lexeme ) found
+Error at line# 98: UNRECOGNIZED_CHAR  
+Error at line# 99: UNRECOGNIZED_CHAR 	
+Error at line# 99: UNRECOGNIZED_CHAR  
 Line# 99: Token <LCURL> Lexeme { found
+Error at line# 100: UNRECOGNIZED_CHAR 	
+Error at line# 100: UNRECOGNIZED_CHAR 	
 Line# 100: Token <CASE> Lexeme case found
+Error at line# 100: UNRECOGNIZED_CHAR  
 Line# 100: Token <CONST_INT> Lexeme 1 found
 Error at line# 100: UNRECOGNIZED_CHAR :
 Line# 100: Token <LCURL> Lexeme { found
@@ -1700,7 +1982,10 @@ Line# 100: Token <SINGLE LINE STRING> Lexeme "Helllo1" found
 Line# 100: Token <RPAREN> Lexeme ) found
 Line# 100: Token <SEMICOLON> Lexeme ; found
 Line# 100: Token <RCURL> Lexeme } found
+Error at line# 101: UNRECOGNIZED_CHAR 	
+Error at line# 101: UNRECOGNIZED_CHAR 	
 Line# 101: Token <CASE> Lexeme case found
+Error at line# 101: UNRECOGNIZED_CHAR  
 Line# 101: Token <CONST_INT> Lexeme 6 found
 Error at line# 101: UNRECOGNIZED_CHAR :
 Line# 101: Token <LCURL> Lexeme { found
@@ -1754,6 +2039,8 @@ Line# 101: Token <SINGLE LINE STRING> Lexeme "6\n" found
 Line# 101: Token <RPAREN> Lexeme ) found
 Line# 101: Token <SEMICOLON> Lexeme ; found
 Line# 101: Token <RCURL> Lexeme } found
+Error at line# 102: UNRECOGNIZED_CHAR 	
+Error at line# 102: UNRECOGNIZED_CHAR 	
 Line# 102: Token <DEFAULT> Lexeme default found
 Error at line# 102: UNRECOGNIZED_CHAR :
 Line# 102: Token <LCURL> Lexeme { found
@@ -1807,9 +2094,13 @@ Line# 102: Token <SINGLE LINE STRING> Lexeme "Nothin\tg" found
 Line# 102: Token <RPAREN> Lexeme ) found
 Line# 102: Token <SEMICOLON> Lexeme ; found
 Line# 102: Token <RCURL> Lexeme } found
+Error at line# 104: UNRECOGNIZED_CHAR 	
 Line# 104: Token <RCURL> Lexeme } found
+Error at line# 105: UNRECOGNIZED_CHAR 	
 Line# 105: Token <DO> Lexeme do found
 Line# 105: Token <LCURL> Lexeme { found
+Error at line# 106: UNRECOGNIZED_CHAR 	
+Error at line# 106: UNRECOGNIZED_CHAR 	
 Line# 106: Token <ID> Lexeme nothing found
 	ScopeTable# 1.2.4
 	1
@@ -1845,7 +2136,10 @@ Line# 106: Token <ID> Lexeme nothing found
 	9
 	10
 Line# 106: Token <SEMICOLON> Lexeme ; found
+Error at line# 107: UNRECOGNIZED_CHAR 	
+Error at line# 107: UNRECOGNIZED_CHAR 	
 Line# 107: Token <INT> Lexeme int found
+Error at line# 107: UNRECOGNIZED_CHAR  
 Line# 107: Token <ID> Lexeme h found
 	ScopeTable# 1.2.4
 	1
@@ -1880,11 +2174,16 @@ Line# 107: Token <ID> Lexeme h found
 	8
 	9
 	10
+Error at line# 107: UNRECOGNIZED_CHAR  
 Line# 107: Token <ASSIGNOP> Lexeme = found
+Error at line# 107: UNRECOGNIZED_CHAR  
 Line# 107: Token <CONST_INT> Lexeme 1 found
+Error at line# 107: UNRECOGNIZED_CHAR  
 Line# 107: Token <BITOP> Lexeme << found
+Error at line# 107: UNRECOGNIZED_CHAR  
 Line# 107: Token <CONST_INT> Lexeme 2 found
 Line# 107: Token <SEMICOLON> Lexeme ; found
+Error at line# 109: UNRECOGNIZED_CHAR 	
 Line# 109: Token <RCURL> Lexeme } found
 Line# 109: Token <WHILE> Lexeme while found
 Line# 109: Token <LPAREN> Lexeme ( found
@@ -1893,7 +2192,9 @@ Line# 109: Token <ID> Lexeme n found
 Line# 109: Token <RELOP> Lexeme == found
 Line# 109: Token <CONST_INT> Lexeme 6 found
 Line# 109: Token <RPAREN> Lexeme ) found
+Error at line# 110: UNRECOGNIZED_CHAR 	
 Line# 110: Token <INT> Lexeme int found
+Error at line# 110: UNRECOGNIZED_CHAR  
 Line# 110: Token <ID> Lexeme g found
 	ScopeTable# 1.2
 	1 --> (dey,ID) --> (n,ID)
@@ -1917,10 +2218,14 @@ Line# 110: Token <ID> Lexeme g found
 	8
 	9
 	10
+Error at line# 110: UNRECOGNIZED_CHAR  
 Line# 110: Token <ASSIGNOP> Lexeme = found
+Error at line# 110: UNRECOGNIZED_CHAR  
 Line# 110: Token <CONST_FLOAT> Lexeme 1E43 found
 Line# 110: Token <SEMICOLON> Lexeme ; found
+Error at line# 111: UNRECOGNIZED_CHAR 	
 Line# 111: Token <FLOAT> Lexeme float found
+Error at line# 111: UNRECOGNIZED_CHAR  
 Line# 111: Token <ID> Lexeme t found
 	ScopeTable# 1.2
 	1 --> (dey,ID) --> (n,ID)
@@ -1944,10 +2249,14 @@ Line# 111: Token <ID> Lexeme t found
 	8
 	9
 	10
+Error at line# 111: UNRECOGNIZED_CHAR  
 Line# 111: Token <ASSIGNOP> Lexeme = found
+Error at line# 111: UNRECOGNIZED_CHAR  
 Error at line# 111: TOO_MANY_DECIMAL_POINTS 1.2.2E34
 Line# 111: Token <SEMICOLON> Lexeme ; found
+Error at line# 112: UNRECOGNIZED_CHAR 	
 Line# 112: Token <FLOAT> Lexeme float found
+Error at line# 112: UNRECOGNIZED_CHAR  
 Line# 112: Token <ID> Lexeme b found
 	ScopeTable# 1.2
 	1 --> (dey,ID) --> (n,ID)
@@ -1971,14 +2280,20 @@ Line# 112: Token <ID> Lexeme b found
 	8
 	9
 	10
+Error at line# 112: UNRECOGNIZED_CHAR  
 Line# 112: Token <ASSIGNOP> Lexeme = found
+Error at line# 112: UNRECOGNIZED_CHAR  
 Error at line# 112: ILLFORMED_NUMBER 1E.3
 Line# 112: Token <SEMICOLON> Lexeme ; found
+Error at line# 114: UNRECOGNIZED_CHAR 	
+Error at line# 114: UNRECOGNIZED_CHAR 	
 Line# 114: Token <RETURN> Lexeme return found
 Line# 114: Token <SEMICOLON> Lexeme ; found
+Error at line# 116: UNRECOGNIZED_CHAR 	
 Line# 116: Token <RCURL> Lexeme } found
 Error at line# 117: EMPTY_CONST_CHAR ''
 Error at line# 117: UNFINISHED_CONST_CHAR '
+Error at line# 118: UNRECOGNIZED_CHAR  
 Error at line# 118: UNRECOGNIZED_CHAR @
 Error at line# 119: TOO_MANY_DECIMAL_POINTS 1.2.3E13
 Line# 119: Token <ID> Lexeme E38 found
@@ -2007,4 +2322,4 @@ i told you
 	9
 	10
 Total lines: 121
-Total errors: 31
+Total errors: 346
