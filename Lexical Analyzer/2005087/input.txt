@@ -1,121 +1,161 @@
-void main() {
-	int x, y;
-	x = x + 1;
-	y = y * 2;
-	
-	float f;
-	f = f - 3.14;
-	f = f * 2.81E0;
-		u=v<<2>>3^4
-	
-	 char ch = 'z';
+// C++ program for the above approach
+#include <bits/stdc++.h>
+using namespace std;
 
-ch = '\t';
-	
-	char str[] = "hello\tworld";
-	char str2[] = "Hello my friends from \n there \t also rem - \" surprise \" - for your good";
-	char str[] = " forgot to tell 4\\2=2; " \\hehe
-	// ebar ki likhbo
-	// accha idea
-	int anik = 1009099;
-	int kabirBrothers = 70sd;
-	int khilgaon, malibah;
-	float suhrawardy;
-	malibah = 0;
-	float t = 1.2.3
-	int time = 3;
-	bool Abid;
-	if(time < 10pm) {
-		char char1[] = "Abid not home ||";
-			printf("%d", char);
+// Class for each node in the Binomial Heap
+class Node {
+public:
+	int value;
+	Node* parent;
+	vector<Node*> children;
+	int degree;
+	bool marked;
 
+	Node(int val) {
+		value = val;
+		parent = nullptr;
+		children.clear();
+		degree = 0;
+		marked = false;
 	}
-	/* we arew in a multi lines
-	command
-	*/
-	// not going to put \
-	oops
-	// not his time
-	itsBecameAnID
-	
-	// December 7, 2023
-	printf("The day\
-	was\
-	sunny");
-	
-	/** ** CSE 310
-	*** Compiler Sessional ***/
-	// It is a\
-	fun course
-	return 0;
-}
-double solve() {
-	char tias = '\';
-	double miraj = 1.2.345;
-	float home = 192.168.0.1;
-	float tf = 1E10.7;
-	int 12abcd;
-	char # = @;
-	char bruceWayne[] = "rude";
-	char _ = 'ab';
-	char a23a_ = 'a
-	char ct = '
-	char golam = 'love northbengal';
-	char ____etaki__ = '\';
-	char janina = '';
-	if(jodiIsHoy) {
-		But kintu what ki;
-		  if(emni)
-		{
-			char toProve[] = "To prove \t";
+};
+
+// Class for the Binomial Heap data structure
+class BinomialHeap {
+public:
+	vector<Node*> trees;
+	Node* min_node;
+	int count;
+
+	// Constructor for the Binomial Heap
+	BinomialHeap() {
+		min_node = nullptr;
+		count = 0;
+		trees.clear();
+	}
+
+	// Check if the heap is empty
+	bool is_empty() {
+		return min_node == nullptr;
+	}
+
+	// Insert a new value into the heap
+	void insert(int value) {
+		Node* node = new Node(value);
+		BinomialHeap heap;
+		heap.trees.push_back(node);
+		merge(heap);
+	}
+
+	// Get the minimum value in the heap
+	int get_min() {
+		return min_node->value;
+	}
+
+	// Extract the minimum value from the heap
+	int extract_min() {
+		Node* minNode = min_node;
+		trees.erase(remove(trees.begin(), trees.end(), minNode), trees.end());
+		BinomialHeap heap;
+		heap.trees = minNode->children;
+		merge(heap);
+		_find_min();
+		count -= 1;
+		return minNode->value;
+	}
+
+	// Merge two binomial heaps
+	void merge(BinomialHeap& other_heap) {
+		trees.insert(trees.end(), other_heap.trees.begin(), other_heap.trees.end());
+		count += other_heap.count;
+		_find_min();
+	}
+
+	// Find the minimum value in the heap
+	void _find_min() {
+		min_node = nullptr;
+		for (Node* tree : trees) {
+			if (min_node == nullptr || tree->value < min_node->value) {
+				min_node = tree;
+			}
 		}
 	}
-	char another = "polashi food fair ;
-	char lonbgstring[] = "NEwlinw = \n, tab = \t, space =  , whatelse";
-	char special[] = " slash / backslash \\ quotes \' doublequote \" ";
 
-	char navid = "treat\;
-	dey
-	na";
-	/* it is a multiline comment 
-	for the better understanding
-	anything */
-	int n = 5;
-	n = n + 9 - 8;
-	n = n / 2 * 9 % 67;
-
-	for(int i = 0 ; i< n; i++) {
-			printf("CT!!!!!!!!!!");
-			if(n>6 && n <= 4 || n!=64 && n == 8) continue;
-			else break;
-			n--;
-			n = !n;
-			n = n & 8; 
-			n = n | (3 ^ 1);
-
-
+	// Decrease the key of a node
+	void decrease_key(Node* node, int new_value) {
+		if (new_value > node->value) {
+			throw invalid_argument("New value is greater than the current value");
+		}
+		node->value = new_value;
+		_bubble_up(node);
 	}
-	switch(n) 
-	 {
-		case 1:{printf("Helllo1");}
-		case 6:{printf("6\n");}
-		default:{printf("Nothin\tg");}
 
+	// Delete a specific node from the heap
+	void delete_node(Node* node) {
+		decrease_key(node, INT_MIN);
+		extract_min();
 	}
-	do{
-		nothing;
-		int h = 1 << 2;
 
-	}while(n==6)
-	int g = 1E43;
-	float t = 1.2.2E34;
-	float b = 1E.3;
-
-		return;
-
+	// Perform the bubbling up operation
+	void _bubble_up(Node* node) {
+		Node* parent = node->parent;
+		while (parent != nullptr && node->value < parent->value) {
+			swap(node->value, parent->value);
+			node = parent;
+			parent = node->parent;
+		}
 	}
-'''
- @
-1.2.3E13E38
-/* not goiong to finsh this
-i told you
+
+	// Link two trees together
+	void _link(Node* tree1, Node* tree2) {
+		if (tree1->value > tree2->value) {
+			swap(tree1, tree2);
+		}
+		tree2->parent = tree1;
+		tree1->children.push_back(tree2);
+		tree1->degree += 1;
+	}
+
+	// Consolidate the trees in the heap
+	void _consolidate() {
+		int max_degree = static_cast<int>(floor(log2(count))) + 1;
+		vector<Node*> degree_to_tree(max_degree + 1, nullptr);
+
+		while (!trees.empty()) {
+			Node* current = trees[0];
+			trees.erase(trees.begin());
+			int degree = current->degree;
+			while (degree_to_tree[degree] != nullptr) {
+				Node* other = degree_to_tree[degree];
+				degree_to_tree[degree] = nullptr;
+				if (current->value < other->value) {
+					_link(current, other);
+				} else {
+					_link(other, current);
+					current = other;
+				}
+				degree++;
+			}
+			degree_to_tree[degree] = current;
+		}
+
+		min_node = nullptr;
+		trees.clear();
+		for (Node* tree : degree_to_tree) {
+			if (tree != nullptr) {
+				trees.push_back(tree);
+				if (min_node == nullptr || tree->value < min_node->value) {
+					min_node = tree;
+				}
+			}
+		}
+	}
+
+	// Get the size of\
+	 the heap
+	int size() {
+		return count;
+	}
+};
+
+// This code is contributed by Susobhan Akhuli

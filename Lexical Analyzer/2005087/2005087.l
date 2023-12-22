@@ -3,16 +3,21 @@
 %x SLCOMMENT
 %x MLCOMMENT
 %x STRING
+%x INDENTATION
 
 %{
 #include<bits/stdc++.h>
-#include "SymbolTable.cpp"
-#include "LexerUtility.cpp"
+#include "2005087_SymbolTable.cpp"
+#include "2005087_LexerUtility.cpp"
 using namespace std;
 
 SymbolTable sTable(10);
 LexerUtility lexUtil;
 int startLineNo ;
+int tabNeeded=0;
+int tabGot=0;
+bool tabDeleted=false;
+
 std::string singlelineComment = "";
 std::string multilineComment = "";
 std::string String="";
@@ -27,8 +32,8 @@ std::string stringToken="";
 	else if (c == 'v') return '\v';
 	else if (c == 'r') return '\r';
 	else if (c == '0') return '\0';
-    else if(c=='\"') return '\"';
-    else if(c=='\'') return '\'';
+    else if (c=='\"') return '\"';
+    else if (c=='\'') return '\'';
     else if (c == '\\') return '\\';
 	else return c;
     }
@@ -48,39 +53,59 @@ std::string stringToken="";
     }
     return ret;
 }
-  string ignoreNextLine(string s){
-       string ret = ""; 
-       int i=0;
-       while(i<s.size()){
-        if(s[i]=='\\' && s[i+1]=='\n'){
-            i+=2;
-        }
-        else{
-            ret+=s[i];
-            i++;
-        }
-       }
-       return ret;
-    }
+
 %}
 
 KEYWORD (if|else|for|while|do|break|int|char|float|double|void|return|switch|case|default|continue)
-WHITESPACE [\n\f\r\v]+ 
+SPACE [ ]
+NEWLINE [\n]
+TAB [\t]
+WHITESPACE [ \t\f\r\v]+ 
 SPECIAL [ntafbvr0\'\"\\]
-LETTER [a-zA-Z]
-WORD {LETTER}+
 DIGIT [0-9]
 DIGITS {DIGIT}+
 FLOAT {DIGITS}(\.{DIGITS})?([eE][-+]?{DIGITS})?
 CHAR ((\\{SPECIAL})|([^\\\'\n\r]))
 IDENTIFIER [a-zA-Z_][a-zA-Z0-9_]*
 INVALID_ID [0-9][_a-zA-Z0-9]+
-TOO_MANY_DECIMAL_POINTS ([-+]?({DIGIT}*\.{DIGIT}*)+([eE][-+]?{DIGIT}*)?)
+TOO_MANY_DECIMAL_POINTS ([-+]?({DIGIT}+\.{DIGIT}*)+([eE][-+]?{DIGIT}*)?)
 ILLFORMED_NUMBER {DIGITS}(\.[0-9]*)?[Ee][-+\.0-9]+[-+Ee\.0-9]*
 
 
 
 %%
+{NEWLINE} {
+    tabDeleted=false;
+    BEGIN(INDENTATION); 
+}
+<INDENTATION>[ \t]*(\r)?\n {
+
+}
+<INDENTATION>{TAB} {
+    tabGot++;
+}
+<INDENTATION>{SPACE}+ {
+    lexUtil.printWarning(": Warning, tab requrired but got space.", yylineno);
+}
+
+<INDENTATION>[^\t\n] {
+    int len = strlen(yytext);
+    char lastChar = yytext[len - 1];
+    if(lastChar=='}') {
+        tabNeeded--;
+        tabDeleted=true;
+    }
+    yyless(len - 1);
+    if (tabGot != tabNeeded) {
+        lexUtil.printWarning(": warning, "+std::to_string(tabNeeded) + " of tabs needed but got " + std::to_string(tabGot) + " tabs.", yylineno);
+    }
+    tabGot = 0;
+    BEGIN(INITIAL);
+    
+}
+
+
+
 {KEYWORD} {
     lexUtil.printKeyword(yytext,yylineno);
 }
@@ -128,7 +153,6 @@ else{
 \'{CHAR}? {
 string current = yytext;
 current.erase(current.begin()); 
-//current = currentCharacter(current);
 lexUtil.printError("UNFINISHED_CONST_CHAR", "\'" + current,yylineno);
 }
 
@@ -146,9 +170,14 @@ lexUtil.printError("UNFINISHED_CONST_CHAR", "\'" + current,yylineno);
 "("|")"|"{"|"}"|"["|"]"|","|";" {
     if(yytext[0]=='{'){
         sTable.EnterScope();
+        tabNeeded++;
     }
     if(yytext[0]=='}'){
         sTable.ExitScope();
+        if(!tabDeleted){
+            tabNeeded--;
+        }
+        
     }
     lexUtil.printPunctuation(yytext,yylineno);
 }
@@ -280,7 +309,7 @@ int main(int argc, char* argv[]) {
     sTable.PrintAllScope(lexUtil.getLogFout());
     lexUtil.getLogFout()<<"Total lines: "<<yylineno<<endl;
     lexUtil.getLogFout()<<"Total errors: "<<lexUtil.getErrorCount()<<endl;
-
+    lexUtil.getLogFout()<<"Total warnings: "<<lexUtil.getWarningCount()<<endl;
 
     return EXIT_SUCCESS;
 }

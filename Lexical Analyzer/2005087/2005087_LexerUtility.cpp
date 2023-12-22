@@ -5,13 +5,15 @@ class LexerUtility
     std::ofstream logFout;
     std::ofstream tokenFout;
     int errorCount;
+    int warnCount;
 
 public:
     LexerUtility()
     {
-        logFout.open("log.txt");
-        tokenFout.open("token.txt");
+        logFout.open("2005087_log.txt");
+        tokenFout.open("2005087_token.txt");
         errorCount = 0;
+        warnCount = 0;
     }
     ofstream& getLogFout(){
         return logFout;
@@ -80,7 +82,14 @@ public:
         errorCount++;
         logFout << "Error at line# " << lineNo << ": " << error << " " << text << std::endl;
     }
+    void printWarning(std::string warning, int lineNo){
+        warnCount++;
+        logFout << "Line# " << lineNo  << warning  << std::endl;
+    }
     int getErrorCount(){
         return errorCount;
+    }
+    int getWarningCount(){
+        return warnCount;
     }
 };

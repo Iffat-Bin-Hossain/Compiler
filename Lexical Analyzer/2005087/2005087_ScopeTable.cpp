@@ -1,5 +1,5 @@
 #include <bits/stdc++.h>
-#include "SymbolInfo.cpp"
+#include "2005087_SymbolInfo.cpp"
 using namespace std;
 
 static unsigned long long sdbm(string str)

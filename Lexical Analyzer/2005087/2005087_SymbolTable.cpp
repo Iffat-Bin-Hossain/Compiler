@@ -1,4 +1,4 @@
-#include "ScopeTable.cpp"
+#include "2005087_ScopeTable.cpp"
 class SymbolTable
 {
 private:
@@ -11,7 +11,7 @@ public:
         this->bucketSize = bucketSize;
         currentScope = new ScopeTable(bucketSize);
         currentScope->setId("1");
-        // cout<< "\tScopeTable# " << currentScope->getId() << " created" << endl;
+
     }
     ScopeTable *getCurrentScope() { return currentScope; }
     void EnterScope()
@@ -21,11 +21,10 @@ public:
         currentScope->setScopeNo(currentScope->getScopeNo() + 1);
         newScope->setId(currentScope->getId() + "." + to_string(currentScope->getScopeNo()));
         currentScope = newScope;
-        // cout << "\tScopeTable# " << currentScope->getId() << " created" << endl;
+
     }
     void ExitScope()
     {
-        // cout<<"\tScopeTable# "<<currentScope->getId()<<" deleted"<<endl;
         if (currentScope->getId() != "1")
         {
             ScopeTable *temp = currentScope->getParentScope();
