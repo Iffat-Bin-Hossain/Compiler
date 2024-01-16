@@ -8,12 +8,15 @@
 %{
 #include<bits/stdc++.h>
 #include "2005087_SymbolTable.cpp"
-#include "2005087_LexerUtility.cpp"
+#include "2005087_Utility.cpp"
+#include "2005087_Node.cpp"
+#include "y.tab.h"
 using namespace std;
 
-SymbolTable sTable(10);
-LexerUtility lexUtil;
-int startLineNo ;
+extern SymbolTable sTable;
+extern Utility util;
+extern YYSTYPE yylval;
+int startLineNo;
 int tabNeeded=0;
 int tabGot=0;
 bool tabDeleted=false;
@@ -85,7 +88,7 @@ ILLFORMED_NUMBER {DIGITS}(\.[0-9]*)?[Ee][-+\.0-9]+[-+Ee\.0-9]*
     tabGot++;
 }
 <INDENTATION>{SPACE}+ {
-    lexUtil.printWarning(": Warning, tab requrired but got space.", yylineno);
+    util.printWarning(": Warning, tab requrired but got space.", yylineno);
 }
 
 <INDENTATION>[^\t\n] {
@@ -97,7 +100,7 @@ ILLFORMED_NUMBER {DIGITS}(\.[0-9]*)?[Ee][-+\.0-9]+[-+Ee\.0-9]*
     }
     yyless(len - 1);
     if (tabGot != tabNeeded) {
-        lexUtil.printWarning(": warning, "+std::to_string(tabNeeded) + " of tabs needed but got " + std::to_string(tabGot) + " tabs.", yylineno);
+        util.printWarning(": warning, "+std::to_string(tabNeeded) + " of tabs needed but got " + std::to_string(tabGot) + " tabs.", yylineno);
     }
     tabGot = 0;
     BEGIN(INITIAL);
@@ -107,29 +110,93 @@ ILLFORMED_NUMBER {DIGITS}(\.[0-9]*)?[Ee][-+\.0-9]+[-+Ee\.0-9]*
 
 
 {KEYWORD} {
-    lexUtil.printKeyword(yytext,yylineno);
+    util.printKeyword(yytext,yylineno);
+     if(yytext=="if"){
+        yylval.node=new Node(new SymbolInfo(yytext,"IF"));
+        return IF;
+     }
+     else if(yytext=="else"){
+        yylval.node=new Node(new SymbolInfo(yytext,"ELSE"));
+        return ELSE;
+     }
+     else if(yytext=="for"){
+        yylval.node=new Node(new SymbolInfo(yytext,"FOR"));
+        return FOR;
+     }
+     else if(yytext=="while"){
+        yylval.node=new Node(new SymbolInfo(yytext,"WHILE"));
+        return WHILE;
+     }
+     else if(yytext=="do"){
+        yylval.node=new Node(new SymbolInfo(yytext,"DO"));
+        return DO;
+     }
+     else if(yytext=="break"){
+        yylval.node=new Node(new SymbolInfo(yytext,"BREAK"));
+        return BREAK;
+     }
+     else if(yytext=="int"){
+        yylval.node=new Node(new SymbolInfo(yytext,"INT"));
+        return INT;
+     }
+     else if(yytext=="char"){
+        yylval.node=new Node(new SymbolInfo(yytext,"CHAR"));
+        return CHAR;
+     }
+     else if(yytext=="float"){
+        yylval.node=new Node(new SymbolInfo(yytext,"FLOAT"));
+        return FLOAT;
+     }
+     else if(yytext=="double"){
+        yylval.node=new Node(new SymbolInfo(yytext,"DOUBLE"));
+        return DOUBLE;
+     }
+     else if(yytext=="void"){
+        yylval.node=new Node(new SymbolInfo(yytext,"VOID"));
+        return VOID;
+     }
+     else if(yytext=="return"){
+        yylval.node=new Node(new SymbolInfo(yytext,"RETURN"));
+        return RETURN;  
+     }
+      else if(yytext=="switch"){
+        yylval.node=new Node(new SymbolInfo(yytext,"SWITCH"));
+        return SWITCH;
+     }
+      else if(yytext=="case"){
+        yylval.node=new Node(new SymbolInfo(yytext,"CASE"));
+        return CASE;
+     }
+      else if(yytext=="default"){
+        yylval.node=new Node(new SymbolInfo(yytext,"DEFAULT"));
+        return DEFAULT;
+     }
+     else if(yytext=="continue"){
+        yylval.node=new Node(new SymbolInfo(yytext,"CONTINUE"));
+        return CONTINUE;
+     }
+     else{
+        yylval.node=new Node(new SymbolInfo(yytext,"PRINTLN"));
+        return PRINTLN;
+     }
 }
 
 {IDENTIFIER} {
-lexUtil.printAnother("ID",yytext,yylineno);
-lexUtil.printToken("ID",yytext);
-SymbolInfo *sInfo=new SymbolInfo(yytext,"ID");
-if(sTable.Insert(sInfo)){
-    sTable.PrintAllScope(lexUtil.getLogFout());
-    }
-else{
-        lexUtil.getLogFout()<<'\t'<<yytext<<" already exists in the current ScopeTable"<<endl;
-    }
+util.printAnother("ID",yytext,yylineno);
+yylval.node=new Node(new SymbolInfo(yytext,"ID"));
+return ID;
 }
 
 {DIGITS} {
-    lexUtil.printAnother("CONST_INT",yytext,yylineno); 
-    lexUtil.printToken("CONST_INT",yytext);
+    util.printAnother("CONST_INT",yytext,yylineno); 
+    yylval.node=new Node(new SymbolInfo(yytext,"CONST_INT"),"int");
+    return CONST_INT;
 }
 
 {FLOAT} {
-    lexUtil.printAnother("CONST_FLOAT",yytext,yylineno);
-    lexUtil.printToken("CONST_FLOAT",yytext);
+    util.printAnother("CONST_FLOAT",yytext,yylineno);
+    yylval.node=new Node(new SymbolInfo(yytext,"CONST_FLOAT"),"float");
+    return CONST_FLOAT;
 }
 
 \'{CHAR}*\' {
@@ -138,14 +205,13 @@ else{
     current.pop_back(); 
     current=currentCharacter(current);
     if(current.length()==0){
-        lexUtil.printError("EMPTY_CONST_CHAR","\'"+current+"\'",yylineno);
+        util.printError("EMPTY_CONST_CHAR","\'"+current+"\'",yylineno);
     }
     else if(current.length()==1){
-        lexUtil.printAnother("CONST_CHAR",current,yylineno);
-        lexUtil.printToken("CONST_CHAR",current);
+        util.printAnother("CONST_CHAR",current,yylineno);
     }
     else{
-         lexUtil.printError("MULTICHAR_CONST_CHAR","\'"+ current+"\'", yylineno);
+         util.printError("MULTICHAR_CONST_CHAR","\'"+ current+"\'", yylineno);
     }
 
 }
@@ -153,33 +219,79 @@ else{
 \'{CHAR}? {
 string current = yytext;
 current.erase(current.begin()); 
-lexUtil.printError("UNFINISHED_CONST_CHAR", "\'" + current,yylineno);
+util.printError("UNFINISHED_CONST_CHAR", "\'" + current,yylineno);
 }
 
 
-"+"|"-" {lexUtil.printOperator("ADDOP",yytext,yylineno);}
-"*"|"/"|"%"	{lexUtil.printOperator("MULOP",yytext,yylineno);}
-"++"|"--" {lexUtil.printOperator("INCOP",yytext,yylineno);}
-"<"|">"|"<="|">="|"=="|"!=" {lexUtil.printOperator("RELOP",yytext,yylineno);}
-"=" {lexUtil.printOperator("ASSIGNOP",yytext,yylineno);}
-"&&"|"||" {lexUtil.printOperator("LOGICOP",yytext,yylineno);}
-"&"|"|"|"^"|"<<"|">>" {lexUtil.printOperator("BITOP",yytext,yylineno);}
-"!" {lexUtil.printOperator("NOT",yytext,yylineno);}
+"+"|"-" {util.printOperator("ADDOP",yytext,yylineno);
+yylval.node=new Node(new SymbolInfo(yytext,"ADDOP")); 
+return ADDOP;}
+"*"|"/"|"%"	{util.printOperator("MULOP",yytext,yylineno);
+yylval.node=new Node(new SymbolInfo(yytext,"MULOP")); 
+return MULOP;}
+"++" {util.printOperator("INCOP",yytext,yylineno);
+yylval.node=new Node(new SymbolInfo(yytext,"INCOP")); 
+return INCOP;}
+"--" {
+util.printOperator("DECOP",yytext,yylineno);
+yylval.node=new Node(new SymbolInfo(yytext,"DECOP")); 
+return DECOP;   
+}
+"<"|">"|"<="|">="|"=="|"!=" {util.printOperator("RELOP",yytext,yylineno);
+yylval.node=new Node(new SymbolInfo(yytext,"RELOP")); 
+return RELOP;}
+"=" {util.printOperator("ASSIGNOP",yytext,yylineno);
+yylval.node=new Node(new SymbolInfo(yytext,"ASSIGNOP")); 
+return ASSIGNOP;}
+"&&"|"||" {util.printOperator("LOGICOP",yytext,yylineno);
+yylval.node=new Node(new SymbolInfo(yytext,"LOGICOP")); 
+return LOGICOP;}
+"&"|"|"|"^"|"<<"|">>" {util.printOperator("BITOP",yytext,yylineno);
+yylval.node=new Node(new SymbolInfo(yytext,"BITOP")); 
+return BITOP;}
+"!" {util.printOperator("NOT",yytext,yylineno); 
+yylval.node=new Node(new SymbolInfo(yytext,"NOT")); 
+return NOT;} 
 
 
 "("|")"|"{"|"}"|"["|"]"|","|";" {
-    if(yytext[0]=='{'){
-        sTable.EnterScope();
-        tabNeeded++;
+    util.printPunctuation(yytext,yylineno);
+    if(yytext[0]=='('){
+        yylval.node=new Node(new SymbolInfo(yytext,"LPAREN")); 
+        return LPAREN;
     }
-    if(yytext[0]=='}'){
-        sTable.ExitScope();
+    else if(yytext[0]==')'){
+        yylval.node=new Node(new SymbolInfo(yytext,"RPAREN")); 
+        return RPAREN;
+    }
+    else if(yytext[0]=='{'){
+        yylval.node=new Node(new SymbolInfo(yytext,"LCURL")); 
+        tabNeeded++;
+        return LCURL;
+    }
+    else if(yytext[0]=='}'){
+        yylval.node=new Node(new SymbolInfo(yytext,"RCURL")); 
         if(!tabDeleted){
             tabNeeded--;
         }
-        
+        return RCURL;
     }
-    lexUtil.printPunctuation(yytext,yylineno);
+    else if(yytext[0]=='['){
+        yylval.node=new Node(new SymbolInfo(yytext,"LSQUARE")); 
+        return LSQUARE;
+    }
+    else if(yytext[0]==']'){
+        yylval.node=new Node(new SymbolInfo(yytext,"RSQUARE")); 
+        return RSQUARE;
+    }
+    else if(yytext[0]==','){
+        yylval.node=new Node(new SymbolInfo(yytext,"COMMA")); 
+        return COMMA;
+    }
+    else{
+        yylval.node=new Node(new SymbolInfo(yytext,"SEMICOLON")); 
+        return SEMICOLON;
+    }
 }
 
 
@@ -189,7 +301,7 @@ lexUtil.printError("UNFINISHED_CONST_CHAR", "\'" + current,yylineno);
 }
 
 <STRING><<EOF>> {
-    lexUtil.printError("UNFINISHED_STRING", "\"" + String, yylineno-1);
+    util.printError("UNFINISHED_STRING", "\"" + String, yylineno-1);
     String = "";
     stringToken="";
     BEGIN(INITIAL);
@@ -205,7 +317,7 @@ stringToken+=yytext;
 }
 
 <STRING>((\r)?\n) {
-    lexUtil.printError("UNFINISHED_STRING", "\"" + String, yylineno-1);
+    util.printError("UNFINISHED_STRING", "\"" + String, yylineno-1);
     String = "";
     stringToken="";
     BEGIN(INITIAL);
@@ -213,13 +325,11 @@ stringToken+=yytext;
 
 <STRING>\" {
     if (startLineNo == yylineno){
-lexUtil.printAnother("SINGLE LINE STRING", "\"" + String + "\"", startLineNo);
-lexUtil.printToken("SINGLE LINE STRING",currentCharacter(String));
+util.printAnother("SINGLE LINE STRING", "\"" + String + "\"", startLineNo);
     }
         
     else{
- lexUtil.printAnother("MULTI LINE STRING", "\"" + String + "\"", startLineNo);
- lexUtil.printToken("MULTI LINE STRING", currentCharacter(stringToken));
+ util.printAnother("MULTI LINE STRING", "\"" + String + "\"", startLineNo);
     }
         
     String = "";
@@ -240,7 +350,7 @@ startLineNo= yylineno;
 <SLCOMMENT>\n {
     BEGIN(INITIAL);
     singlelineComment = singlelineComment.substr(0, singlelineComment.length());
-    lexUtil.printSingleLineComment(singlelineComment, startLineNo);
+    util.printSingleLineComment(singlelineComment, startLineNo);
     singlelineComment = "";
 }
 
@@ -255,13 +365,13 @@ startLineNo= yylineno;
 
 <MLCOMMENT><<EOF>> {
     BEGIN(INITIAL);
-    lexUtil.printError("UNFINISHED_COMMENT","/*"+multilineComment, yylineno);
+    util.printError("UNFINISHED_COMMENT","/*"+multilineComment, yylineno);
     multilineComment="";
 }
 
 <MLCOMMENT>"*/" {
     BEGIN(INITIAL);
-    lexUtil.printMultiLineComment(multilineComment, startLineNo);
+    util.printMultiLineComment(multilineComment, startLineNo);
     multilineComment = "";
 }
 
@@ -271,45 +381,19 @@ startLineNo= yylineno;
 
 
 {TOO_MANY_DECIMAL_POINTS} {
-    lexUtil.printError("TOO_MANY_DECIMAL_POINTS", yytext, yylineno);
+    util.printError("TOO_MANY_DECIMAL_POINTS", yytext, yylineno);
 }
 {INVALID_ID} {
-    lexUtil.printError("INVALID_ID_SUFFIX_NUM_PREFIX", yytext, yylineno);
+    util.printError("INVALID_ID_SUFFIX_NUM_PREFIX", yytext, yylineno);
 }
 {ILLFORMED_NUMBER} {
-    lexUtil.printError("ILLFORMED_NUMBER",yytext,yylineno);
+    util.printError("ILLFORMED_NUMBER",yytext,yylineno);
 }
 {WHITESPACE} {
     // Skip whitespace
 }
+<<EOF>> {return 0;}
 . {
-   lexUtil.printError("UNRECOGNIZED_CHAR", yytext, yylineno);
+   util.printError("UNRECOGNIZED_CHAR", yytext, yylineno);
 }
 %%
-
-
-
-
-int main(int argc, char* argv[]) {
-    if (argc != 2) {
-        fprintf(stderr, "Usage: %s <input_file>\n", argv[0]);
-        return EXIT_FAILURE;
-    }
-
-    FILE* fin = fopen(argv[1], "r");
-    if (fin == NULL) {
-        fprintf(stderr, "Cannot open specified file: %s\n", argv[1]);
-        return EXIT_FAILURE;
-    }
-
-    yyin = fin;
-    yylex();
-    fclose(yyin);
-
-    sTable.PrintAllScope(lexUtil.getLogFout());
-    lexUtil.getLogFout()<<"Total lines: "<<yylineno<<endl;
-    lexUtil.getLogFout()<<"Total errors: "<<lexUtil.getErrorCount()<<endl;
-    lexUtil.getLogFout()<<"Total warnings: "<<lexUtil.getWarningCount()<<endl;
-
-    return EXIT_SUCCESS;
-}

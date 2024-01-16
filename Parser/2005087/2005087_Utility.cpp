@@ -1,25 +1,30 @@
 #include <bits/stdc++.h>
 
-class LexerUtility
+class Utility
 {
+    std::ofstream treeFout;
     std::ofstream logFout;
-    std::ofstream tokenFout;
+    std::ofstream errorFout;
     int errorCount;
     int warnCount;
 
 public:
-    LexerUtility()
+    Utility()
     {
+        treeFout.open("2005087_parsetree.txt");
         logFout.open("2005087_log.txt");
-        tokenFout.open("2005087_token.txt");
+        errorFout.open("2005087_error.txt");
         errorCount = 0;
         warnCount = 0;
+    }
+    ofstream& gettreeFout(){
+        return treeFout;
     }
     ofstream& getLogFout(){
         return logFout;
     }
-    ofstream& gettokenFout(){
-        return tokenFout;
+    ofstream& getErrorFout(){
+        return errorFout;
     }
     
 
@@ -27,9 +32,8 @@ public:
     {
         logFout << "Line# " << lineNo << ": Token <" << token << "> Lexeme " << symbol << " found" << std::endl;
     }
-    void printToken(std::string token, std::string symbol)
-    {
-        tokenFout << "<" << token << ", " << symbol << ">" << std::endl;
+    void printGrammar(std::string grammar){
+        logFout << grammar << std::endl; 
     }
     void printKeyword(std::string keyword, int lineNo)
     {
@@ -39,7 +43,6 @@ public:
             type += (std::toupper(keyword[i]));
         }
         printLog(type, keyword, lineNo);
-        printToken(type, keyword);
     }
     void printPunctuation(std::string symbol, int lineNo)
     {
@@ -51,7 +54,6 @@ public:
             if (symbol == Sign[i])
             {
                 printLog(type[i], symbol, lineNo);
-                printToken(type[i], symbol);
                 break;
             }
         }
@@ -59,7 +61,6 @@ public:
    void printOperator(std::string tokenName, std::string symbol, int lineNo)
     {
         printLog(tokenName, symbol, lineNo);
-        printToken(tokenName, symbol);
     }
     void printAnother(std::string tokenName, std::string symbol, int lineNo)
     {

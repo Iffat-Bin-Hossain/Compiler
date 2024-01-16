@@ -1,5 +1,10 @@
 #include <bits/stdc++.h>
 using namespace std;
+
+
+
+#ifndef SYMBOL_INFO_H
+#define SYMBOL_INFO_H
 class SymbolInfo
 {
 private:
@@ -44,3 +49,4 @@ public:
         delete this->next;
     }
 };
+#endif
