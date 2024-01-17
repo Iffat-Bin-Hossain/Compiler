@@ -68,7 +68,7 @@ FLOAT {DIGITS}(\.{DIGITS})?([eE][-+]?{DIGITS})?
 CHAR ((\\{SPECIAL})|([^\\\'\n\r]))
 IDENTIFIER [a-zA-Z_][a-zA-Z0-9_]*
 INVALID_ID [0-9][_a-zA-Z0-9]+
-TOO_MANY_DECIMAL_POINTS ([-+]?({DIGIT}+\.{DIGIT}*)+([eE][-+]?{DIGIT}*)?)
+TOO_MANY_DECIMAL_POINTS ([-+]?({DIGIT}+\.{DIGIT}+\.{DIGIT}+)+([eE][-+]?{DIGIT}*)?)
 ILLFORMED_NUMBER {DIGITS}(\.[0-9]*)?[Ee][-+\.0-9]+[-+Ee\.0-9]*
 
 
@@ -158,7 +158,7 @@ lexUtil.printError("UNFINISHED_CONST_CHAR", "\'" + current,yylineno);
 
 
 "+"|"-" {lexUtil.printOperator("ADDOP",yytext,yylineno);}
-"*"|"/"|"%"	{lexUtil.printOperator("MULOP",yytext,yylineno);}
+"*"|"/"|"%" {lexUtil.printOperator("MULOP",yytext,yylineno);}
 "++"|"--" {lexUtil.printOperator("INCOP",yytext,yylineno);}
 "<"|">"|"<="|">="|"=="|"!=" {lexUtil.printOperator("RELOP",yytext,yylineno);}
 "=" {lexUtil.printOperator("ASSIGNOP",yytext,yylineno);}

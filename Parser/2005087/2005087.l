@@ -12,7 +12,7 @@
 #include "2005087_Node.cpp"
 #include "y.tab.h"
 using namespace std;
-
+void yyerror(char *s);
 extern SymbolTable sTable;
 extern Utility util;
 extern YYSTYPE yylval;
@@ -59,7 +59,6 @@ std::string stringToken="";
 
 %}
 
-KEYWORD (if|else|for|while|do|break|int|char|float|double|void|return|switch|case|default|continue)
 SPACE [ ]
 NEWLINE [\n]
 TAB [\t]
@@ -71,7 +70,7 @@ FLOAT {DIGITS}(\.{DIGITS})?([eE][-+]?{DIGITS})?
 CHAR ((\\{SPECIAL})|([^\\\'\n\r]))
 IDENTIFIER [a-zA-Z_][a-zA-Z0-9_]*
 INVALID_ID [0-9][_a-zA-Z0-9]+
-TOO_MANY_DECIMAL_POINTS ([-+]?({DIGIT}+\.{DIGIT}*)+([eE][-+]?{DIGIT}*)?)
+TOO_MANY_DECIMAL_POINTS ([-+]?({DIGIT}+\.{DIGIT}+\.{DIGIT}+)+([eE][-+]?{DIGIT}*)?)
 ILLFORMED_NUMBER {DIGITS}(\.[0-9]*)?[Ee][-+\.0-9]+[-+Ee\.0-9]*
 
 
@@ -103,83 +102,99 @@ ILLFORMED_NUMBER {DIGITS}(\.[0-9]*)?[Ee][-+\.0-9]+[-+Ee\.0-9]*
         util.printWarning(": warning, "+std::to_string(tabNeeded) + " of tabs needed but got " + std::to_string(tabGot) + " tabs.", yylineno);
     }
     tabGot = 0;
-    BEGIN(INITIAL);
-    
+    BEGIN(INITIAL);  
 }
 
 
 
-{KEYWORD} {
-    util.printKeyword(yytext,yylineno);
-     if(yytext=="if"){
+
+    
+"if" {
+        util.printKeyword(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"IF"));
         return IF;
      }
-     else if(yytext=="else"){
+"else" {
+        util.printKeyword(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"ELSE"));
         return ELSE;
      }
-     else if(yytext=="for"){
+"for" {
+        util.printKeyword(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"FOR"));
         return FOR;
      }
-     else if(yytext=="while"){
+"while" {
+        util.printKeyword(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"WHILE"));
         return WHILE;
      }
-     else if(yytext=="do"){
+"do" {
+            util.printKeyword(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"DO"));
         return DO;
      }
-     else if(yytext=="break"){
+"break" {
+            util.printKeyword(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"BREAK"));
         return BREAK;
      }
-     else if(yytext=="int"){
+"int" {
+            util.printKeyword(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"INT"));
         return INT;
      }
-     else if(yytext=="char"){
+"char" {
+            util.printKeyword(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"CHAR"));
         return CHAR;
      }
-     else if(yytext=="float"){
+"float" {
+            util.printKeyword(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"FLOAT"));
         return FLOAT;
      }
-     else if(yytext=="double"){
+"double" {
+            util.printKeyword(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"DOUBLE"));
         return DOUBLE;
      }
-     else if(yytext=="void"){
+"void" {
+            util.printKeyword(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"VOID"));
         return VOID;
      }
-     else if(yytext=="return"){
+"return" {
+            util.printKeyword(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"RETURN"));
         return RETURN;  
      }
-      else if(yytext=="switch"){
+"switch" {
+            util.printKeyword(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"SWITCH"));
         return SWITCH;
      }
-      else if(yytext=="case"){
+"case" {
+            util.printKeyword(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"CASE"));
         return CASE;
      }
-      else if(yytext=="default"){
+"default" {
+            util.printKeyword(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"DEFAULT"));
         return DEFAULT;
      }
-     else if(yytext=="continue"){
+"continue" {
+            util.printKeyword(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"CONTINUE"));
         return CONTINUE;
      }
-     else{
+"println" {
+            util.printKeyword(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"PRINTLN"));
         return PRINTLN;
      }
-}
+
 
 {IDENTIFIER} {
 util.printAnother("ID",yytext,yylineno);
@@ -223,12 +238,16 @@ util.printError("UNFINISHED_CONST_CHAR", "\'" + current,yylineno);
 }
 
 
-"+"|"-" {util.printOperator("ADDOP",yytext,yylineno);
+"+"|"-" {
+util.printOperator("ADDOP",yytext,yylineno);
 yylval.node=new Node(new SymbolInfo(yytext,"ADDOP")); 
-return ADDOP;}
-"*"|"/"|"%"	{util.printOperator("MULOP",yytext,yylineno);
+return ADDOP;
+}
+"*"|"/"|"%"	{
+util.printOperator("MULOP",yytext,yylineno);
 yylval.node=new Node(new SymbolInfo(yytext,"MULOP")); 
-return MULOP;}
+return MULOP;
+}
 "++" {util.printOperator("INCOP",yytext,yylineno);
 yylval.node=new Node(new SymbolInfo(yytext,"INCOP")); 
 return INCOP;}
@@ -239,14 +258,16 @@ return DECOP;
 }
 "<"|">"|"<="|">="|"=="|"!=" {util.printOperator("RELOP",yytext,yylineno);
 yylval.node=new Node(new SymbolInfo(yytext,"RELOP")); 
-return RELOP;}
+return RELOP;
+}
 "=" {util.printOperator("ASSIGNOP",yytext,yylineno);
 yylval.node=new Node(new SymbolInfo(yytext,"ASSIGNOP")); 
 return ASSIGNOP;}
 "&&"|"||" {util.printOperator("LOGICOP",yytext,yylineno);
 yylval.node=new Node(new SymbolInfo(yytext,"LOGICOP")); 
 return LOGICOP;}
-"&"|"|"|"^"|"<<"|">>" {util.printOperator("BITOP",yytext,yylineno);
+"&"|"|"|"^"|"<<"|">>" {
+util.printOperator("BITOP",yytext,yylineno);
 yylval.node=new Node(new SymbolInfo(yytext,"BITOP")); 
 return BITOP;}
 "!" {util.printOperator("NOT",yytext,yylineno); 
@@ -254,45 +275,51 @@ yylval.node=new Node(new SymbolInfo(yytext,"NOT"));
 return NOT;} 
 
 
-"("|")"|"{"|"}"|"["|"]"|","|";" {
-    util.printPunctuation(yytext,yylineno);
-    if(yytext[0]=='('){
+    
+    "(" {
+        util.printPunctuation(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"LPAREN")); 
         return LPAREN;
     }
-    else if(yytext[0]==')'){
+    ")" {
+        util.printPunctuation(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"RPAREN")); 
         return RPAREN;
     }
-    else if(yytext[0]=='{'){
+    "{" {
+        util.printPunctuation(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"LCURL")); 
         tabNeeded++;
         return LCURL;
     }
-    else if(yytext[0]=='}'){
+    "}" {
+        util.printPunctuation(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"RCURL")); 
         if(!tabDeleted){
             tabNeeded--;
         }
         return RCURL;
     }
-    else if(yytext[0]=='['){
+    "[" {
+        util.printPunctuation(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"LSQUARE")); 
         return LSQUARE;
     }
-    else if(yytext[0]==']'){
+    "]" {
+        util.printPunctuation(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"RSQUARE")); 
         return RSQUARE;
     }
-    else if(yytext[0]==','){
+    "," {
+        util.printPunctuation(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"COMMA")); 
         return COMMA;
     }
-    else{
+    ";" {
+        util.printPunctuation(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"SEMICOLON")); 
         return SEMICOLON;
     }
-}
 
 
 \" {

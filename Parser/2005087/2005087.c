@@ -13,7 +13,6 @@ void foo(){
 
 int main(){
 	int a[2],c,i,j ; float d;
-	int k;
 	a[0];
 	a[1]=5;
 	i= a[0]+a[1];
@@ -21,4 +20,3 @@ int main(){
 	d=var(1,2*3)+3.5*2;
 	return 0;
 }
-

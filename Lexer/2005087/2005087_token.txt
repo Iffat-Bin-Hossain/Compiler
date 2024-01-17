@@ -1,0 +1,10 @@
+<CONST_INT, 3>
+<ADDOP, +>
+<ADDOP, ->
+<CONST_INT, 8>
+<MULOP, />
+<CONST_INT, 9>
+<MULOP, *>
+<CONST_INT, 6>
+<NOT, !>
+<ID, p>

@@ -1,16 +1,1 @@
-include<stdio.h>
-int main(){
-	int c=3;
-	string name2="nabil";
-	char 2x='3';
-	if(c>=3){
-		printf("This is good\
-		keep it up");
-	
-	}
-	else{
-	cout<<"Bad";	
-	}
-	return 0;
-
-}
+3+-2.5.7-8/9*6!p

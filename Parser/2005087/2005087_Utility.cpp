@@ -80,6 +80,7 @@ public:
     void printError(std::string error, std::string text, int lineNo)
     {
         errorCount++;
+        cout<<error<<" "<<lineNo<<" "<<text<<endl;
         logFout << "Error at line# " << lineNo << ": " << error << " " << text << std::endl;
     }
     void printWarning(std::string warning, int lineNo){

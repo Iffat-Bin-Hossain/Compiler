@@ -4,13 +4,16 @@
 #include "2005087_Utility.cpp"
 #include "2005087_ParseTree.cpp"
 using namespace std;
-void yyerror(const std::string& message) {
-    cout << "Error: " << message << endl;
-}
+
+
+
 int yyparse(void);
 int yylex(void);
 extern int yylineno;
 extern FILE* yyin;
+void yyerror(const std::string& message) {
+    cout << "Error at line " << yylineno << ": " << message << endl;
+}
 
 ParseTree pTree;
 SymbolTable sTable(10);
@@ -29,6 +32,8 @@ Utility util;
 %token<node> NOT LPAREN RPAREN LCURL RCURL LSQUARE RSQUARE COMMA SEMICOLON
 %token<node> ADDOP MULOP INCOP DECOP RELOP LOGICOP BITOP ASSIGNOP 
 %type<node> start program unit var_declaration func_declaration func_definition type_specifier parameter_list compound_statement statements declaration_list statement expression expression_statement logic_expression rel_expression simple_expression term unary_expression factor variable argument_list arguments lcurls
+%nonassoc THEN
+%nonassoc ELSE
 
 
 %%
@@ -163,6 +168,7 @@ var_declaration : type_specifier declaration_list SEMICOLON {
     pTree.addChildren({$1,$2,$3});
     util.printGrammar("var_declaration : type_specifier declaration_list SEMICOLON");
 }
+;
 type_specifier : INT {
     SymbolInfo *sInfo = new SymbolInfo("", "type_specifier");
     $$=new Node(sInfo,"int");
@@ -264,7 +270,7 @@ statement : var_declaration {
         pTree.addChildren({$1,$2,$3,$4,$5,$6,$7});
         util.printGrammar("statement : FOR LPAREN expression_statement expression_statement expression RPAREN statement");
 }
-    | IF LPAREN expression RPAREN statement {
+    | IF LPAREN expression RPAREN statement %prec THEN {
         SymbolInfo *sInfo = new SymbolInfo("", "statement");
         $$=new Node(sInfo);
         pTree.setCurrentNode($$);
@@ -352,7 +358,7 @@ logic_expression : rel_expression {
         $$=new Node(sInfo);
         pTree.setCurrentNode($$);
         pTree.addChildren({$1});
-        util.printGrammar("expression : variable ASSIGNOP logic_expression");
+        util.printGrammar("logic_expression : rel_expression");
 }
     | rel_expression LOGICOP rel_expression {
 		SymbolInfo *sInfo = new SymbolInfo("", "logic_expression");
@@ -432,7 +438,7 @@ unary_expression : ADDOP unary_expression {
         $$=new Node(sInfo,$1->getDataType());
         pTree.setCurrentNode($$);
         pTree.addChildren({$1});
-        util.printGrammar("unary_expression : NOT unary_expression");
+        util.printGrammar("unary_expression : factor");
         
 }
 ;
@@ -523,6 +529,7 @@ arguments : arguments COMMA logic_expression {
 lcurls : LCURL {
     $$=$1;
 }
+;
 %%
 int main(int argc, char* argv[]) {
     if (argc != 2) {

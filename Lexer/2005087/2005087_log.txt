@@ -1,0 +1,36 @@
+Line# 1: Token <CONST_INT> Lexeme 3 found
+Line# 1: Token <ADDOP> Lexeme + found
+Error at line# 1: TOO_MANY_DECIMAL_POINTS -2.5.7
+Line# 1: Token <ADDOP> Lexeme - found
+Line# 1: Token <CONST_INT> Lexeme 8 found
+Line# 1: Token <MULOP> Lexeme / found
+Line# 1: Token <CONST_INT> Lexeme 9 found
+Line# 1: Token <MULOP> Lexeme * found
+Line# 1: Token <CONST_INT> Lexeme 6 found
+Line# 1: Token <NOT> Lexeme ! found
+Line# 1: Token <ID> Lexeme p found
+	ScopeTable# 1
+	1
+	2
+	3 --> (p,ID)
+	4
+	5
+	6
+	7
+	8
+	9
+	10
+	ScopeTable# 1
+	1
+	2
+	3 --> (p,ID)
+	4
+	5
+	6
+	7
+	8
+	9
+	10
+Total lines: 1
+Total errors: 1
+Total warnings: 0
