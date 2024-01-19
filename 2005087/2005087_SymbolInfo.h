@@ -9,7 +9,7 @@ class SymbolInfo
 {
 private:
     string name, type;
-    SymbolInfo *next;
+    //SymbolInfo *next;
 
 public:
     SymbolInfo()
@@ -19,7 +19,7 @@ public:
     {
         this->name = name;
         this->type = type;
-        this->next = NULL;
+        //this->next = NULL;
     }
     void setName(string name)
     {
@@ -37,16 +37,16 @@ public:
     {
         return type;
     }
-    void setNext(SymbolInfo *next)
-    {
-        this->next = next;
-    }
-    SymbolInfo *getNext()
-    {
-        return next;
-    }
-    ~SymbolInfo(){
-        delete this->next;
-    }
+    // void setNext(SymbolInfo *next)
+    // {
+    //     this->next = next;
+    // }
+    // SymbolInfo *getNext()
+    // {
+    //     return next;
+    // }
+    // ~SymbolInfo(){
+    //     delete this->next;
+    // }
 };
 #endif
