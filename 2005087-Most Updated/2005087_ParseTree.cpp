@@ -26,10 +26,14 @@ public:
         {
             fout << " ";
         }
-
-        fout << currentNode->getRule() << "\t";
-        fout << "<Line: "
-             << "\n";
+if(currentNode->getRule()!=""){
+fout << currentNode->getRule() << "\t";
+}
+else{
+ fout << currentNode->getType()<<" : "<<currentNode->getName() << "\t";   
+}
+        
+        fout << "<Line: "<<currentNode->getStartLine()<<"-"<<currentNode->getEndLine()<<">\n";
 
         for (Node *child : currentNode->getChildren())
         {

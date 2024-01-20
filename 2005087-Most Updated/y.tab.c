@@ -85,7 +85,7 @@ string currentFunctionReturnType="";
 vector<pair<pair<string,string>,bool>>currentFunctionParameters={};
 
 
-void declareFunction(string functionName, string returnType, vector<pair<pair<string, string>,bool>> parameterList = {})
+void declareFunction(string functionName, string returnType,int startLine, vector<pair<pair<string, string>,bool>> parameterList = {})
 {
 	Node *toBeInserted = new Node(new SymbolInfo(functionName, "FUNCTION"));
 	bool beInserted = sTable.Insert(toBeInserted);
@@ -100,12 +100,12 @@ void declareFunction(string functionName, string returnType, vector<pair<pair<st
 	{
 		if (searched->getFunctionInfo() == "FUNCTION_DECLARATION")
 		{
-			util.printError("redeclaration of " + functionName, yylineno);
+			util.printError("redeclaration of " + functionName, startLine);
 			return;
 		}
 	}
 }
-void defineFunction(string functionName, string returnType, vector<pair<pair<string, string>,bool>> parameterList = {})
+void defineFunction(string functionName, string returnType,int startLine, vector<pair<pair<string, string>,bool>> parameterList = {})
 {
     currentFunctionParameters.clear();
     currentFunctionParameters=parameterList;
@@ -127,7 +127,7 @@ void defineFunction(string functionName, string returnType, vector<pair<pair<str
 
 				if (searched->getReturnOrDataType() != returnType)
 				{
-					util.printError("Conflicting types for \'" + functionName+"\'", yylineno);
+					util.printError("Conflicting types for \'" + functionName+"\'",startLine);
 					//return;
 				}
 			//    if (searched->getParameterList().size() < parameterList.size())
@@ -153,7 +153,7 @@ void defineFunction(string functionName, string returnType, vector<pair<pair<str
                     
 				// }
                 if(searched->getParameterList().size() != parameterList.size()){
-                   util.printError("Conflicting types for \'" + functionName+"\'", yylineno); 
+                   util.printError("Conflicting types for \'" + functionName+"\'", startLine); 
                 }
 
 			searched->setFunctionInfo("FUNCTION_DEFINITION");
@@ -162,7 +162,7 @@ void defineFunction(string functionName, string returnType, vector<pair<pair<str
 		}
 		else
 		{
-			util.printError("\'" + functionName+"\' redeclared as different kind of symbol", yylineno);
+			util.printError("\'" + functionName+"\' redeclared as different kind of symbol", startLine);
 			return;
 		}
 	}
@@ -174,20 +174,20 @@ void callFunction(Node *actualNode, Node *nameNode, Node *argNode)
 	Node *searched = sTable.Lookup(nameNode);
 	if (searched == NULL)
 	{
-		util.printError("Undeclared function \'" + nameNode->getName() + "\'", yylineno);
+		util.printError("Undeclared function \'" + nameNode->getName() + "\'", actualNode->getStartLine());
 	}
 	else if (!(searched->getFunctionInfo() == "FUNCTION_DECLARATION" ||searched->getFunctionInfo() == "FUNCTION_DEFINITION") )
 	{
-		util.printError("\'" + nameNode->getName() + "\' is not a function", yylineno);
+		util.printError("\'" + nameNode->getName() + "\' is not a function", actualNode->getStartLine());
 	}
 	else if (searched->getParameterList().size() < parameterList.size())
 	{
-		util.printError("Too many arguments to function \'" + nameNode->getName()+"\'", yylineno);
+		util.printError("Too many arguments to function \'" + nameNode->getName()+"\'", actualNode->getStartLine());
 		return;
 	}
 	else if (searched->getParameterList().size() > parameterList.size())
 	{
-		util.printError("Too few arguments to function \'" + nameNode->getName()+"\'", yylineno);
+		util.printError("Too few arguments to function \'" + nameNode->getName()+"\'",actualNode->getStartLine());
 		return;
 	}
 	else 
@@ -196,10 +196,10 @@ void callFunction(Node *actualNode, Node *nameNode, Node *argNode)
 		for (int i = 0; i < searched->getParameterList().size(); i++)
 		{
             
-            cout<<searched->getName()<<searched->getParameterList().at(i).first.first<<" "<<parameterList[i].first.first<<" "<<parameterList[i].first.second<<endl;
+            //cout<<searched->getName()<<searched->getParameterList().at(i).first.first<<" "<<parameterList[i].first.first<<" "<<parameterList[i].first.second<<endl;
 			if ((searched->getParameterList().at(i).first.first != parameterList[i].first.first))
 			{
-				util.printError("Type mismatch for argument "+to_string(i+1)+" of \'" + nameNode->getName()+"\'", yylineno);
+				util.printError("Type mismatch for argument "+to_string(i+1)+" of \'" + nameNode->getName()+"\'", actualNode->getStartLine());
                 //everythingIsOk=false;
 			}
 		}
@@ -208,11 +208,11 @@ void callFunction(Node *actualNode, Node *nameNode, Node *argNode)
 	}
 
 }
-void SaveData(string dataType,Node* node ) {
+void SaveData(string dataType,Node* node,int startLine) {
    auto list=node->getParameterList();
         for (auto element : list) {
              if (dataType == "VOID") {
-                util.printError("Variable or field \'"+element.first.second+"\' declared void", yylineno);
+                util.printError("Variable or field \'"+element.first.second+"\' declared void", startLine);
                     return;
                  } 
             //element.first.first=dataType;     
@@ -229,9 +229,9 @@ void SaveData(string dataType,Node* node ) {
                 element.first.first=dataType;
                // toBeInserted->setReturnOrDataType(dataType);
             } else if (searched->getReturnOrDataType() != dataType) {
-                util.printError("Conflicting types for \'" + element.first.second + "\'", yylineno);
+                util.printError("Conflicting types for \'" + element.first.second + "\'", startLine);
             } else {
-                util.printError("Redefinition of variable \'" + element.first.second + "\'", yylineno);
+                util.printError("Redefinition of variable \'" + element.first.second + "\'", startLine);
             }
             //node->addParameter(list);
         }
@@ -248,7 +248,7 @@ void CheckVariableDeclaredOrNot(Node *node)
 	Node *searched = sTable.Lookup(toBeSearched);
 	if (searched == NULL)
 	{
-		util.printError("Undeclared variable \'" + variable + "\'", yylineno);
+		util.printError("Undeclared variable \'" + variable + "\'", node->getStartLine());
 		return;
 	}
 	node->setReturnOrDataType(searched->getReturnOrDataType());
@@ -257,13 +257,13 @@ void CheckVariableDeclaredOrNot(Node *node)
 void CheckReturnIssues(Node *node)
 {
     //cout<<currentFunctionReturnType;
-	if (currentFunctionReturnType == "VOID")
-	{
-		util.printError("Function return type void", yylineno);
-	}
+	// if (currentFunctionReturnType == "VOID")
+	// {
+	// 	util.printError("Function return type void", node->getStartLine());
+	// }
 	if (currentFunctionReturnType == "INT" && node->getReturnOrDataType() == "FLOAT")
 	{
-		util.printError("Warning: possible loss of data in assignment of FLOAT to INT", yylineno);
+		util.printError("Warning: possible loss of data in assignment of FLOAT to INT", node->getStartLine());
 	}
 }
 void CheckArrayIssues(Node *actualNode, Node *nameNode, Node *indexNode)
@@ -274,17 +274,17 @@ void CheckArrayIssues(Node *actualNode, Node *nameNode, Node *indexNode)
 	Node *searched = sTable.Lookup(toBeSearched);
 	if (searched == NULL)
 	{
-		util.printError("Undeclared variable \'" + name + "\'", yylineno);
+		util.printError("Undeclared variable \'" + name + "\'", actualNode->getStartLine());
 		return;
 	}
 	if (!searched->getArrayStatus())
 	{
-		util.printError("\'" + name + "\' is not an array", yylineno);
+		util.printError("\'" + name + "\' is not an array", actualNode->getStartLine());
 		return;
 	}
 	if (indexNode->getReturnOrDataType() != "INT")
 	{
-		util.printError("Array subscript is not an integer", yylineno);
+		util.printError("Array subscript is not an integer", actualNode->getStartLine());
 		return;
 	}
 	else
@@ -297,12 +297,12 @@ void CheckAssignmentIssues(Node *actualNode, Node *leftNode, Node *rightNode)
 {
 	if (leftNode->getArrayStatus() && !rightNode->getArrayStatus())
 	{
-		util.printError("Type mismatch for \'" + leftNode->getName() + "\' , is an array", yylineno);
+		util.printError("Type mismatch for \'" + leftNode->getName() + "\' , is an array", actualNode->getStartLine());
 		return;
 	}
 	if (leftNode->getReturnOrDataType() == "VOID" || rightNode->getReturnOrDataType() == "VOID")
 	{
-		util.printError("Void cannot be used in expression", yylineno);
+		util.printError("Void cannot be used in expression", actualNode->getStartLine());
 		//$$->setReturnOrDataType("ERROR");
 		return;
 	}
@@ -310,7 +310,7 @@ void CheckAssignmentIssues(Node *actualNode, Node *leftNode, Node *rightNode)
 	{
 		if (rightNode->getReturnOrDataType() == "FLOAT")
 		{
-			util.printError("Warning: possible loss of data in assignment of FLOAT to INT", yylineno);
+			util.printError("Warning: possible loss of data in assignment of FLOAT to INT", actualNode->getStartLine());
 		}
 		actualNode->setReturnOrDataType("INT");
 		return;
@@ -321,13 +321,13 @@ void CheckLogicalIssues(Node *actualNode, Node *leftNode, Node *rightNode)
 {
 	if (leftNode->getReturnOrDataType() == "VOID" || rightNode->getReturnOrDataType() == "VOID")
 	{
-		util.printError("Void cannot be used in expression", yylineno);
+		util.printError("Void cannot be used in expression", actualNode->getStartLine());
 		// actualNode->setReturnOrDataType("ERROR");
 		return;
 	}
 	if (leftNode->getReturnOrDataType() == "FLOAT" || rightNode->getReturnOrDataType() == "FLOAT")
 	{
-		util.printError("Warning: Void cannot be used in expression", yylineno);
+		util.printError("Warning: Void cannot be used in expression", actualNode->getStartLine());
 		actualNode->setReturnOrDataType("INT");
 	}
 	actualNode->setReturnOrDataType("INT");
@@ -336,7 +336,7 @@ void CheckRelationalIssues(Node *actualNode, Node *leftNode, Node *rightNode)
 {
 	if (leftNode->getReturnOrDataType() == "VOID" || rightNode->getReturnOrDataType() == "VOID")
 	{
-		util.printError("Void cannot be used in expression", yylineno);
+		util.printError("Void cannot be used in expression", actualNode->getStartLine());
 		//$$->setReturnOrgetReturnOrDataType("ERROR");
 	}
 	else
@@ -404,17 +404,17 @@ string TypeCasting(string s1, const string s2) {
 
 void CheckMultiplicationIssues(Node* actualNode,Node* leftNode,Node* midNode,Node* rightNode){
     if (leftNode->getReturnOrDataType() == "VOID" || rightNode->getReturnOrDataType() == "VOID") {
-			util.printError("Void cannot be used in expression", yylineno);
+			util.printError("Void cannot be used in expression", actualNode->getStartLine());
 			
 		}
 		
 		else if (midNode->getName() == "%") {
 			if (leftNode->getReturnOrDataType() == "FLOAT" || rightNode->getReturnOrDataType() == "FLOAT") {
-				util.printError("Operands of modulus must be integers" , yylineno);
+				util.printError("Operands of modulus must be integers" , actualNode->getStartLine());
 				
 			}
 			else if (CheckingZerOperand(rightNode->getName())) {
-				util.printError("Warning: division by zero i=0f=1Const=0" , yylineno);	
+				util.printError("Warning: division by zero i=0f=1Const=0" , actualNode->getStartLine());	
 			}
 			else {
 				actualNode->setReturnOrDataType("INT");
@@ -422,7 +422,7 @@ void CheckMultiplicationIssues(Node* actualNode,Node* leftNode,Node* midNode,Nod
 		}
 		else if (midNode->getName() == "/") {
 			if (CheckingZerOperand(rightNode->getName())) {
-				util.printError("Warning: division by zero i=0f=1Const=0" , yylineno);
+				util.printError("Warning: division by zero i=0f=1Const=0" , actualNode->getStartLine());
 			}
 			else {
 				actualNode->setReturnOrDataType(TypeCasting(leftNode->getReturnOrDataType(), rightNode->getReturnOrDataType()));
@@ -434,18 +434,18 @@ void CheckMultiplicationIssues(Node* actualNode,Node* leftNode,Node* midNode,Nod
 }
 void CheckUnaryExpression(Node *actualNode,Node *node){
    if (node->getReturnOrDataType() == "VOID") {
-			util.printError("Void cannot be used in expression", yylineno);
+			util.printError("Void cannot be used in expression", actualNode->getStartLine());
 			return;
 		}
    else if (node->getReturnOrDataType() == "FLOAT") {
-			util.printError("Warning :Operands of bitwise operation should be integers", yylineno);
+			util.printError("Warning :Operands of bitwise operation should be integers", actualNode->getStartLine());
     }
 actualNode->setReturnOrDataType("INT"); 
 }
 void CheckUnaryOperandIssues(Node* actualNode,Node* operand)
 {
     if (operand->getReturnOrDataType() == "VOID") {
-			util.printError("Void cannot be used in expression", yylineno);
+			util.printError("Void cannot be used in expression", actualNode->getStartLine());
 			actualNode->setReturnOrDataType("ERROR");
             return;
 		}
@@ -844,16 +844,16 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  11
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   160
+#define YYLAST   146
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  43
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  27
+#define YYNNTS  28
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  67
+#define YYNRULES  68
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  121
+#define YYNSTATES  122
 
 /* YYTRANSLATE[YYX] -- Symbol number corresponding to YYX as returned
    by yylex, with out-of-bounds checking.  */
@@ -903,13 +903,13 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   412,   412,   422,   431,   439,   446,   453,   461,   475,
-     490,   490,   507,   507,   529,   539,   549,   558,   568,   580,
-     592,   603,   611,   619,   628,   637,   647,   655,   664,   671,
-     679,   687,   695,   703,   710,   717,   724,   731,   741,   751,
-     758,   767,   777,   786,   794,   803,   811,   820,   829,   838,
-     847,   858,   866,   875,   887,   896,   908,   917,   926,   934,
-     941,   949,   958,   968,   976,   982,   991,  1000
+       0,   412,   412,   424,   435,   446,   456,   466,   477,   494,
+     512,   512,   529,   529,   551,   564,   577,   589,   602,   602,
+     633,   633,   663,   677,   688,   699,   711,   723,   736,   747,
+     759,   769,   780,   791,   802,   813,   823,   833,   843,   853,
+     865,   877,   887,   899,   911,   923,   934,   946,   957,   969,
+     981,   993,  1005,  1019,  1030,  1042,  1057,  1069,  1084,  1096,
+    1108,  1119,  1129,  1140,  1151,  1164,  1175,  1183,  1195
 };
 #endif
 
@@ -925,11 +925,11 @@ static const char *const yytname[] =
   "LSQUARE", "RSQUARE", "COMMA", "SEMICOLON", "ADDOP", "MULOP", "INCOP",
   "DECOP", "RELOP", "LOGICOP", "BITOP", "ASSIGNOP", "THEN", "$accept",
   "start", "program", "unit", "func_declaration", "func_definition", "$@1",
-  "$@2", "parameter_list", "compound_statement", "var_declaration",
-  "type_specifier", "declaration_list", "statements", "statement",
-  "expression_statement", "variable", "expression", "logic_expression",
-  "rel_expression", "simple_expression", "term", "unary_expression",
-  "factor", "argument_list", "arguments", "lcurls", YY_NULLPTR
+  "$@2", "parameter_list", "compound_statement", "$@3", "$@4",
+  "var_declaration", "type_specifier", "declaration_list", "statements",
+  "statement", "expression_statement", "variable", "expression",
+  "logic_expression", "rel_expression", "simple_expression", "term",
+  "unary_expression", "factor", "argument_list", "arguments", YY_NULLPTR
 };
 #endif
 
@@ -946,12 +946,12 @@ static const yytype_uint16 yytoknum[] =
 };
 # endif
 
-#define YYPACT_NINF -71
+#define YYPACT_NINF -67
 
 #define yypact_value_is_default(Yystate) \
-  (!!((Yystate) == (-71)))
+  (!!((Yystate) == (-67)))
 
-#define YYTABLE_NINF -1
+#define YYTABLE_NINF -21
 
 #define yytable_value_is_error(Yytable_value) \
   0
@@ -960,19 +960,19 @@ static const yytype_uint16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int16 yypact[] =
 {
-     123,   -71,   -71,   -71,    17,   123,   -71,   -71,   -71,   -71,
-      10,   -71,   -71,    28,    19,     6,    18,    13,   -71,     9,
-     -23,    26,    54,    27,   -71,    62,    63,   123,   -71,   -71,
-      75,   -71,   -71,    58,   -71,    62,    87,    80,    91,    92,
-     103,   101,    -7,   104,   -71,   -71,    -7,    -7,   -71,   -71,
-      -7,   -71,   -71,   105,    79,   -71,   -71,     0,   102,   -71,
-     106,    98,   107,   -71,   -71,   -71,   -71,   -71,    -7,    37,
-      -7,    -7,    -7,   108,   121,    39,   -71,   116,   -71,   114,
-     -71,   -71,   -71,   -71,    -7,   -71,    -7,    -7,    -7,    -7,
-     119,    37,   120,   -71,   122,   118,   117,   -71,   124,   -71,
-     -71,   -71,   107,   125,   -71,   100,    -7,   100,   -71,    -7,
-     -71,   127,   148,   126,   -71,   -71,   -71,   100,   100,   -71,
-     -71
+      40,   -67,   -67,   -67,    22,    40,   -67,   -67,   -67,   -67,
+      18,   -67,   -67,     8,    25,    -1,    20,    31,   -67,    19,
+      -9,    48,    -7,    47,   -67,    54,    62,    40,   -67,   -67,
+      76,    72,   -67,   -67,    54,    81,    82,    71,    73,   -67,
+     -67,   -67,    90,    93,    94,     9,    89,    95,   -67,   -67,
+      89,    89,   -67,    89,   -67,   -67,   103,    50,   -67,   -67,
+     -20,    91,   -67,    86,     2,    92,   -67,   -67,   -67,    89,
+      84,    89,    89,    89,    96,   107,    52,   -67,   101,   -67,
+     100,   -67,   -67,   -67,   -67,    89,   -67,    89,    89,    89,
+      89,   104,    84,   105,   -67,   106,   102,   108,   -67,   109,
+     -67,   -67,   -67,    92,   110,   -67,    71,    89,    71,   -67,
+      89,   -67,   112,   131,   111,   -67,   -67,   -67,    71,    71,
+     -67,   -67
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -980,123 +980,119 @@ static const yytype_int16 yypact[] =
      means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       0,    23,    21,    22,     0,     2,     4,     6,     7,     5,
-       0,     1,     3,    26,     0,     0,     0,     0,    20,    12,
-       0,    17,     0,    24,     9,     0,    10,     0,    16,    27,
-       0,    67,    13,     0,     8,     0,    15,     0,     0,     0,
-       0,    41,     0,     0,    59,    60,     0,     0,    19,    39,
-       0,    32,    30,     0,     0,    28,    31,    56,     0,    43,
-      45,    47,    49,    51,    55,    11,    14,    25,     0,     0,
-       0,    64,     0,     0,     0,    56,    54,     0,    53,    26,
-      18,    29,    61,    62,     0,    40,     0,     0,     0,     0,
-       0,     0,     0,    66,     0,    63,     0,    38,     0,    58,
-      44,    46,    50,    48,    52,     0,     0,     0,    57,     0,
-      42,     0,    34,     0,    36,    65,    37,     0,     0,    35,
-      33
+       0,    25,    23,    24,     0,     2,     4,     6,     7,     5,
+       0,     1,     3,    28,     0,     0,     0,     0,    22,    12,
+       0,    17,     0,    26,     9,     0,    10,     0,    16,    29,
+       0,    18,    13,     8,     0,    15,     0,     0,     0,    11,
+      14,    27,     0,     0,     0,    43,     0,     0,    61,    62,
+       0,     0,    41,     0,    34,    32,     0,     0,    30,    33,
+      58,     0,    45,    47,    49,    51,    53,    57,    21,     0,
+       0,     0,    66,     0,     0,     0,    58,    56,     0,    55,
+      28,    19,    31,    63,    64,     0,    42,     0,     0,     0,
+       0,     0,     0,     0,    68,     0,    65,     0,    40,     0,
+      60,    46,    48,    52,    50,    54,     0,     0,     0,    59,
+       0,    44,     0,    36,     0,    38,    67,    39,     0,     0,
+      37,    35
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int16 yypgoto[] =
 {
-     -71,   -71,   -71,   149,   -71,   -71,   -71,   -71,   -71,    -1,
-      38,     8,   -71,   -71,   -52,   -66,   -40,   -42,   -70,    69,
-      68,    70,   -39,   -71,   -71,   -71,   -71
+     -67,   -67,   -67,   132,   -67,   -67,   -67,   -67,   -67,   -22,
+     -67,   -67,    28,     5,   -67,   -67,   -57,   -61,   -42,   -44,
+     -66,    53,    57,    55,   -49,   -67,   -67,   -67
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     4,     5,     6,     7,     8,    35,    25,    20,    51,
-      52,    53,    14,    54,    55,    56,    57,    58,    59,    60,
-      61,    62,    63,    64,    94,    95,    33
+      -1,     4,     5,     6,     7,     8,    34,    25,    20,    54,
+      37,    38,    55,    56,    14,    57,    58,    59,    60,    61,
+      62,    63,    64,    65,    66,    67,    95,    96
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
      positive, shift that token.  If negative, reduce the rule whose
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
-static const yytype_uint8 yytable[] =
+static const yytype_int8 yytable[] =
 {
-      73,    93,    81,    91,    26,    77,    75,    76,    10,    27,
-      75,    78,    41,    10,   100,    44,    45,    11,    46,    47,
-       1,     2,     3,    21,    32,   106,    90,    50,    92,    13,
-      96,    75,    23,    19,    65,    36,    82,    83,     9,   115,
-      22,    84,    24,     9,    75,    28,    75,    75,    75,    75,
-     104,    17,    18,   112,    15,   114,    41,    30,    16,    44,
-      45,    38,    46,    47,   113,   119,   120,    39,    40,    75,
-      49,    50,     1,     2,     3,    82,    83,    41,    42,    43,
-      44,    45,    38,    46,    47,    29,    31,    48,    39,    40,
-      31,    49,    50,     1,     2,     3,    34,    37,    41,    42,
-      43,    44,    45,    38,    46,    47,    66,    31,    80,    39,
-      40,    67,    49,    50,     1,     2,     3,    68,    69,    41,
-      42,    43,    44,    45,    79,    46,    47,    71,    31,    70,
-      74,    72,    87,    49,    50,    85,    88,     1,     2,     3,
-      98,    97,    89,    99,    16,    86,   105,   107,   110,   108,
-     109,   111,   117,   118,    12,   101,   103,   102,     0,    87,
-     116
+      82,    77,    74,    32,    79,    10,    94,    78,    76,    92,
+      10,    76,    39,     1,     2,     3,    83,    84,    26,   101,
+      21,    85,    11,    27,    29,    91,    19,    93,     9,    97,
+      76,   107,    35,     9,    15,    72,    88,    13,    16,    73,
+      89,   105,    22,    76,   116,    76,    76,    76,    76,   113,
+      23,   115,    24,    42,     1,     2,     3,    17,    18,    43,
+      44,   120,   121,   114,     1,     2,     3,    28,    76,    45,
+      46,    47,    48,    49,    42,    50,    51,    30,    31,    81,
+      43,    44,    31,    52,    53,     1,     2,     3,    83,    84,
+      45,    46,    47,    48,    49,    33,    50,    51,    36,    31,
+      40,   -20,    68,    45,    52,    53,    48,    49,    45,    50,
+      51,    48,    49,    41,    50,    51,    69,    52,    53,    70,
+      71,    75,    80,    53,    86,    87,    99,    90,   100,    98,
+      16,   106,   108,   109,   110,   118,   112,    12,   119,   111,
+     102,     0,     0,   103,    88,   117,   104
 };
 
 static const yytype_int8 yycheck[] =
 {
-      42,    71,    54,    69,    27,    47,    46,    46,     0,    32,
-      50,    50,    19,     5,    84,    22,    23,     0,    25,    26,
-      14,    15,    16,    15,    25,    91,    68,    34,    70,    19,
-      72,    71,    19,    27,    35,    27,    36,    37,     0,   109,
-      22,    41,    33,     5,    84,    19,    86,    87,    88,    89,
-      89,    32,    33,   105,    26,   107,    19,    30,    30,    22,
-      23,     3,    25,    26,   106,   117,   118,     9,    10,   109,
-      33,    34,    14,    15,    16,    36,    37,    19,    20,    21,
-      22,    23,     3,    25,    26,    31,    28,    29,     9,    10,
-      28,    33,    34,    14,    15,    16,    33,    22,    19,    20,
-      21,    22,    23,     3,    25,    26,    19,    28,    29,     9,
-      10,    31,    33,    34,    14,    15,    16,    26,    26,    19,
-      20,    21,    22,    23,    19,    25,    26,    26,    28,    26,
-      26,    30,    34,    33,    34,    33,    38,    14,    15,    16,
-      19,    33,    35,    27,    30,    39,    27,    27,    31,    27,
-      32,    27,     4,    27,     5,    86,    88,    87,    -1,    34,
-      33
+      57,    50,    46,    25,    53,     0,    72,    51,    50,    70,
+       5,    53,    34,    14,    15,    16,    36,    37,    27,    85,
+      15,    41,     0,    32,    31,    69,    27,    71,     0,    73,
+      72,    92,    27,     5,    26,    26,    34,    19,    30,    30,
+      38,    90,    22,    85,   110,    87,    88,    89,    90,   106,
+      19,   108,    33,     3,    14,    15,    16,    32,    33,     9,
+      10,   118,   119,   107,    14,    15,    16,    19,   110,    19,
+      20,    21,    22,    23,     3,    25,    26,    30,    28,    29,
+       9,    10,    28,    33,    34,    14,    15,    16,    36,    37,
+      19,    20,    21,    22,    23,    33,    25,    26,    22,    28,
+      19,    29,    29,    19,    33,    34,    22,    23,    19,    25,
+      26,    22,    23,    31,    25,    26,    26,    33,    34,    26,
+      26,    26,    19,    34,    33,    39,    19,    35,    27,    33,
+      30,    27,    27,    27,    32,     4,    27,     5,    27,    31,
+      87,    -1,    -1,    88,    34,    33,    89
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,    14,    15,    16,    44,    45,    46,    47,    48,    53,
-      54,     0,    46,    19,    55,    26,    30,    32,    33,    27,
-      51,    54,    22,    19,    33,    50,    27,    32,    19,    31,
-      30,    28,    52,    69,    33,    49,    54,    22,     3,     9,
-      10,    19,    20,    21,    22,    23,    25,    26,    29,    33,
-      34,    52,    53,    54,    56,    57,    58,    59,    60,    61,
-      62,    63,    64,    65,    66,    52,    19,    31,    26,    26,
-      26,    26,    30,    60,    26,    59,    65,    60,    65,    19,
-      29,    57,    36,    37,    41,    33,    39,    34,    38,    35,
-      60,    58,    60,    61,    67,    68,    60,    33,    19,    27,
-      61,    62,    64,    63,    65,    27,    58,    27,    27,    32,
-      31,    27,    57,    60,    57,    61,    33,     4,    27,    57,
-      57
+       0,    14,    15,    16,    44,    45,    46,    47,    48,    55,
+      56,     0,    46,    19,    57,    26,    30,    32,    33,    27,
+      51,    56,    22,    19,    33,    50,    27,    32,    19,    31,
+      30,    28,    52,    33,    49,    56,    22,    53,    54,    52,
+      19,    31,     3,     9,    10,    19,    20,    21,    22,    23,
+      25,    26,    33,    34,    52,    55,    56,    58,    59,    60,
+      61,    62,    63,    64,    65,    66,    67,    68,    29,    26,
+      26,    26,    26,    30,    62,    26,    61,    67,    62,    67,
+      19,    29,    59,    36,    37,    41,    33,    39,    34,    38,
+      35,    62,    60,    62,    63,    69,    70,    62,    33,    19,
+      27,    63,    64,    66,    65,    67,    27,    60,    27,    27,
+      32,    31,    27,    59,    62,    59,    63,    33,     4,    27,
+      59,    59
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
        0,    43,    44,    45,    45,    46,    46,    46,    47,    47,
-      49,    48,    50,    48,    51,    51,    51,    51,    52,    52,
-      53,    54,    54,    54,    55,    55,    55,    55,    56,    56,
-      57,    57,    57,    57,    57,    57,    57,    57,    57,    58,
-      58,    59,    59,    60,    60,    61,    61,    62,    62,    63,
-      63,    64,    64,    65,    65,    65,    66,    66,    66,    66,
-      66,    66,    66,    67,    67,    68,    68,    69
+      49,    48,    50,    48,    51,    51,    51,    51,    53,    52,
+      54,    52,    55,    56,    56,    56,    57,    57,    57,    57,
+      58,    58,    59,    59,    59,    59,    59,    59,    59,    59,
+      59,    60,    60,    61,    61,    62,    62,    63,    63,    64,
+      64,    65,    65,    66,    66,    67,    67,    67,    68,    68,
+      68,    68,    68,    68,    68,    69,    69,    70,    70
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
        0,     2,     1,     2,     1,     1,     1,     1,     6,     5,
-       0,     7,     0,     6,     4,     3,     2,     1,     3,     2,
-       3,     1,     1,     1,     3,     6,     1,     4,     1,     2,
-       1,     1,     1,     7,     5,     7,     5,     5,     3,     1,
-       2,     1,     4,     1,     3,     1,     3,     1,     3,     1,
-       3,     1,     3,     2,     2,     1,     1,     4,     3,     1,
-       1,     2,     2,     1,     0,     3,     1,     1
+       0,     7,     0,     6,     4,     3,     2,     1,     0,     4,
+       0,     3,     3,     1,     1,     1,     3,     6,     1,     4,
+       1,     2,     1,     1,     1,     7,     5,     7,     5,     5,
+       3,     1,     2,     1,     4,     1,     3,     1,     3,     1,
+       3,     1,     3,     1,     3,     2,     2,     1,     1,     4,
+       3,     1,     1,     2,     2,     1,     0,     3,     1
 };
 
 
@@ -1775,6 +1771,8 @@ yyreduce:
         case 2:
 #line 412 "2005087.y" /* yacc.c:1646  */
     {
+    (yyval.node)->setStartLine((yyvsp[0].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
     SymbolInfo *sInfo=new SymbolInfo("","start");
     (yyval.node) =new Node(sInfo,"start : program");
     pTree.setCurrentNode((yyval.node));
@@ -1783,74 +1781,90 @@ yyreduce:
     pTree.printParseTree(util.getTreeFout());
     
 }
-#line 1787 "y.tab.c" /* yacc.c:1646  */
+#line 1785 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 422 "2005087.y" /* yacc.c:1646  */
+#line 424 "2005087.y" /* yacc.c:1646  */
     {
+    (yyval.node)->setStartLine((yyvsp[-1].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[-1].node)->getEndLine());
     SymbolInfo *sInfo=new SymbolInfo("","program");
     (yyval.node)=new Node(sInfo,"program : program unit");
     pTree.setCurrentNode((yyval.node));
     (yyval.node)->makeChild({(yyvsp[-1].node),(yyvsp[0].node)});
-    
     util.printGrammar("program : program unit");
+     
     
 }
 #line 1801 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 431 "2005087.y" /* yacc.c:1646  */
+#line 435 "2005087.y" /* yacc.c:1646  */
     {
+          (yyval.node)->setStartLine((yyvsp[0].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
     SymbolInfo *sInfo=new SymbolInfo("","program");
     (yyval.node)=new Node(sInfo,"program : unit");
     pTree.setCurrentNode((yyval.node));
     (yyval.node)->makeChild({(yyvsp[0].node)});
     util.printGrammar("program : unit");
+   
 }
-#line 1813 "y.tab.c" /* yacc.c:1646  */
+#line 1816 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 439 "2005087.y" /* yacc.c:1646  */
+#line 446 "2005087.y" /* yacc.c:1646  */
     {
+    (yyval.node)->setStartLine((yyvsp[0].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
     SymbolInfo *sInfo=new SymbolInfo("","unit");
     (yyval.node)=new Node(sInfo,"unit : var_declaration");
     pTree.setCurrentNode((yyval.node));
     (yyval.node)->makeChild({(yyvsp[0].node)});
     util.printGrammar("unit : var_declaration");
+    
 }
-#line 1825 "y.tab.c" /* yacc.c:1646  */
+#line 1831 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 446 "2005087.y" /* yacc.c:1646  */
+#line 456 "2005087.y" /* yacc.c:1646  */
     {
+    (yyval.node)->setStartLine((yyvsp[0].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
     SymbolInfo *sInfo=new SymbolInfo("","unit");
     (yyval.node)=new Node(sInfo,"unit : func_declaration");
     pTree.setCurrentNode((yyval.node));
     (yyval.node)->makeChild({(yyvsp[0].node)});
     util.printGrammar("unit : func_declaration");
+   
 }
-#line 1837 "y.tab.c" /* yacc.c:1646  */
+#line 1846 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 453 "2005087.y" /* yacc.c:1646  */
+#line 466 "2005087.y" /* yacc.c:1646  */
     {
+          (yyval.node)->setStartLine((yyvsp[0].node)->getStartLine());
+        (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
 		SymbolInfo *sInfo = new SymbolInfo("", "unit");
         (yyval.node)=new Node(sInfo,"unit : func_definition");
         pTree.setCurrentNode((yyval.node));
         (yyval.node)->makeChild({(yyvsp[0].node)});
 		util.printGrammar("unit : func_definition");
+       
 }
-#line 1849 "y.tab.c" /* yacc.c:1646  */
+#line 1861 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 461 "2005087.y" /* yacc.c:1646  */
+#line 477 "2005087.y" /* yacc.c:1646  */
     {
+     (yyval.node)->setStartLine((yyvsp[-5].node)->getStartLine());
+        (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
     currentFunctionParameters.clear();
         SymbolInfo *sInfo = new SymbolInfo("", "func_declaration");
         (yyval.node)=new Node(sInfo,"func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON");
@@ -1861,15 +1875,18 @@ yyreduce:
         string functionName=(yyvsp[-4].node)->getName();
         string returnType=(yyvsp[-5].node)->getReturnOrDataType();
         vector<pair<pair<string, string>,bool>> parameterList = (yyvsp[-2].node)->getParameterList();
-        declareFunction(functionName, returnType, parameterList);
+        declareFunction(functionName, returnType,(yyval.node)->getStartLine(), parameterList);
+       
         
 }
-#line 1868 "y.tab.c" /* yacc.c:1646  */
+#line 1883 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 475 "2005087.y" /* yacc.c:1646  */
+#line 494 "2005087.y" /* yacc.c:1646  */
     {
+        (yyval.node)->setStartLine((yyvsp[-4].node)->getStartLine());
+        (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
         currentFunctionParameters.clear();
         SymbolInfo *sInfo = new SymbolInfo("", "func_declaration");
         (yyval.node)=new Node(sInfo,"func_declaration : type_specifier ID LPAREN RPAREN SEMICOLON");
@@ -1879,52 +1896,53 @@ yyreduce:
         //Inserting the function in SymbolTable
         string functionName=(yyvsp[-3].node)->getName();
         string returnType=(yyvsp[-4].node)->getReturnOrDataType();
-        declareFunction(functionName, returnType);
+        declareFunction(functionName, returnType,(yyval.node)->getStartLine());
+         
         
 }
-#line 1886 "y.tab.c" /* yacc.c:1646  */
+#line 1904 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 490 "2005087.y" /* yacc.c:1646  */
+#line 512 "2005087.y" /* yacc.c:1646  */
     {
 currentFunctionReturnType=(yyvsp[-4].node)->getReturnOrDataType();
 }
-#line 1894 "y.tab.c" /* yacc.c:1646  */
+#line 1912 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 493 "2005087.y" /* yacc.c:1646  */
+#line 515 "2005087.y" /* yacc.c:1646  */
     {
+     (yyval.node)->setStartLine((yyvsp[-6].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
     SymbolInfo *sInfo = new SymbolInfo("", "func_definition");
     (yyval.node)=new Node(sInfo,"func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement");
     pTree.setCurrentNode((yyval.node));
     (yyval.node)->makeChild({(yyvsp[-6].node),(yyvsp[-5].node),(yyvsp[-4].node),(yyvsp[-3].node),(yyvsp[-2].node),(yyvsp[0].node)});
     util.printGrammar("func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement");
     string functionName=(yyvsp[-5].node)->getName();
-    string returnType=(yyvsp[-6].node)->getReturnOrDataType();
-    
+    string returnType=(yyvsp[-6].node)->getReturnOrDataType();  
     vector<pair<pair<string, string>,bool>> parameterList = (yyvsp[-3].node)->getParameterList();
-    defineFunction(functionName,returnType,parameterList);
-    
+    defineFunction(functionName,returnType,(yyval.node)->getStartLine(),parameterList);
     
     }
-#line 1913 "y.tab.c" /* yacc.c:1646  */
+#line 1931 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 507 "2005087.y" /* yacc.c:1646  */
+#line 529 "2005087.y" /* yacc.c:1646  */
     {
         currentFunctionReturnType=(yyvsp[-3].node)->getReturnOrDataType();
-
-
     }
-#line 1923 "y.tab.c" /* yacc.c:1646  */
+#line 1939 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 512 "2005087.y" /* yacc.c:1646  */
-    {  
+#line 532 "2005087.y" /* yacc.c:1646  */
+    { 
+    (yyval.node)->setStartLine((yyvsp[-5].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine()); 
     SymbolInfo *sInfo = new SymbolInfo("", "func_definition");
     (yyval.node)=new Node(sInfo,"func_definition : type_specifier ID LPAREN RPAREN compound_statement");
     pTree.setCurrentNode((yyval.node));
@@ -1932,16 +1950,18 @@ currentFunctionReturnType=(yyvsp[-4].node)->getReturnOrDataType();
     util.printGrammar("func_definition : type_specifier ID LPAREN RPAREN compound_statement");
     string functionName=(yyvsp[-4].node)->getName();
     string returnType=(yyvsp[-5].node)->getReturnOrDataType();
-    
     //cout<<functionName<<"  "<<currentFunctionReturnType<<endl;
-    defineFunction(functionName,returnType);
+    defineFunction(functionName,returnType,(yyval.node)->getStartLine());
+    
 }
-#line 1940 "y.tab.c" /* yacc.c:1646  */
+#line 1958 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 529 "2005087.y" /* yacc.c:1646  */
+#line 551 "2005087.y" /* yacc.c:1646  */
     {
+          (yyval.node)->setStartLine((yyvsp[-3].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
        SymbolInfo *sInfo = new SymbolInfo("", "parameter_list");
        (yyval.node)=new Node(sInfo,"parameter_list : parameter_list COMMA type_specifier ID");
        (yyval.node)->addParameter((yyvsp[-3].node)->getParameterList());
@@ -1950,13 +1970,16 @@ currentFunctionReturnType=(yyvsp[-4].node)->getReturnOrDataType();
         pTree.setCurrentNode((yyval.node));
         (yyval.node)->makeChild({(yyvsp[-3].node),(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
         util.printGrammar("parameter_list : parameter_list COMMA type_specifier ID");
+   
 }
-#line 1955 "y.tab.c" /* yacc.c:1646  */
+#line 1976 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 539 "2005087.y" /* yacc.c:1646  */
+#line 564 "2005087.y" /* yacc.c:1646  */
     {
+          (yyval.node)->setStartLine((yyvsp[-2].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
         SymbolInfo *sInfo = new SymbolInfo("", "parameter_list");
         (yyval.node)=new Node(sInfo,"parameter_list : parameter_list COMMA type_specifier");
         (yyval.node)->addParameter((yyvsp[-2].node)->getParameterList());
@@ -1965,13 +1988,16 @@ currentFunctionReturnType=(yyvsp[-4].node)->getReturnOrDataType();
         pTree.setCurrentNode((yyval.node));
        (yyval.node)->makeChild({(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
         util.printGrammar("parameter_list : parameter_list COMMA type_specifier");
+       
 }
-#line 1970 "y.tab.c" /* yacc.c:1646  */
+#line 1994 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 549 "2005087.y" /* yacc.c:1646  */
+#line 577 "2005087.y" /* yacc.c:1646  */
     {
+               (yyval.node)->setStartLine((yyvsp[-1].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
         SymbolInfo *sInfo = new SymbolInfo("", "parameter_list");
         (yyval.node)=new Node(sInfo,"parameter_list : type_specifier ID");
         (yyval.node)->addParameter({{(yyvsp[-1].node)->getReturnOrDataType(),(yyvsp[0].node)->getName()},false});
@@ -1979,13 +2005,16 @@ currentFunctionReturnType=(yyvsp[-4].node)->getReturnOrDataType();
         pTree.setCurrentNode((yyval.node));
         (yyval.node)->makeChild({(yyvsp[-1].node),(yyvsp[0].node)});
         util.printGrammar("parameter_list : type_specifier ID");
+  
 }
-#line 1984 "y.tab.c" /* yacc.c:1646  */
+#line 2011 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 558 "2005087.y" /* yacc.c:1646  */
+#line 589 "2005087.y" /* yacc.c:1646  */
     {
+             (yyval.node)->setStartLine((yyvsp[0].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
         SymbolInfo *sInfo = new SymbolInfo("", "parameter_list");
         (yyval.node)=new Node(sInfo,"parameter_list : type_specifier");
         (yyval.node)->addParameter({{(yyvsp[0].node)->getReturnOrDataType(),""},false});
@@ -1993,670 +2022,15 @@ currentFunctionReturnType=(yyvsp[-4].node)->getReturnOrDataType();
         pTree.setCurrentNode((yyval.node));
         (yyval.node)->makeChild({(yyvsp[0].node)});
         util.printGrammar("parameter_list : type_specifier");
+    
 }
-#line 1998 "y.tab.c" /* yacc.c:1646  */
+#line 2028 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 568 "2005087.y" /* yacc.c:1646  */
+#line 602 "2005087.y" /* yacc.c:1646  */
     {
-    SymbolInfo *sInfo = new SymbolInfo("", "compound_statement");
-    (yyval.node)=new Node(sInfo,"compound_statement : LCURL statements RCURL");
-    pTree.setCurrentNode((yyval.node));
-   (yyval.node)->makeChild({(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
-   util.printGrammar("compound_statement : LCURL statements RCURL");
-   
-  sTable.PrintAllScope(util.getLogFout());
-  sTable.ExitScope();
-
-    
-}
-#line 2015 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 19:
-#line 580 "2005087.y" /* yacc.c:1646  */
-    {
-    SymbolInfo *sInfo = new SymbolInfo("", "compound_statement");
-    (yyval.node)=new Node(sInfo,"compound_statement : LCURL RCURL");
-    pTree.setCurrentNode((yyval.node));
-    (yyval.node)->makeChild({(yyvsp[-1].node),(yyvsp[0].node)});
-    util.printGrammar("compound_statement : LCURL RCURL");
-    
-    sTable.PrintAllScope(util.getLogFout());
-    sTable.ExitScope();
-    
-    }
-#line 2031 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 20:
-#line 592 "2005087.y" /* yacc.c:1646  */
-    {
-   SymbolInfo *sInfo = new SymbolInfo("", "var_declaration");
-   (yyval.node)=new Node(sInfo,"var_declaration : type_specifier declaration_list SEMICOLON",(yyvsp[-2].node)->getReturnOrDataType());
-
-    SaveData((yyvsp[-2].node)->getReturnOrDataType(),(yyvsp[-1].node));
-    pTree.setCurrentNode((yyval.node));
-    (yyval.node)->makeChild({(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
-    util.printGrammar("var_declaration : type_specifier declaration_list SEMICOLON");
-}
-#line 2045 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 21:
-#line 603 "2005087.y" /* yacc.c:1646  */
-    {
-    SymbolInfo *sInfo = new SymbolInfo("", "type_specifier");
-    (yyval.node)=new Node(sInfo,"type_specifier : INT","INT");
-    pTree.setCurrentNode((yyval.node));
-    (yyval.node)->makeChild({(yyvsp[0].node)});
-    util.printGrammar("type_specifier : INT");
-    
-}
-#line 2058 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 22:
-#line 611 "2005087.y" /* yacc.c:1646  */
-    {
-        SymbolInfo *sInfo = new SymbolInfo("", "type_specifier");
-        (yyval.node)=new Node(sInfo,"type_specifier : FLOAT","FLOAT");
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[0].node)});
-        util.printGrammar("type_specifier : FLOAT");
-        
-}
-#line 2071 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 23:
-#line 619 "2005087.y" /* yacc.c:1646  */
-    {
-        SymbolInfo *sInfo = new SymbolInfo("", "type_specifier");
-        (yyval.node)=new Node(sInfo,"type_specifier : VOID","VOID");
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[0].node)});
-        util.printGrammar("type_specifier : VOID");
-        
-}
-#line 2084 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 24:
-#line 628 "2005087.y" /* yacc.c:1646  */
-    {
-        SymbolInfo *sInfo= new SymbolInfo("", "declaration_list");
-        (yyval.node)=new Node(sInfo,"declaration_list : declaration_list COMMA ID");
-        (yyval.node)->addParameter((yyvsp[-2].node)->getParameterList());
-        (yyval.node)->addParameter({{"",(yyvsp[0].node)->getName()},false});
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
-        util.printGrammar("declaration_list : declaration_list COMMA ID");
-}
-#line 2098 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 25:
-#line 637 "2005087.y" /* yacc.c:1646  */
-    {
-        SymbolInfo *sInfo = new SymbolInfo("", "declaration_list");
-        (yyval.node)=new Node(sInfo,"declaration_list : declaration_list COMMA ID LSQUARE CONST_INT RSQUARE");
-        (yyval.node)->addParameter((yyvsp[-5].node)->getParameterList());
-        (yyval.node)->addParameter({{"",(yyvsp[-3].node)->getName()},true});
-        (yyval.node)->setArrayStatus(true);
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[-5].node),(yyvsp[-4].node),(yyvsp[-3].node),(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
-        util.printGrammar("declaration_list : declaration_list COMMA ID LSQUARE CONST_INT RSQUARE");
-}
-#line 2113 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 26:
-#line 647 "2005087.y" /* yacc.c:1646  */
-    {
-       SymbolInfo *sInfo = new SymbolInfo("", "declaration_list");
-       (yyval.node)=new Node(sInfo,"declaration_list : ID");
-       (yyval.node)->addParameter({{(yyvsp[0].node)->getReturnOrDataType(),(yyvsp[0].node)->getName()},false});
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[0].node)});
-        util.printGrammar("declaration_list : ID");   
-}
-#line 2126 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 27:
-#line 655 "2005087.y" /* yacc.c:1646  */
-    {
-        SymbolInfo *sInfo= new SymbolInfo("", "declaration_list");
-        (yyval.node)=new Node(sInfo,"declaration_list : ID LSQUARE CONST_INT RSQUARE");
-        (yyval.node)->addParameter({{(yyvsp[-3].node)->getReturnOrDataType(),(yyvsp[-3].node)->getName()},true});
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[-3].node),(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
-        util.printGrammar("declaration_list : ID LSQUARE CONST_INT RSQUARE"); 
-}
-#line 2139 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 28:
-#line 664 "2005087.y" /* yacc.c:1646  */
-    {
-        SymbolInfo *sInfo = new SymbolInfo("", "statement");
-        (yyval.node)=new Node(sInfo,"statements : statement");
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[0].node)});
-        util.printGrammar("statements : statement"); 
-}
-#line 2151 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 29:
-#line 671 "2005087.y" /* yacc.c:1646  */
-    {
-       SymbolInfo *sInfo = new SymbolInfo("", "statement");
-       (yyval.node)=new Node(sInfo,"statements : statements statement");
-       pTree.setCurrentNode((yyval.node));
-       (yyval.node)->makeChild({(yyvsp[-1].node),(yyvsp[0].node)});
-       util.printGrammar("statements : statements statement"); 
-}
-#line 2163 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 30:
-#line 679 "2005087.y" /* yacc.c:1646  */
-    {
-       SymbolInfo *sInfo= new SymbolInfo("", "statement");
-       (yyval.node)=new Node(sInfo,"statement : var_declaration",(yyvsp[0].node)->getReturnOrDataType());
-       pTree.setCurrentNode((yyval.node));
-       (yyval.node)->makeChild({(yyvsp[0].node)});
-       util.printGrammar("statement : var_declaration");
-       
-}
-#line 2176 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 31:
-#line 687 "2005087.y" /* yacc.c:1646  */
-    {
-    SymbolInfo *sInfo = new SymbolInfo("", "statement");
-    (yyval.node)=new Node(sInfo,"statement : expression_statement",(yyvsp[0].node)->getReturnOrDataType());
-    pTree.setCurrentNode((yyval.node));
-    (yyval.node)->makeChild({(yyvsp[0].node)});
-    util.printGrammar("statement : expression_statement");
-   
-}
-#line 2189 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 32:
-#line 695 "2005087.y" /* yacc.c:1646  */
-    {
-        SymbolInfo *sInfo = new SymbolInfo("", "statement");
-        (yyval.node)=new Node(sInfo,"statement : compound_statement",(yyvsp[0].node)->getReturnOrDataType());
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[0].node)});
-        util.printGrammar("statement : compound_statement");
-        
-}
-#line 2202 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 33:
-#line 703 "2005087.y" /* yacc.c:1646  */
-    {
-        SymbolInfo *sInfo = new SymbolInfo("", "statement");
-        (yyval.node)=new Node(sInfo,"statement : FOR LPAREN expression_statement expression_statement expression RPAREN statement");
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[-6].node),(yyvsp[-5].node),(yyvsp[-4].node),(yyvsp[-3].node),(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
-        util.printGrammar("statement : FOR LPAREN expression_statement expression_statement expression RPAREN statement");
-}
-#line 2214 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 34:
-#line 710 "2005087.y" /* yacc.c:1646  */
-    {
-        SymbolInfo *sInfo = new SymbolInfo("", "statement");
-        (yyval.node)=new Node(sInfo,"statement : IF LPAREN expression RPAREN statement");
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[-4].node),(yyvsp[-3].node),(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
-        util.printGrammar("statement : IF LPAREN expression RPAREN statement");
-}
-#line 2226 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 35:
-#line 717 "2005087.y" /* yacc.c:1646  */
-    {
-        SymbolInfo *sInfo = new SymbolInfo("", "statement");
-        (yyval.node)=new Node(sInfo,"statement : IF LPAREN expression RPAREN statement ELSE statement");
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[-6].node),(yyvsp[-5].node),(yyvsp[-4].node),(yyvsp[-3].node),(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
-        util.printGrammar("statement : IF LPAREN expression RPAREN statement ELSE statement");
-}
-#line 2238 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 36:
-#line 724 "2005087.y" /* yacc.c:1646  */
-    {
-        SymbolInfo *sInfo= new SymbolInfo("", "statement");
-        (yyval.node)=new Node(sInfo,"statement : WHILE LPAREN expression RPAREN statement");
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[-4].node),(yyvsp[-3].node),(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
-        util.printGrammar("statement : WHILE LPAREN expression RPAREN statement");  
-}
-#line 2250 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 37:
-#line 731 "2005087.y" /* yacc.c:1646  */
-    {
-        SymbolInfo *sInfo = new SymbolInfo("", "statement");
-        (yyval.node)=new Node(sInfo,"statement : PRINTLN LPAREN ID RPAREN SEMICOLON");
-        CheckVariableDeclaredOrNot((yyvsp[-2].node));
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[-4].node),(yyvsp[-3].node),(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
-        util.printGrammar("statement : PRINTLN LPAREN ID RPAREN SEMICOLON");
-        
-
-}
-#line 2265 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 38:
-#line 741 "2005087.y" /* yacc.c:1646  */
-    {
-        SymbolInfo *sInfo = new SymbolInfo("", "statement");
-        (yyval.node)=new Node(sInfo,"statement : RETURN expression SEMICOLON");
-        CheckReturnIssues((yyvsp[-1].node));
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
-        util.printGrammar("statement : RETURN expression SEMICOLON");  
-        
-}
-#line 2279 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 39:
-#line 751 "2005087.y" /* yacc.c:1646  */
-    {
-        SymbolInfo *sInfo = new SymbolInfo("", "expression_statement");
-        (yyval.node)=new Node(sInfo,"expression_statement : SEMICOLON");
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[0].node)});
-        util.printGrammar("expression_statement : SEMICOLON"); 
-}
-#line 2291 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 40:
-#line 758 "2005087.y" /* yacc.c:1646  */
-    {
-      SymbolInfo *sInfo = new SymbolInfo("", "expression_statement");
-      (yyval.node)=new Node(sInfo,"expression_statement : expression SEMICOLON");  
-      pTree.setCurrentNode((yyval.node));
-      (yyval.node)->makeChild({(yyvsp[-1].node),(yyvsp[0].node)});
-      util.printGrammar("expression_statement : expression SEMICOLON"); 
-      
-}
-#line 2304 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 41:
-#line 767 "2005087.y" /* yacc.c:1646  */
-    {
-        SymbolInfo *sInfo = new SymbolInfo((yyvsp[0].node)->getName(), "VARIABLE");
-        (yyval.node)=new Node(sInfo,"variable : ID",(yyvsp[0].node)->getReturnOrDataType());
-        CheckVariableDeclaredOrNot((yyvsp[0].node));
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[0].node)});
-        util.printGrammar("variable : ID");
-        
-        		
-}
-#line 2319 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 42:
-#line 777 "2005087.y" /* yacc.c:1646  */
-    {
-        SymbolInfo *sInfo = new SymbolInfo((yyvsp[-3].node)->getName(), "VARIABLE");
-        (yyval.node)=new Node(sInfo,"variable : ID LSQUARE expression RSQUARE",(yyvsp[-3].node)->getReturnOrDataType());
-        CheckArrayIssues((yyval.node),(yyvsp[-3].node),(yyvsp[-1].node));
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[-3].node),(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
-        util.printGrammar("variable : ID LSQUARE expression RSQUARE");      
-}
-#line 2332 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 43:
-#line 786 "2005087.y" /* yacc.c:1646  */
-    {
-        SymbolInfo *sInfo = new SymbolInfo((yyvsp[0].node)->getName(), "expression");
-        (yyval.node)=new Node(sInfo,"expression : logic_expression",(yyvsp[0].node)->getReturnOrDataType());
-        (yyval.node)->setArrayStatus((yyvsp[0].node)->getArrayStatus());
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[0].node)});
-        util.printGrammar("expression : logic_expression");
-}
-#line 2345 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 44:
-#line 794 "2005087.y" /* yacc.c:1646  */
-    {
-        SymbolInfo *sInfo = new SymbolInfo("", "expression");
-        (yyval.node)=new Node(sInfo,"expression : variable ASSIGNOP logic_expression");
-        CheckAssignmentIssues((yyval.node),(yyvsp[-2].node),(yyvsp[0].node));
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
-        util.printGrammar("expression : variable ASSIGNOP logic_expression");
-}
-#line 2358 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 45:
-#line 803 "2005087.y" /* yacc.c:1646  */
-    {
-        SymbolInfo *sInfo = new SymbolInfo((yyvsp[0].node)->getName(), "logic_expression");
-        (yyval.node)=new Node(sInfo,"logic_expression : rel_expression",(yyvsp[0].node)->getReturnOrDataType());
-        (yyval.node)->setArrayStatus((yyvsp[0].node)->getArrayStatus());
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[0].node)});
-        util.printGrammar("logic_expression : rel_expression");
-}
-#line 2371 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 46:
-#line 811 "2005087.y" /* yacc.c:1646  */
-    {
-		SymbolInfo *sInfo = new SymbolInfo("", "logic_expression");
-        CheckLogicalIssues((yyval.node),(yyvsp[-2].node),(yyvsp[0].node));
-        (yyval.node)=new Node(sInfo,"logic_expression : rel_expression LOGICOP rel_expression");
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
-        util.printGrammar("logic_expression : rel_expression LOGICOP rel_expression");
-}
-#line 2384 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 47:
-#line 820 "2005087.y" /* yacc.c:1646  */
-    {
-        SymbolInfo *sInfo = new SymbolInfo((yyvsp[0].node)->getName(), "rel_expression");
-        (yyval.node)=new Node(sInfo,"rel_expression : simple_expression",(yyvsp[0].node)->getReturnOrDataType());
-        (yyval.node)->setArrayStatus((yyvsp[0].node)->getArrayStatus());
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[0].node)});
-        util.printGrammar("rel_expression : simple_expression");
-       
-}
-#line 2398 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 48:
-#line 829 "2005087.y" /* yacc.c:1646  */
-    {
-        SymbolInfo *sInfo= new SymbolInfo("", "rel_expression");
-        (yyval.node)=new Node(sInfo,"rel_expression : simple_expression RELOP simple_expression");
-        CheckRelationalIssues((yyval.node),(yyvsp[-2].node),(yyvsp[0].node));
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
-        util.printGrammar("rel_expression : simple_expression RELOP simple_expression");
-}
-#line 2411 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 49:
-#line 838 "2005087.y" /* yacc.c:1646  */
-    {
-       SymbolInfo *sInfo = new SymbolInfo((yyvsp[0].node)->getName(), "simple_expression");
-       (yyval.node)=new Node(sInfo,"simple_expression : term",(yyvsp[0].node)->getReturnOrDataType());
-       (yyval.node)->setArrayStatus((yyvsp[0].node)->getArrayStatus());
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[0].node)});
-        util.printGrammar("simple_expression : term");
-        
-}
-#line 2425 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 50:
-#line 847 "2005087.y" /* yacc.c:1646  */
-    {
-        SymbolInfo *sInfo = new SymbolInfo("", "simple_expression");
-        (yyval.node)=new Node(sInfo,"simple_expression : simple_expression ADDOP term",TypeCasting((yyvsp[-2].node)->getReturnOrDataType(), (yyvsp[0].node)->getReturnOrDataType()));
-        if ((yyvsp[-2].node)->getReturnOrDataType() == "VOID" || (yyvsp[0].node)->getReturnOrDataType() == "VOID") {
-			util.printError("Void cannot be used in expression", yylineno);
-		}
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
-        util.printGrammar("simple_expression : simple_expression ADDOP term");	
-}
-#line 2440 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 51:
-#line 858 "2005087.y" /* yacc.c:1646  */
-    {
-       SymbolInfo *sInfo = new SymbolInfo((yyvsp[0].node)->getName(), "term");
-        (yyval.node)=new Node(sInfo,"term : unary_expression",(yyvsp[0].node)->getReturnOrDataType());
-        (yyval.node)->setArrayStatus((yyvsp[0].node)->getArrayStatus());
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[0].node)});
-        util.printGrammar("term : unary_expression");
-}
-#line 2453 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 52:
-#line 866 "2005087.y" /* yacc.c:1646  */
-    {
-      SymbolInfo *sInfo = new SymbolInfo("", "term");  
-      (yyval.node)=new Node(sInfo,"term : term MULOP unary_expression");
-      CheckMultiplicationIssues((yyval.node),(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node));
-      pTree.setCurrentNode((yyval.node));
-      (yyval.node)->makeChild({(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
-      util.printGrammar("term : term MULOP unary_expression");  
-}
-#line 2466 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 53:
-#line 875 "2005087.y" /* yacc.c:1646  */
-    {
-    SymbolInfo *sInfo = new SymbolInfo("", "unary_expression");
-    (yyval.node)=new Node(sInfo,"unary_expression : ADDOP unary_expression");
-    if ((yyvsp[0].node)->getReturnOrDataType() == "VOID") {
-			util.printError("Void cannot be used in expression", yylineno);
-		}
-		else {(yyval.node)->setReturnOrDataType((yyvsp[0].node)->getReturnOrDataType());}
-    pTree.setCurrentNode((yyval.node));
-    (yyval.node)->makeChild({(yyvsp[-1].node),(yyvsp[0].node)});
-    util.printGrammar("unary_expression : ADDOP unary_expression");
-		
-}
-#line 2483 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 54:
-#line 887 "2005087.y" /* yacc.c:1646  */
-    {
-        SymbolInfo *sInfo = new SymbolInfo("", "unary_expression");
-        (yyval.node)=new Node(sInfo,"unary_expression : NOT unary_expression");
-        CheckUnaryExpression((yyval.node),(yyvsp[0].node));
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[-1].node),(yyvsp[0].node)});
-        util.printGrammar("unary_expression : NOT unary_expression");
-
-}
-#line 2497 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 55:
-#line 896 "2005087.y" /* yacc.c:1646  */
-    {
-        SymbolInfo *sInfo = new SymbolInfo((yyvsp[0].node)->getName(), "unary_expression");
-        (yyval.node)=new Node(sInfo,"unary_expression : factor",(yyvsp[0].node)->getReturnOrDataType());
-        (yyval.node)->setArrayStatus((yyvsp[0].node)->getArrayStatus());
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[0].node)});
-        util.printGrammar("unary_expression : factor");
-        
-}
-#line 2511 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 56:
-#line 908 "2005087.y" /* yacc.c:1646  */
-    {
-       SymbolInfo *sInfo = new SymbolInfo((yyvsp[0].node)->getName(), "factor");
-       (yyval.node)=new Node(sInfo,"factor : variable",(yyvsp[0].node)->getReturnOrDataType());
-       (yyval.node)->setArrayStatus((yyvsp[0].node)->getArrayStatus());
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[0].node)});
-        util.printGrammar("factor : variable");
-        
-}
-#line 2525 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 57:
-#line 917 "2005087.y" /* yacc.c:1646  */
-    {
-        SymbolInfo *sInfo = new SymbolInfo("", "factor");
-        (yyval.node)=new Node(sInfo,"factor : ID LPAREN argument_list RPAREN");
-        callFunction((yyval.node),(yyvsp[-3].node),(yyvsp[-1].node));
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[-3].node),(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
-        util.printGrammar("factor : ID LPAREN argument_list RPAREN");
-}
-#line 2538 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 58:
-#line 926 "2005087.y" /* yacc.c:1646  */
-    {
-        SymbolInfo *sInfo = new SymbolInfo((yyvsp[-1].node)->getName(), "factor");
-        (yyval.node)=new Node(sInfo,"factor : LPAREN expression RPAREN",(yyvsp[-1].node)->getReturnOrDataType());
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
-        util.printGrammar("factor : LPAREN expression RPAREN");
-        
-}
-#line 2551 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 59:
-#line 934 "2005087.y" /* yacc.c:1646  */
-    {
-        SymbolInfo *sInfo = new SymbolInfo((yyvsp[0].node)->getName(), "factor");	
-        (yyval.node)=new Node(sInfo,"factor : CONST_INT","INT");
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[0].node)});
-        util.printGrammar("factor : CONST_INT");
-}
-#line 2563 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 60:
-#line 941 "2005087.y" /* yacc.c:1646  */
-    {
-        SymbolInfo *sInfo = new SymbolInfo((yyvsp[0].node)->getName(), "factor");
-        (yyval.node)=new Node(sInfo,"factor : CONST_FLOAT","FLOAT");
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[0].node)});
-        util.printGrammar("factor : CONST_FLOAT");
-
-}
-#line 2576 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 61:
-#line 949 "2005087.y" /* yacc.c:1646  */
-    {
-        SymbolInfo *sInfo = new SymbolInfo("", "factor");
-        (yyval.node)=new Node(sInfo,"factor : variable INCOP");
-        CheckUnaryOperandIssues((yyval.node),(yyvsp[-1].node));
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[-1].node),(yyvsp[0].node)});
-        util.printGrammar("factor : variable INCOP");
-		
-}
-#line 2590 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 62:
-#line 958 "2005087.y" /* yacc.c:1646  */
-    {
-        SymbolInfo *sInfo= new SymbolInfo("", "factor");
-        (yyval.node)=new Node(sInfo,"factor : variable DECOP");
-        CheckUnaryOperandIssues((yyval.node),(yyvsp[-1].node));
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[-1].node),(yyvsp[0].node)});
-        util.printGrammar("factor : variable DECOP");
-}
-#line 2603 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 63:
-#line 968 "2005087.y" /* yacc.c:1646  */
-    {
-       SymbolInfo *sInfo = new SymbolInfo("", "argument_list");
-        (yyval.node)=new Node(sInfo,"argument_list : arguments");
-        (yyval.node)->addParameter((yyvsp[0].node)->getParameterList());
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[0].node)});
-        util.printGrammar("argument_list : arguments");		
-}
-#line 2616 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 64:
-#line 976 "2005087.y" /* yacc.c:1646  */
-    {
-        SymbolInfo *sInfo= new SymbolInfo("", "argument_list");
-        (yyval.node)=new Node(sInfo,"argument_list : ");
-        util.printGrammar("argument_list : ");
-}
-#line 2626 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 65:
-#line 982 "2005087.y" /* yacc.c:1646  */
-    {
-    SymbolInfo *sInfo = new SymbolInfo("", "arguments");
-    (yyval.node)=new Node(sInfo,"arguments : arguments COMMA logic_expression");
-    (yyval.node)->addParameter((yyvsp[-2].node)->getParameterList());
-    (yyval.node)->addParameter({{(yyvsp[0].node)->getReturnOrDataType(),(yyvsp[0].node)->getName()},(yyvsp[0].node)->getArrayStatus()});
-    pTree.setCurrentNode((yyval.node));
-    (yyval.node)->makeChild({(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
-    util.printGrammar("arguments : arguments COMMA logic_expression");
-}
-#line 2640 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 66:
-#line 991 "2005087.y" /* yacc.c:1646  */
-    {
-        SymbolInfo *sInfo = new SymbolInfo("", "arguments");
-        (yyval.node)=new Node(sInfo,"arguments : logic_expression");
-        (yyval.node)->addParameter({{(yyvsp[0].node)->getReturnOrDataType(),(yyvsp[0].node)->getName()},(yyvsp[0].node)->getArrayStatus()});
-        pTree.setCurrentNode((yyval.node));
-        (yyval.node)->makeChild({(yyvsp[0].node)});
-        util.printGrammar("arguments : logic_expression");
-}
-#line 2653 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 67:
-#line 1000 "2005087.y" /* yacc.c:1646  */
-    {
-    (yyval.node)=(yyvsp[0].node);
-    sTable.EnterScope();
+        sTable.EnterScope();
     for (auto functionArgument : currentFunctionParameters) {
         string functionName=functionArgument.first.second;
 			if (functionName == "") {
@@ -2670,12 +2044,829 @@ currentFunctionReturnType=(yyvsp[-4].node)->getReturnOrDataType();
 			}
 		}
         currentFunctionParameters.clear();
+    }
+#line 2049 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 19:
+#line 618 "2005087.y" /* yacc.c:1646  */
+    {
+         (yyval.node)->setStartLine((yyvsp[-3].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+    SymbolInfo *sInfo = new SymbolInfo("", "compound_statement");
+    (yyval.node)=new Node(sInfo,"compound_statement : LCURL statements RCURL");
+    pTree.setCurrentNode((yyval.node));
+   (yyval.node)->makeChild({(yyvsp[-3].node),(yyvsp[-1].node),(yyvsp[0].node)});
+   util.printGrammar("compound_statement : LCURL statements RCURL");
+   
+  sTable.PrintAllScope(util.getLogFout());
+  sTable.ExitScope();
+  
+
+    
 }
-#line 2675 "y.tab.c" /* yacc.c:1646  */
+#line 2069 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 20:
+#line 633 "2005087.y" /* yacc.c:1646  */
+    {
+        sTable.EnterScope();
+    for (auto functionArgument : currentFunctionParameters) {
+        string functionName=functionArgument.first.second;
+			if (functionName == "") {
+				continue;
+			}
+			Node* toBeInserted = new Node(new SymbolInfo(functionName, "ID"),"", functionArgument.first.first);
+			toBeInserted->setArrayStatus(functionArgument.second);
+			if (!sTable.Insert(toBeInserted)) {
+                util.printError("Redefinition of parameter \'"+toBeInserted->getName() +"\'",yylineno );
+				break;
+			}
+		}
+        currentFunctionParameters.clear();
+    }
+#line 2090 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 21:
+#line 649 "2005087.y" /* yacc.c:1646  */
+    {
+        (yyval.node)->setStartLine((yyvsp[-2].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+    SymbolInfo *sInfo = new SymbolInfo("", "compound_statement");
+    (yyval.node)=new Node(sInfo,"compound_statement : LCURL RCURL");
+    pTree.setCurrentNode((yyval.node));
+    (yyval.node)->makeChild({(yyvsp[-2].node),(yyvsp[0].node)});
+    util.printGrammar("compound_statement : LCURL RCURL");
+    
+    sTable.PrintAllScope(util.getLogFout());
+    sTable.ExitScope();
+     
+    }
+#line 2108 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 22:
+#line 663 "2005087.y" /* yacc.c:1646  */
+    {
+    (yyval.node)->setStartLine((yyvsp[-2].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+   SymbolInfo *sInfo = new SymbolInfo("", "var_declaration");
+   (yyval.node)=new Node(sInfo,"var_declaration : type_specifier declaration_list SEMICOLON",(yyvsp[-2].node)->getReturnOrDataType());
+
+    SaveData((yyvsp[-2].node)->getReturnOrDataType(),(yyvsp[-1].node),(yyval.node)->getStartLine());
+    pTree.setCurrentNode((yyval.node));
+    (yyval.node)->makeChild({(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
+    util.printGrammar("var_declaration : type_specifier declaration_list SEMICOLON");
+     
+}
+#line 2125 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 23:
+#line 677 "2005087.y" /* yacc.c:1646  */
+    {
+     (yyval.node)->setStartLine((yyvsp[0].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+    SymbolInfo *sInfo = new SymbolInfo("", "type_specifier");
+    (yyval.node)=new Node(sInfo,"type_specifier : INT","INT");
+    pTree.setCurrentNode((yyval.node));
+    (yyval.node)->makeChild({(yyvsp[0].node)});
+    util.printGrammar("type_specifier : INT");
+    
+    
+}
+#line 2141 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 24:
+#line 688 "2005087.y" /* yacc.c:1646  */
+    {
+     (yyval.node)->setStartLine((yyvsp[0].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+        SymbolInfo *sInfo = new SymbolInfo("", "type_specifier");
+        (yyval.node)=new Node(sInfo,"type_specifier : FLOAT","FLOAT");
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[0].node)});
+        util.printGrammar("type_specifier : FLOAT");
+ 
+        
+}
+#line 2157 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 25:
+#line 699 "2005087.y" /* yacc.c:1646  */
+    {
+    (yyval.node)->setStartLine((yyvsp[0].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+        SymbolInfo *sInfo = new SymbolInfo("", "type_specifier");
+        (yyval.node)=new Node(sInfo,"type_specifier : VOID","VOID");
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[0].node)});
+        util.printGrammar("type_specifier : VOID");
+  
+        
+}
+#line 2173 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 26:
+#line 711 "2005087.y" /* yacc.c:1646  */
+    {
+       (yyval.node)->setStartLine((yyvsp[-2].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+        SymbolInfo *sInfo= new SymbolInfo("", "declaration_list");
+        (yyval.node)=new Node(sInfo,"declaration_list : declaration_list COMMA ID");
+        (yyval.node)->addParameter((yyvsp[-2].node)->getParameterList());
+        (yyval.node)->addParameter({{"",(yyvsp[0].node)->getName()},false});
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
+        util.printGrammar("declaration_list : declaration_list COMMA ID");
+      
+}
+#line 2190 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 27:
+#line 723 "2005087.y" /* yacc.c:1646  */
+    {
+                (yyval.node)->setStartLine((yyvsp[-5].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+        SymbolInfo *sInfo = new SymbolInfo("", "declaration_list");
+        (yyval.node)=new Node(sInfo,"declaration_list : declaration_list COMMA ID LSQUARE CONST_INT RSQUARE");
+        (yyval.node)->addParameter((yyvsp[-5].node)->getParameterList());
+        (yyval.node)->addParameter({{"",(yyvsp[-3].node)->getName()},true});
+        (yyval.node)->setArrayStatus(true);
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[-5].node),(yyvsp[-4].node),(yyvsp[-3].node),(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
+        util.printGrammar("declaration_list : declaration_list COMMA ID LSQUARE CONST_INT RSQUARE");
+ 
+}
+#line 2208 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 28:
+#line 736 "2005087.y" /* yacc.c:1646  */
+    {
+                (yyval.node)->setStartLine((yyvsp[0].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine()); 
+       SymbolInfo *sInfo = new SymbolInfo("", "declaration_list");
+       (yyval.node)=new Node(sInfo,"declaration_list : ID");
+       (yyval.node)->addParameter({{(yyvsp[0].node)->getReturnOrDataType(),(yyvsp[0].node)->getName()},false});
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[0].node)});
+        util.printGrammar("declaration_list : ID");  
+ 
+}
+#line 2224 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 29:
+#line 747 "2005087.y" /* yacc.c:1646  */
+    {
+                 (yyval.node)->setStartLine((yyvsp[-3].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+        SymbolInfo *sInfo= new SymbolInfo("", "declaration_list");
+        (yyval.node)=new Node(sInfo,"declaration_list : ID LSQUARE CONST_INT RSQUARE");
+        (yyval.node)->addParameter({{(yyvsp[-3].node)->getReturnOrDataType(),(yyvsp[-3].node)->getName()},true});
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[-3].node),(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
+        util.printGrammar("declaration_list : ID LSQUARE CONST_INT RSQUARE"); 
+
+}
+#line 2240 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 30:
+#line 759 "2005087.y" /* yacc.c:1646  */
+    {
+           (yyval.node)->setStartLine((yyvsp[0].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine()); 
+        SymbolInfo *sInfo = new SymbolInfo("", "statement");
+        (yyval.node)=new Node(sInfo,"statements : statement");
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[0].node)});
+        util.printGrammar("statements : statement");
+  
+}
+#line 2255 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 31:
+#line 769 "2005087.y" /* yacc.c:1646  */
+    {
+               (yyval.node)->setStartLine((yyvsp[-1].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[-1].node)->getEndLine());
+       SymbolInfo *sInfo = new SymbolInfo("", "statement");
+       (yyval.node)=new Node(sInfo,"statements : statements statement");
+       pTree.setCurrentNode((yyval.node));
+       (yyval.node)->makeChild({(yyvsp[-1].node),(yyvsp[0].node)});
+       util.printGrammar("statements : statements statement"); 
+ 
+}
+#line 2270 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 32:
+#line 780 "2005087.y" /* yacc.c:1646  */
+    {
+           (yyval.node)->setStartLine((yyvsp[0].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+       SymbolInfo *sInfo= new SymbolInfo("", "statement");
+       (yyval.node)=new Node(sInfo,"statement : var_declaration",(yyvsp[0].node)->getReturnOrDataType());
+       pTree.setCurrentNode((yyval.node));
+       (yyval.node)->makeChild({(yyvsp[0].node)});
+       util.printGrammar("statement : var_declaration");
+ 
+       
+}
+#line 2286 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 33:
+#line 791 "2005087.y" /* yacc.c:1646  */
+    {
+          (yyval.node)->setStartLine((yyvsp[0].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+    SymbolInfo *sInfo = new SymbolInfo("", "statement");
+    (yyval.node)=new Node(sInfo,"statement : expression_statement",(yyvsp[0].node)->getReturnOrDataType());
+    pTree.setCurrentNode((yyval.node));
+    (yyval.node)->makeChild({(yyvsp[0].node)});
+    util.printGrammar("statement : expression_statement");
+   
+   
+}
+#line 2302 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 34:
+#line 802 "2005087.y" /* yacc.c:1646  */
+    {
+              (yyval.node)->setStartLine((yyvsp[0].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+        SymbolInfo *sInfo = new SymbolInfo("", "statement");
+        (yyval.node)=new Node(sInfo,"statement : compound_statement",(yyvsp[0].node)->getReturnOrDataType());
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[0].node)});
+        util.printGrammar("statement : compound_statement");
+   
+        
+}
+#line 2318 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 35:
+#line 813 "2005087.y" /* yacc.c:1646  */
+    {
+                (yyval.node)->setStartLine((yyvsp[-6].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+        SymbolInfo *sInfo = new SymbolInfo("", "statement");
+        (yyval.node)=new Node(sInfo,"statement : FOR LPAREN expression_statement expression_statement expression RPAREN statement");
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[-6].node),(yyvsp[-5].node),(yyvsp[-4].node),(yyvsp[-3].node),(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
+        util.printGrammar("statement : FOR LPAREN expression_statement expression_statement expression RPAREN statement");
+ 
+}
+#line 2333 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 36:
+#line 823 "2005087.y" /* yacc.c:1646  */
+    {
+            (yyval.node)->setStartLine((yyvsp[-4].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+        SymbolInfo *sInfo = new SymbolInfo("", "statement");
+        (yyval.node)=new Node(sInfo,"statement : IF LPAREN expression RPAREN statement");
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[-4].node),(yyvsp[-3].node),(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
+        util.printGrammar("statement : IF LPAREN expression RPAREN statement");
+     
+}
+#line 2348 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 37:
+#line 833 "2005087.y" /* yacc.c:1646  */
+    {
+                (yyval.node)->setStartLine((yyvsp[-6].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+        SymbolInfo *sInfo = new SymbolInfo("", "statement");
+        (yyval.node)=new Node(sInfo,"statement : IF LPAREN expression RPAREN statement ELSE statement");
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[-6].node),(yyvsp[-5].node),(yyvsp[-4].node),(yyvsp[-3].node),(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
+        util.printGrammar("statement : IF LPAREN expression RPAREN statement ELSE statement");
+ 
+}
+#line 2363 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 38:
+#line 843 "2005087.y" /* yacc.c:1646  */
+    {
+                (yyval.node)->setStartLine((yyvsp[-4].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+        SymbolInfo *sInfo= new SymbolInfo("", "statement");
+        (yyval.node)=new Node(sInfo,"statement : WHILE LPAREN expression RPAREN statement");
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[-4].node),(yyvsp[-3].node),(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
+        util.printGrammar("statement : WHILE LPAREN expression RPAREN statement");  
+ 
+}
+#line 2378 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 39:
+#line 853 "2005087.y" /* yacc.c:1646  */
+    {
+             (yyval.node)->setStartLine((yyvsp[-4].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+        SymbolInfo *sInfo = new SymbolInfo("", "statement");
+        (yyval.node)=new Node(sInfo,"statement : PRINTLN LPAREN ID RPAREN SEMICOLON");
+        CheckVariableDeclaredOrNot((yyvsp[-2].node));
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[-4].node),(yyvsp[-3].node),(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
+        util.printGrammar("statement : PRINTLN LPAREN ID RPAREN SEMICOLON");
+    
+
+}
+#line 2395 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 40:
+#line 865 "2005087.y" /* yacc.c:1646  */
+    {
+               (yyval.node)->setStartLine((yyvsp[-2].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine()); 
+        SymbolInfo *sInfo = new SymbolInfo("", "statement");
+        (yyval.node)=new Node(sInfo,"statement : RETURN expression SEMICOLON");
+        CheckReturnIssues((yyvsp[-1].node));
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
+        util.printGrammar("statement : RETURN expression SEMICOLON");  
+ 
+}
+#line 2411 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 41:
+#line 877 "2005087.y" /* yacc.c:1646  */
+    {
+        (yyval.node)->setStartLine((yyvsp[0].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+        SymbolInfo *sInfo = new SymbolInfo("", "expression_statement");
+        (yyval.node)=new Node(sInfo,"expression_statement : SEMICOLON");
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[0].node)});
+        util.printGrammar("expression_statement : SEMICOLON"); 
+     
+}
+#line 2426 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 42:
+#line 887 "2005087.y" /* yacc.c:1646  */
+    {
+             (yyval.node)->setStartLine((yyvsp[-1].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+      SymbolInfo *sInfo = new SymbolInfo("", "expression_statement");
+      (yyval.node)=new Node(sInfo,"expression_statement : expression SEMICOLON");  
+      pTree.setCurrentNode((yyval.node));
+      (yyval.node)->makeChild({(yyvsp[-1].node),(yyvsp[0].node)});
+      util.printGrammar("expression_statement : expression SEMICOLON"); 
+  
+      
+}
+#line 2442 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 43:
+#line 899 "2005087.y" /* yacc.c:1646  */
+    {
+           (yyval.node)->setStartLine((yyvsp[0].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+        SymbolInfo *sInfo = new SymbolInfo((yyvsp[0].node)->getName(), "VARIABLE");
+        CheckVariableDeclaredOrNot((yyvsp[0].node));
+        (yyval.node)=new Node(sInfo,"variable : ID",(yyvsp[0].node)->getReturnOrDataType()); 
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[0].node)});
+        util.printGrammar("variable : ID");
+  
+        		
+}
+#line 2459 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 44:
+#line 911 "2005087.y" /* yacc.c:1646  */
+    {
+           (yyval.node)->setStartLine((yyvsp[-3].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine()); 
+        SymbolInfo *sInfo = new SymbolInfo((yyvsp[-3].node)->getName(), "VARIABLE");
+        (yyval.node)=new Node(sInfo,"variable : ID LSQUARE expression RSQUARE",(yyvsp[-3].node)->getReturnOrDataType());
+        CheckArrayIssues((yyval.node),(yyvsp[-3].node),(yyvsp[-1].node));
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[-3].node),(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
+        util.printGrammar("variable : ID LSQUARE expression RSQUARE");     
+      
+}
+#line 2475 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 45:
+#line 923 "2005087.y" /* yacc.c:1646  */
+    {
+     (yyval.node)->setStartLine((yyvsp[0].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+        SymbolInfo *sInfo = new SymbolInfo((yyvsp[0].node)->getName(), "expression");
+        (yyval.node)=new Node(sInfo,"expression : logic_expression",(yyvsp[0].node)->getReturnOrDataType());
+        (yyval.node)->setArrayStatus((yyvsp[0].node)->getArrayStatus());
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[0].node)});
+        util.printGrammar("expression : logic_expression");
+        
+}
+#line 2491 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 46:
+#line 934 "2005087.y" /* yacc.c:1646  */
+    {
+                (yyval.node)->setStartLine((yyvsp[-2].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+        SymbolInfo *sInfo = new SymbolInfo("", "expression");
+        (yyval.node)=new Node(sInfo,"expression : variable ASSIGNOP logic_expression");
+        CheckAssignmentIssues((yyval.node),(yyvsp[-2].node),(yyvsp[0].node));
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
+        util.printGrammar("expression : variable ASSIGNOP logic_expression");
+ 
+}
+#line 2507 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 47:
+#line 946 "2005087.y" /* yacc.c:1646  */
+    {
+            (yyval.node)->setStartLine((yyvsp[0].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+        SymbolInfo *sInfo = new SymbolInfo((yyvsp[0].node)->getName(), "logic_expression");
+        (yyval.node)=new Node(sInfo,"logic_expression : rel_expression",(yyvsp[0].node)->getReturnOrDataType());
+        (yyval.node)->setArrayStatus((yyvsp[0].node)->getArrayStatus());
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[0].node)});
+        util.printGrammar("logic_expression : rel_expression");
+ 
+}
+#line 2523 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 48:
+#line 957 "2005087.y" /* yacc.c:1646  */
+    {
+                 (yyval.node)->setStartLine((yyvsp[-2].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+		SymbolInfo *sInfo = new SymbolInfo("", "logic_expression");
+        CheckLogicalIssues((yyval.node),(yyvsp[-2].node),(yyvsp[0].node));
+        (yyval.node)=new Node(sInfo,"logic_expression : rel_expression LOGICOP rel_expression");
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
+        util.printGrammar("logic_expression : rel_expression LOGICOP rel_expression");
+
+}
+#line 2539 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 49:
+#line 969 "2005087.y" /* yacc.c:1646  */
+    {
+             (yyval.node)->setStartLine((yyvsp[0].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+        SymbolInfo *sInfo = new SymbolInfo((yyvsp[0].node)->getName(), "rel_expression");
+        (yyval.node)=new Node(sInfo,"rel_expression : simple_expression",(yyvsp[0].node)->getReturnOrDataType());
+        (yyval.node)->setArrayStatus((yyvsp[0].node)->getArrayStatus());
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[0].node)});
+        util.printGrammar("rel_expression : simple_expression");
+
+       
+}
+#line 2556 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 50:
+#line 981 "2005087.y" /* yacc.c:1646  */
+    {
+                 (yyval.node)->setStartLine((yyvsp[-2].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+        SymbolInfo *sInfo= new SymbolInfo("", "rel_expression");
+        (yyval.node)=new Node(sInfo,"rel_expression : simple_expression RELOP simple_expression");
+        CheckRelationalIssues((yyval.node),(yyvsp[-2].node),(yyvsp[0].node));
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
+        util.printGrammar("rel_expression : simple_expression RELOP simple_expression");
+
+}
+#line 2572 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 51:
+#line 993 "2005087.y" /* yacc.c:1646  */
+    {
+             (yyval.node)->setStartLine((yyvsp[0].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+       SymbolInfo *sInfo = new SymbolInfo((yyvsp[0].node)->getName(), "simple_expression");
+       (yyval.node)=new Node(sInfo,"simple_expression : term",(yyvsp[0].node)->getReturnOrDataType());
+       (yyval.node)->setArrayStatus((yyvsp[0].node)->getArrayStatus());
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[0].node)});
+        util.printGrammar("simple_expression : term");
+
+        
+}
+#line 2589 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 52:
+#line 1005 "2005087.y" /* yacc.c:1646  */
+    {
+                 (yyval.node)->setStartLine((yyvsp[-2].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+        SymbolInfo *sInfo = new SymbolInfo("", "simple_expression");
+        (yyval.node)=new Node(sInfo,"simple_expression : simple_expression ADDOP term",TypeCasting((yyvsp[-2].node)->getReturnOrDataType(), (yyvsp[0].node)->getReturnOrDataType()));
+        if ((yyvsp[-2].node)->getReturnOrDataType() == "VOID" || (yyvsp[0].node)->getReturnOrDataType() == "VOID") {
+			util.printError("Void cannot be used in expression", (yyval.node)->getStartLine());
+		}
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
+        util.printGrammar("simple_expression : simple_expression ADDOP term");
+	
+}
+#line 2607 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 53:
+#line 1019 "2005087.y" /* yacc.c:1646  */
+    {
+      (yyval.node)->setStartLine((yyvsp[0].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+       SymbolInfo *sInfo = new SymbolInfo((yyvsp[0].node)->getName(), "term");
+        (yyval.node)=new Node(sInfo,"term : unary_expression",(yyvsp[0].node)->getReturnOrDataType());
+        (yyval.node)->setArrayStatus((yyvsp[0].node)->getArrayStatus());
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[0].node)});
+        util.printGrammar("term : unary_expression");
+       
+}
+#line 2623 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 54:
+#line 1030 "2005087.y" /* yacc.c:1646  */
+    {
+               (yyval.node)->setStartLine((yyvsp[-2].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+      SymbolInfo *sInfo = new SymbolInfo("", "term");  
+      (yyval.node)=new Node(sInfo,"term : term MULOP unary_expression");
+      CheckMultiplicationIssues((yyval.node),(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node));
+      pTree.setCurrentNode((yyval.node));
+      (yyval.node)->makeChild({(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
+      util.printGrammar("term : term MULOP unary_expression");  
+
+}
+#line 2639 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 55:
+#line 1042 "2005087.y" /* yacc.c:1646  */
+    {
+         (yyval.node)->setStartLine((yyvsp[-1].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+    SymbolInfo *sInfo = new SymbolInfo("", "unary_expression");
+    (yyval.node)=new Node(sInfo,"unary_expression : ADDOP unary_expression");
+    if ((yyvsp[0].node)->getReturnOrDataType() == "VOID") {
+			util.printError("Void cannot be used in expression", (yyval.node)->getStartLine());
+		}
+		else {(yyval.node)->setReturnOrDataType((yyvsp[0].node)->getReturnOrDataType());}
+    pTree.setCurrentNode((yyval.node));
+    (yyval.node)->makeChild({(yyvsp[-1].node),(yyvsp[0].node)});
+    util.printGrammar("unary_expression : ADDOP unary_expression");
+
+		
+}
+#line 2659 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 56:
+#line 1057 "2005087.y" /* yacc.c:1646  */
+    {
+                (yyval.node)->setStartLine((yyvsp[-1].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+        SymbolInfo *sInfo = new SymbolInfo("", "unary_expression");
+        (yyval.node)=new Node(sInfo,"unary_expression : NOT unary_expression");
+        CheckUnaryExpression((yyval.node),(yyvsp[0].node));
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[-1].node),(yyvsp[0].node)});
+        util.printGrammar("unary_expression : NOT unary_expression");
+ 
+
+}
+#line 2676 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 57:
+#line 1069 "2005087.y" /* yacc.c:1646  */
+    {
+                 (yyval.node)->setStartLine((yyvsp[0].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+        SymbolInfo *sInfo = new SymbolInfo((yyvsp[0].node)->getName(), "unary_expression");
+        (yyval.node)=new Node(sInfo,"unary_expression : factor",(yyvsp[0].node)->getReturnOrDataType());
+        (yyval.node)->setArrayStatus((yyvsp[0].node)->getArrayStatus());
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[0].node)});
+        util.printGrammar("unary_expression : factor");
+
+        
+}
+#line 2693 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 58:
+#line 1084 "2005087.y" /* yacc.c:1646  */
+    {
+             (yyval.node)->setStartLine((yyvsp[0].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+       SymbolInfo *sInfo = new SymbolInfo((yyvsp[0].node)->getName(), "factor");
+       (yyval.node)=new Node(sInfo,"factor : variable",(yyvsp[0].node)->getReturnOrDataType());
+       (yyval.node)->setArrayStatus((yyvsp[0].node)->getArrayStatus());
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[0].node)});
+        util.printGrammar("factor : variable");
+
+        
+}
+#line 2710 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 59:
+#line 1096 "2005087.y" /* yacc.c:1646  */
+    {
+                 (yyval.node)->setStartLine((yyvsp[-3].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+        SymbolInfo *sInfo = new SymbolInfo("", "factor");
+        (yyval.node)=new Node(sInfo,"factor : ID LPAREN argument_list RPAREN");
+        callFunction((yyval.node),(yyvsp[-3].node),(yyvsp[-1].node));
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[-3].node),(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
+        util.printGrammar("factor : ID LPAREN argument_list RPAREN");
+
+}
+#line 2726 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 60:
+#line 1108 "2005087.y" /* yacc.c:1646  */
+    {
+                 (yyval.node)->setStartLine((yyvsp[-2].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[-1].node)->getEndLine());
+        SymbolInfo *sInfo = new SymbolInfo((yyvsp[-1].node)->getName(), "factor");
+        (yyval.node)=new Node(sInfo,"factor : LPAREN expression RPAREN",(yyvsp[-1].node)->getReturnOrDataType());
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
+        util.printGrammar("factor : LPAREN expression RPAREN");
+
+        
+}
+#line 2742 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 61:
+#line 1119 "2005087.y" /* yacc.c:1646  */
+    {
+                 (yyval.node)->setStartLine((yyvsp[0].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+        SymbolInfo *sInfo = new SymbolInfo((yyvsp[0].node)->getName(), "factor");	
+        (yyval.node)=new Node(sInfo,"factor : CONST_INT","INT");
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[0].node)});
+        util.printGrammar("factor : CONST_INT");
+
+}
+#line 2757 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 62:
+#line 1129 "2005087.y" /* yacc.c:1646  */
+    {
+                 (yyval.node)->setStartLine((yyvsp[0].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+        SymbolInfo *sInfo = new SymbolInfo((yyvsp[0].node)->getName(), "factor");
+        (yyval.node)=new Node(sInfo,"factor : CONST_FLOAT","FLOAT");
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[0].node)});
+        util.printGrammar("factor : CONST_FLOAT");
+
+
+}
+#line 2773 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 63:
+#line 1140 "2005087.y" /* yacc.c:1646  */
+    {
+        		 (yyval.node)->setStartLine((yyvsp[-1].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+        SymbolInfo *sInfo = new SymbolInfo("", "factor");
+        (yyval.node)=new Node(sInfo,"factor : variable INCOP");
+        CheckUnaryOperandIssues((yyval.node),(yyvsp[-1].node));
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[-1].node),(yyvsp[0].node)});
+        util.printGrammar("factor : variable INCOP");
+
+}
+#line 2789 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 64:
+#line 1151 "2005087.y" /* yacc.c:1646  */
+    {
+                 (yyval.node)->setStartLine((yyvsp[-1].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+        SymbolInfo *sInfo= new SymbolInfo("", "factor");
+        (yyval.node)=new Node(sInfo,"factor : variable DECOP");
+        CheckUnaryOperandIssues((yyval.node),(yyvsp[-1].node));
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[-1].node),(yyvsp[0].node)});
+        util.printGrammar("factor : variable DECOP");
+
+}
+#line 2805 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 65:
+#line 1164 "2005087.y" /* yacc.c:1646  */
+    {
+             (yyval.node)->setStartLine((yyvsp[0].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());	
+       SymbolInfo *sInfo = new SymbolInfo("", "argument_list");
+        (yyval.node)=new Node(sInfo,"argument_list : arguments");
+        (yyval.node)->addParameter((yyvsp[0].node)->getParameterList());
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[0].node)});
+        util.printGrammar("argument_list : arguments");	
+
+}
+#line 2821 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 66:
+#line 1175 "2005087.y" /* yacc.c:1646  */
+    {
+        SymbolInfo *sInfo= new SymbolInfo("", "argument_list");
+        (yyval.node)=new Node(sInfo,"argument_list : ");
+        util.printGrammar("argument_list : ");
+        //  $$->setStartLine($1->getStartLine());
+        //  $$->setEndLine($1->getEndLine());
+}
+#line 2833 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 67:
+#line 1183 "2005087.y" /* yacc.c:1646  */
+    {
+         (yyval.node)->setStartLine((yyvsp[-2].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+    SymbolInfo *sInfo = new SymbolInfo("", "arguments");
+    (yyval.node)=new Node(sInfo,"arguments : arguments COMMA logic_expression");
+    (yyval.node)->addParameter((yyvsp[-2].node)->getParameterList());
+    (yyval.node)->addParameter({{(yyvsp[0].node)->getReturnOrDataType(),(yyvsp[0].node)->getName()},(yyvsp[0].node)->getArrayStatus()});
+    pTree.setCurrentNode((yyval.node));
+    (yyval.node)->makeChild({(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
+    util.printGrammar("arguments : arguments COMMA logic_expression");
+
+}
+#line 2850 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 68:
+#line 1195 "2005087.y" /* yacc.c:1646  */
+    {
+                 (yyval.node)->setStartLine((yyvsp[0].node)->getStartLine());
+    (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
+        SymbolInfo *sInfo = new SymbolInfo("", "arguments");
+        (yyval.node)=new Node(sInfo,"arguments : logic_expression");
+        (yyval.node)->addParameter({{(yyvsp[0].node)->getReturnOrDataType(),(yyvsp[0].node)->getName()},(yyvsp[0].node)->getArrayStatus()});
+        pTree.setCurrentNode((yyval.node));
+        (yyval.node)->makeChild({(yyvsp[0].node)});
+        util.printGrammar("arguments : logic_expression");
+
+}
+#line 2866 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 2679 "y.tab.c" /* yacc.c:1646  */
+#line 2870 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2903,7 +3094,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 1018 "2005087.y" /* yacc.c:1906  */
+#line 1208 "2005087.y" /* yacc.c:1906  */
 
 
 int main(int argc, char* argv[]) {
@@ -2922,10 +3113,7 @@ int main(int argc, char* argv[]) {
     yyparse();
     fclose(yyin);
 
-    //sTable.PrintAllScope(util.getLogFout());
     util.getLogFout()<<"Total Lines: "<<yylineno<<endl;
     util.getLogFout()<<"Total Errors: "<<util.getErrorCount()<<endl;
-    //util.getLogFout()<<"Total warnings: "<<util.getWarningCount()<<endl;
-//cout<<currentFunctionReturnType<<endl;
     return EXIT_SUCCESS;
 }

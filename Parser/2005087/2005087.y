@@ -131,7 +131,7 @@ void callFunction(Node *actualNode, Node *nameNode, Node *argNode)
 		for (int i = 0; i < searched->getParameterList().size(); i++)
 		{
             
-            cout<<searched->getName()<<searched->getParameterList().at(i).first.first<<" "<<parameterList[i].first.first<<" "<<parameterList[i].first.second<<endl;
+            //cout<<searched->getName()<<searched->getParameterList().at(i).first.first<<" "<<parameterList[i].first.first<<" "<<parameterList[i].first.second<<endl;
 			if ((searched->getParameterList().at(i).first.first != parameterList[i].first.first))
 			{
 				util.printError("Type mismatch for argument "+to_string(i+1)+" of \'" + nameNode->getName()+"\'", yylineno);
@@ -766,8 +766,8 @@ expression_statement : SEMICOLON {
 ;
 variable : ID {
         SymbolInfo *sInfo = new SymbolInfo($1->getName(), "VARIABLE");
-        $$=new Node(sInfo,"variable : ID",$1->getReturnOrDataType());
         CheckVariableDeclaredOrNot($1);
+        $$=new Node(sInfo,"variable : ID",$1->getReturnOrDataType()); 
         pTree.setCurrentNode($$);
         $$->makeChild({$1});
         util.printGrammar("variable : ID");
@@ -1033,10 +1033,7 @@ int main(int argc, char* argv[]) {
     yyparse();
     fclose(yyin);
 
-    //sTable.PrintAllScope(util.getLogFout());
     util.getLogFout()<<"Total Lines: "<<yylineno<<endl;
     util.getLogFout()<<"Total Errors: "<<util.getErrorCount()<<endl;
-    //util.getLogFout()<<"Total warnings: "<<util.getWarningCount()<<endl;
-//cout<<currentFunctionReturnType<<endl;
     return EXIT_SUCCESS;
 }

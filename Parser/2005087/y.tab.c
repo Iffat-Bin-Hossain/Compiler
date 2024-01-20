@@ -2307,8 +2307,8 @@ currentFunctionReturnType=(yyvsp[-4].node)->getReturnOrDataType();
 #line 767 "2005087.y" /* yacc.c:1646  */
     {
         SymbolInfo *sInfo = new SymbolInfo((yyvsp[0].node)->getName(), "VARIABLE");
-        (yyval.node)=new Node(sInfo,"variable : ID",(yyvsp[0].node)->getReturnOrDataType());
         CheckVariableDeclaredOrNot((yyvsp[0].node));
+        (yyval.node)=new Node(sInfo,"variable : ID",(yyvsp[0].node)->getReturnOrDataType()); 
         pTree.setCurrentNode((yyval.node));
         (yyval.node)->makeChild({(yyvsp[0].node)});
         util.printGrammar("variable : ID");

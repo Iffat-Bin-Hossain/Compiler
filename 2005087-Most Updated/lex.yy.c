@@ -1033,183 +1033,223 @@ YY_RULE_SETUP
 {
         util.printKeyword(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"IF"));
+       yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno);
         return IF;
      }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 112 "2005087.l"
+#line 114 "2005087.l"
 {
         util.printKeyword(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"ELSE"));
+        yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno);
         return ELSE;
      }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 117 "2005087.l"
+#line 121 "2005087.l"
 {
         util.printKeyword(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"FOR"));
+        yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno);
         return FOR;
      }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 122 "2005087.l"
+#line 128 "2005087.l"
 {
         util.printKeyword(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"WHILE"));
+        yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno);
         return WHILE;
      }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 127 "2005087.l"
+#line 135 "2005087.l"
 {
             util.printKeyword(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"DO"));
+        yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno);
         return DO;
      }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 132 "2005087.l"
+#line 142 "2005087.l"
 {
             util.printKeyword(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"BREAK"));
+        yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno);
         return BREAK;
      }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 137 "2005087.l"
+#line 149 "2005087.l"
 {
             util.printKeyword(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"INT"));
+        yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno);
         return INT;
      }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 142 "2005087.l"
+#line 156 "2005087.l"
 {
             util.printKeyword(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"CHAR"));
+        yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno);
         return CHAR;
      }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 147 "2005087.l"
+#line 163 "2005087.l"
 {
             util.printKeyword(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"FLOAT"));
+        yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno);
         return FLOAT;
      }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 152 "2005087.l"
+#line 170 "2005087.l"
 {
             util.printKeyword(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"DOUBLE"));
+        yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno);
         return DOUBLE;
      }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 157 "2005087.l"
+#line 177 "2005087.l"
 {
             util.printKeyword(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"VOID"));
+        yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno);
         return VOID;
      }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 162 "2005087.l"
+#line 184 "2005087.l"
 {
             util.printKeyword(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"RETURN"));
+        yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno);
         return RETURN;  
      }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 167 "2005087.l"
+#line 191 "2005087.l"
 {
             util.printKeyword(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"SWITCH"));
+        yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno);
         return SWITCH;
      }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 172 "2005087.l"
+#line 198 "2005087.l"
 {
             util.printKeyword(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"CASE"));
+        yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno);
         return CASE;
      }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 177 "2005087.l"
+#line 205 "2005087.l"
 {
             util.printKeyword(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"DEFAULT"));
+        yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno);
         return DEFAULT;
      }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 182 "2005087.l"
+#line 212 "2005087.l"
 {
             util.printKeyword(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"CONTINUE"));
+        yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno);
         return CONTINUE;
      }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 187 "2005087.l"
+#line 219 "2005087.l"
 {
             util.printKeyword(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"PRINTLN"));
+        yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno);
         return PRINTLN;
      }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 194 "2005087.l"
+#line 228 "2005087.l"
 {
 util.printAnother("ID",yytext,yylineno);
 yylval.node=new Node(new SymbolInfo(yytext,"ID"));
+yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno);
 return ID;
 }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 200 "2005087.l"
+#line 236 "2005087.l"
 {
     util.printAnother("CONST_INT",yytext,yylineno); 
     yylval.node=new Node(new SymbolInfo(yytext,"CONST_INT"),"int");
+    yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno);
     return CONST_INT;
 }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 206 "2005087.l"
+#line 244 "2005087.l"
 {
     util.printAnother("CONST_FLOAT",yytext,yylineno);
     yylval.node=new Node(new SymbolInfo(yytext,"CONST_FLOAT"),"float");
+    yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno);
     return CONST_FLOAT;
 }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 212 "2005087.l"
+#line 252 "2005087.l"
 {
     string current=yytext;
     current.erase(current.begin());
@@ -1229,7 +1269,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 229 "2005087.l"
+#line 269 "2005087.l"
 {
 string current = yytext;
 current.erase(current.begin()); 
@@ -1238,109 +1278,135 @@ util.printError("UNFINISHED_CONST_CHAR", "\'" + current,yylineno);
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 236 "2005087.l"
+#line 276 "2005087.l"
 {
 util.printOperator("ADDOP",yytext,yylineno);
 yylval.node=new Node(new SymbolInfo(yytext,"ADDOP")); 
+yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno);
 return ADDOP;
 }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 241 "2005087.l"
+#line 283 "2005087.l"
 {
 util.printOperator("MULOP",yytext,yylineno);
 yylval.node=new Node(new SymbolInfo(yytext,"MULOP")); 
+yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno);
 return MULOP;
 }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 246 "2005087.l"
+#line 290 "2005087.l"
 {util.printOperator("INCOP",yytext,yylineno);
 yylval.node=new Node(new SymbolInfo(yytext,"INCOP")); 
+yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno);
 return INCOP;}
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 249 "2005087.l"
+#line 295 "2005087.l"
 {
 util.printOperator("DECOP",yytext,yylineno);
 yylval.node=new Node(new SymbolInfo(yytext,"DECOP")); 
+yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno);
 return DECOP;   
 }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 254 "2005087.l"
+#line 302 "2005087.l"
 {util.printOperator("RELOP",yytext,yylineno);
 yylval.node=new Node(new SymbolInfo(yytext,"RELOP")); 
+yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno);
 return RELOP;
 }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 258 "2005087.l"
+#line 308 "2005087.l"
 {util.printOperator("ASSIGNOP",yytext,yylineno);
 yylval.node=new Node(new SymbolInfo(yytext,"ASSIGNOP")); 
+yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno);
 return ASSIGNOP;}
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 261 "2005087.l"
+#line 313 "2005087.l"
 {util.printOperator("LOGICOP",yytext,yylineno);
-yylval.node=new Node(new SymbolInfo(yytext,"LOGICOP")); 
+yylval.node=new Node(new SymbolInfo(yytext,"LOGICOP"));
+yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno); 
 return LOGICOP;}
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 264 "2005087.l"
+#line 318 "2005087.l"
 {
 util.printOperator("BITOP",yytext,yylineno);
 yylval.node=new Node(new SymbolInfo(yytext,"BITOP")); 
+yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno);
 return BITOP;}
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 268 "2005087.l"
+#line 324 "2005087.l"
 {util.printOperator("NOT",yytext,yylineno); 
 yylval.node=new Node(new SymbolInfo(yytext,"NOT")); 
+yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno);
 return NOT;} 
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 274 "2005087.l"
+#line 332 "2005087.l"
 {
         util.printPunctuation(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"LPAREN")); 
+        yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno);
         return LPAREN;
 }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 279 "2005087.l"
+#line 339 "2005087.l"
 {
         util.printPunctuation(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"RPAREN")); 
+        yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno);
         return RPAREN;
 }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 284 "2005087.l"
+#line 346 "2005087.l"
 {
         util.printPunctuation(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"LCURL")); 
+        yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno);
         tabNeeded++;
         return LCURL;
 }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 290 "2005087.l"
+#line 354 "2005087.l"
 {
         util.printPunctuation(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"RCURL")); 
+        yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno);
         if(!tabDeleted){
             tabNeeded--;
         }
@@ -1349,50 +1415,58 @@ YY_RULE_SETUP
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 298 "2005087.l"
+#line 364 "2005087.l"
 {
         util.printPunctuation(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"LSQUARE")); 
+        yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno);
         return LSQUARE;
 }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 303 "2005087.l"
+#line 371 "2005087.l"
 {
         util.printPunctuation(yytext,yylineno);
-        yylval.node=new Node(new SymbolInfo(yytext,"RSQUARE")); 
+        yylval.node=new Node(new SymbolInfo(yytext,"RSQUARE"));
+        yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno); 
         return RSQUARE;
  }
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 308 "2005087.l"
+#line 378 "2005087.l"
 {
         util.printPunctuation(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"COMMA")); 
+        yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno);
         return COMMA;
 }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 313 "2005087.l"
+#line 385 "2005087.l"
 {
         util.printPunctuation(yytext,yylineno);
         yylval.node=new Node(new SymbolInfo(yytext,"SEMICOLON")); 
+        yylval.node->setStartLine(yylineno);
+yylval.node->setEndLine(yylineno);
         return SEMICOLON;
  }
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 320 "2005087.l"
+#line 394 "2005087.l"
 {
     BEGIN(STRING);
     startLineNo = yylineno;
 }
 	YY_BREAK
 case YY_STATE_EOF(STRING):
-#line 325 "2005087.l"
+#line 399 "2005087.l"
 {
     util.printError("UNFINISHED_STRING", "\"" + String, yylineno-1);
     String = "";
@@ -1402,7 +1476,7 @@ case YY_STATE_EOF(STRING):
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 332 "2005087.l"
+#line 406 "2005087.l"
 {
 String += yytext;
 stringToken+=yytext;
@@ -1411,7 +1485,7 @@ stringToken+=yytext;
 case 47:
 /* rule 47 can match eol */
 YY_RULE_SETUP
-#line 337 "2005087.l"
+#line 411 "2005087.l"
 {
     String += yytext;
 }
@@ -1419,7 +1493,7 @@ YY_RULE_SETUP
 case 48:
 /* rule 48 can match eol */
 YY_RULE_SETUP
-#line 341 "2005087.l"
+#line 415 "2005087.l"
 {
     util.printError("UNFINISHED_STRING", "\"" + String, yylineno-1);
     String = "";
@@ -1429,7 +1503,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 348 "2005087.l"
+#line 422 "2005087.l"
 {
     if (startLineNo == yylineno){
 util.printAnother("SINGLE LINE STRING", "\"" + String + "\"", startLineNo);
@@ -1446,7 +1520,7 @@ util.printAnother("SINGLE LINE STRING", "\"" + String + "\"", startLineNo);
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 362 "2005087.l"
+#line 436 "2005087.l"
 {
     String += yytext;
     stringToken+=yytext;
@@ -1454,7 +1528,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 367 "2005087.l"
+#line 441 "2005087.l"
 {
 BEGIN(SLCOMMENT);
 startLineNo= yylineno;
@@ -1463,7 +1537,7 @@ startLineNo= yylineno;
 case 52:
 /* rule 52 can match eol */
 YY_RULE_SETUP
-#line 372 "2005087.l"
+#line 446 "2005087.l"
 {
     BEGIN(INITIAL);
     singlelineComment = singlelineComment.substr(0, singlelineComment.length());
@@ -1474,21 +1548,21 @@ YY_RULE_SETUP
 case 53:
 /* rule 53 can match eol */
 YY_RULE_SETUP
-#line 379 "2005087.l"
+#line 453 "2005087.l"
 {
     singlelineComment += yytext;
 }
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 383 "2005087.l"
+#line 457 "2005087.l"
 {
     BEGIN(MLCOMMENT);
 	startLineNo= yylineno;
 }
 	YY_BREAK
 case YY_STATE_EOF(MLCOMMENT):
-#line 388 "2005087.l"
+#line 462 "2005087.l"
 {
     BEGIN(INITIAL);
     util.printError("UNFINISHED_COMMENT","/*"+multilineComment, yylineno);
@@ -1497,7 +1571,7 @@ case YY_STATE_EOF(MLCOMMENT):
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 394 "2005087.l"
+#line 468 "2005087.l"
 {
     BEGIN(INITIAL);
     util.printMultiLineComment(multilineComment, startLineNo);
@@ -1507,35 +1581,35 @@ YY_RULE_SETUP
 case 56:
 /* rule 56 can match eol */
 YY_RULE_SETUP
-#line 400 "2005087.l"
+#line 474 "2005087.l"
 {
     multilineComment+=yytext;
 }
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 405 "2005087.l"
+#line 479 "2005087.l"
 {
     util.printError("TOO_MANY_DECIMAL_POINTS", yytext, yylineno);
 }
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 408 "2005087.l"
+#line 482 "2005087.l"
 {
     util.printError("INVALID_ID_SUFFIX_NUM_PREFIX", yytext, yylineno);
 }
 	YY_BREAK
 case 59:
 YY_RULE_SETUP
-#line 411 "2005087.l"
+#line 485 "2005087.l"
 {
     util.printError("ILLFORMED_NUMBER",yytext,yylineno);
 }
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 414 "2005087.l"
+#line 488 "2005087.l"
 {
     // Skip whitespace
 }
@@ -1543,22 +1617,22 @@ YY_RULE_SETUP
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(SLCOMMENT):
 case YY_STATE_EOF(INDENTATION):
-#line 417 "2005087.l"
+#line 491 "2005087.l"
 {return 0;}
 	YY_BREAK
 case 61:
 YY_RULE_SETUP
-#line 418 "2005087.l"
+#line 492 "2005087.l"
 {
    util.printError("UNRECOGNIZED_CHAR", yytext, yylineno);
 }
 	YY_BREAK
 case 62:
 YY_RULE_SETUP
-#line 421 "2005087.l"
+#line 495 "2005087.l"
 ECHO;
 	YY_BREAK
-#line 1562 "lex.yy.c"
+#line 1636 "lex.yy.c"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -2573,6 +2647,6 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 421 "2005087.l"
+#line 495 "2005087.l"
 
 

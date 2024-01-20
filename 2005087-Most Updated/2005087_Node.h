@@ -14,6 +14,8 @@ private:
    vector<pair<pair<string, string>, bool>> parameterList;
    string functionInfo; // Is it a declaration or a definition
    bool arrayStatus;
+   int startLine;
+   int endLine;
 
 public:
    Node(SymbolInfo *symbol, string rule = "", string returnOrDataType = "")
@@ -50,7 +52,10 @@ public:
       }
    }
    bool getArrayStatus() { return arrayStatus; }
-
+   void setStartLine(int startLine) { this->startLine = startLine; }
+   int getStartLine() { return startLine; }
+   void setEndLine(int endLine) { this->endLine = endLine; }
+   int getEndLine() { return endLine; }
    void makeChild(vector<Node *> childrenList)
    {
       for (auto child : childrenList)
