@@ -13,13 +13,14 @@ void yyerror(const std::string& message) {
 }
 
 ParseTree pTree;
-SymbolTable sTable(10);
+SymbolTable sTable(11);
 Utility util;
 int startLine;
 string currentFunctionReturnType="";
+vector<pair<pair<string,string>,bool>>currentFunctionParameters={};
 
 
-void declareFunction(string functionName, string returnType, vector<pair<string, string>> parameterList = {})
+void declareFunction(string functionName, string returnType, vector<pair<pair<string, string>,bool>> parameterList = {})
 {
 	Node *toBeInserted = new Node(new SymbolInfo(functionName, "FUNCTION"));
 	bool beInserted = sTable.Insert(toBeInserted);
@@ -39,8 +40,10 @@ void declareFunction(string functionName, string returnType, vector<pair<string,
 		}
 	}
 }
-void defineFunction(string functionName, string returnType, vector<pair<string, string>> parameterList = {})
+void defineFunction(string functionName, string returnType, vector<pair<pair<string, string>,bool>> parameterList = {})
 {
+    currentFunctionParameters.clear();
+    currentFunctionParameters=parameterList;
 	Node *toBeChecked = new Node(new SymbolInfo(functionName, "FUNCTION"));
 	Node *searched = sTable.Lookup(toBeChecked);
 	if (searched == NULL)
@@ -57,11 +60,11 @@ void defineFunction(string functionName, string returnType, vector<pair<string, 
 		if (searched->getFunctionInfo() == "FUNCTION_DECLARATION")
 		{
 
-			// 	if (searched->getReturnOrDataType() != returnType)
-			// 	{
-			// 		util.printError("Conflicting types for " + functionName, yylineno);
-			// 		return;
-			// 	}
+				if (searched->getReturnOrDataType() != returnType)
+				{
+					util.printError("Conflicting types for \'" + functionName+"\'", yylineno);
+					//return;
+				}
 			//    if (searched->getParameterList().size() < parameterList.size())
 			// 	{
 			// 		util.printError("Too many arguments to function " + functionName, yylineno);
@@ -72,17 +75,21 @@ void defineFunction(string functionName, string returnType, vector<pair<string, 
 			// 		util.printError("Too few arguments to function " + functionName, yylineno);
 			// 		return;
 			// 	}
-			// 	if (!searched->getParameterList().empty())
-			// 	{
-			// 		for (int i = 0; i < parameterList.size(); i++)
-			// 		{
-			// 			if (searched->getParameterList().at(i).first != parameterList[i].first)
-			// 			{
-			// 				util.printError("conflicting types for " + functionName, yylineno);
-			// 				return;
-			// 			}
-			// 		}
-			// 	}
+				// if (!searched->getParameterList().empty())
+				// {
+					// for (int i = 0; i < parameterList.size(); i++)
+					// {
+					// 	if (searched->getParameterList().at(i).first != parameterList[i].first)
+					// 	{
+					// 		util.printError("conflicting types for " + functionName, yylineno);
+					// 		return;
+					// 	}
+					// }
+                    
+				// }
+                if(searched->getParameterList().size() != parameterList.size()){
+                   util.printError("Conflicting types for \'" + functionName+"\'", yylineno); 
+                }
 
 			searched->setFunctionInfo("FUNCTION_DEFINITION");
 			searched->addParameter(parameterList);
@@ -90,10 +97,11 @@ void defineFunction(string functionName, string returnType, vector<pair<string, 
 		}
 		else
 		{
-			util.printError(" Multiple declaration of " + functionName, yylineno);
+			util.printError("\'" + functionName+"\' redeclared as different kind of symbol", yylineno);
 			return;
 		}
 	}
+    currentFunctionParameters.clear();
 }
 void callFunction(Node *actualNode, Node *nameNode, Node *argNode)
 {
@@ -103,59 +111,65 @@ void callFunction(Node *actualNode, Node *nameNode, Node *argNode)
 	{
 		util.printError("Undeclared function \'" + nameNode->getName() + "\'", yylineno);
 	}
-	else if (searched->getType() != "FUNCTION")
+	else if (!(searched->getFunctionInfo() == "FUNCTION_DECLARATION" ||searched->getFunctionInfo() == "FUNCTION_DEFINITION") )
 	{
 		util.printError("\'" + nameNode->getName() + "\' is not a function", yylineno);
 	}
 	else if (searched->getParameterList().size() < parameterList.size())
 	{
-		util.printError("Too many arguments to function " + nameNode->getName(), yylineno);
+		util.printError("Too many arguments to function \'" + nameNode->getName()+"\'", yylineno);
 		return;
 	}
 	else if (searched->getParameterList().size() > parameterList.size())
 	{
-		util.printError("Too few arguments to function " + nameNode->getName(), yylineno);
+		util.printError("Too few arguments to function \'" + nameNode->getName()+"\'", yylineno);
 		return;
 	}
-	else if (!searched->getParameterList().empty())
+	else 
 	{
-		for (int i = 0; i < parameterList.size(); i++)
+        //bool everythingIsOk=true;
+		for (int i = 0; i < searched->getParameterList().size(); i++)
 		{
-			if (searched->getParameterList().at(i).first != parameterList[i].first)
+            
+            cout<<searched->getName()<<searched->getParameterList().at(i).first.first<<" "<<parameterList[i].first.first<<" "<<parameterList[i].first.second<<endl;
+			if ((searched->getParameterList().at(i).first.first != parameterList[i].first.first))
 			{
-				util.printError("Type mismatch for argument " + nameNode->getName(), yylineno);
-				return;
+				util.printError("Type mismatch for argument "+to_string(i+1)+" of \'" + nameNode->getName()+"\'", yylineno);
+                //everythingIsOk=false;
 			}
 		}
+            actualNode->setReturnOrDataType(searched->getReturnOrDataType());
+        
 	}
 
-	else
-		actualNode->setReturnOrDataType(searched->getReturnOrDataType());
 }
-
-
-void SaveData(string dataType, vector<pair<string, string>> list) {
-    if (dataType == "VOID") {
-        util.printError("Void cannot be used in expression", yylineno);
-    } else {
+void SaveData(string dataType,Node* node ) {
+   auto list=node->getParameterList();
         for (auto element : list) {
-            Node *toBeSearched = new Node(new SymbolInfo(element.second, ""));
-            Node *searched = sTable.Lookup(toBeSearched);
+             if (dataType == "VOID") {
+                util.printError("Variable or field \'"+element.first.second+"\' declared void", yylineno);
+                    return;
+                 } 
+            //element.first.first=dataType;     
+            Node *toBeSearched = new Node(new SymbolInfo(element.first.second, ""),"",dataType);
+            Node *searched = sTable.LookupCurrent(toBeSearched);
 
             if (searched == NULL) {
-                Node *toBeInserted = new Node(new SymbolInfo(element.second, "ID"), "", dataType);
+                Node *toBeInserted = new Node(new SymbolInfo(element.first.second, "ID"), "", dataType);
 
-                if (element.getArrayStatus()) {
+                if (element.second) {
                     toBeInserted->setArrayStatus(true);
                 }
                 sTable.Insert(toBeInserted);
+                element.first.first=dataType;
+               // toBeInserted->setReturnOrDataType(dataType);
             } else if (searched->getReturnOrDataType() != dataType) {
-                util.printError("Conflicting types for \'" + element.second + "\'", yylineno);
+                util.printError("Conflicting types for \'" + element.first.second + "\'", yylineno);
             } else {
-                util.printError("Redefinition of variable \'" + element.second + "\'", yylineno);
+                util.printError("Redefinition of variable \'" + element.first.second + "\'", yylineno);
             }
+            //node->addParameter(list);
         }
-    }
 }
 
 	
@@ -177,6 +191,7 @@ void CheckVariableDeclaredOrNot(Node *node)
 }
 void CheckReturnIssues(Node *node)
 {
+    //cout<<currentFunctionReturnType;
 	if (currentFunctionReturnType == "VOID")
 	{
 		util.printError("Function return type void", yylineno);
@@ -188,6 +203,7 @@ void CheckReturnIssues(Node *node)
 }
 void CheckArrayIssues(Node *actualNode, Node *nameNode, Node *indexNode)
 {
+    //cout<<indexNode->getReturnOrDataType()<<endl;
 	string name = nameNode->getName();
 	Node *toBeSearched = new Node(new SymbolInfo(name, "ID"));
 	Node *searched = sTable.Lookup(toBeSearched);
@@ -203,7 +219,7 @@ void CheckArrayIssues(Node *actualNode, Node *nameNode, Node *indexNode)
 	}
 	if (indexNode->getReturnOrDataType() != "INT")
 	{
-		util.printError("Warning: Array subscript is not an integer", yylineno);
+		util.printError("Array subscript is not an integer", yylineno);
 		return;
 	}
 	else
@@ -229,7 +245,7 @@ void CheckAssignmentIssues(Node *actualNode, Node *leftNode, Node *rightNode)
 	{
 		if (rightNode->getReturnOrDataType() == "FLOAT")
 		{
-			util.printError("Warning: Operands of logical operation should be integers", yylineno);
+			util.printError("Warning: possible loss of data in assignment of FLOAT to INT", yylineno);
 		}
 		actualNode->setReturnOrDataType("INT");
 		return;
@@ -291,10 +307,13 @@ bool CheckingZerOperand(string str){
 
     return !hasNonZeroDigit;
 }
-// string autoTypeCasting(SymbolInfo* x, SymbolInfo* y){
-// 		if(x->getDataType() == y->getDataType())
-// 			return x->getDataType();
-// 		if(x->getDataType() == "int" && y->getDataType() == "float"){
+// string TypeCasting(string  x, string y){
+    // if (x == "VOID" || y == "VOID" || x == "ERROR" || y == "ERROR") {
+    //     return "ERROR";
+    // }
+// 		if(x == y)
+// 			return x;
+// 		if(x == "INT" && y->getDataType() == "float"){
 // 			x->setDataType("float");
 // 			return "float";
 // 		}else if(x->getDataType() == "float" && y->getDataType() == "int"){
@@ -330,7 +349,7 @@ void CheckMultiplicationIssues(Node* actualNode,Node* leftNode,Node* midNode,Nod
 				
 			}
 			else if (CheckingZerOperand(rightNode->getName())) {
-				util.printError("Warning: division by zero" , yylineno);	
+				util.printError("Warning: division by zero i=0f=1Const=0" , yylineno);	
 			}
 			else {
 				actualNode->setReturnOrDataType("INT");
@@ -338,7 +357,7 @@ void CheckMultiplicationIssues(Node* actualNode,Node* leftNode,Node* midNode,Nod
 		}
 		else if (midNode->getName() == "/") {
 			if (CheckingZerOperand(rightNode->getName())) {
-				util.printError("Warning: division by zero" , yylineno);
+				util.printError("Warning: division by zero i=0f=1Const=0" , yylineno);
 			}
 			else {
 				actualNode->setReturnOrDataType(TypeCasting(leftNode->getReturnOrDataType(), rightNode->getReturnOrDataType()));
@@ -394,8 +413,9 @@ start : program {
     SymbolInfo *sInfo=new SymbolInfo("","start");
     $$ =new Node(sInfo,"start : program");
     pTree.setCurrentNode($$);
-    pTree.addChildren({$1});
+    $$->makeChild({$1});
     util.printGrammar("start : program");
+    pTree.printParseTree(util.getTreeFout());
     
 }
 ;   
@@ -403,7 +423,8 @@ program : program unit{
     SymbolInfo *sInfo=new SymbolInfo("","program");
     $$=new Node(sInfo,"program : program unit");
     pTree.setCurrentNode($$);
-    pTree.addChildren({$1,$2});
+    $$->makeChild({$1,$2});
+    
     util.printGrammar("program : program unit");
     
 }
@@ -411,7 +432,7 @@ program : program unit{
     SymbolInfo *sInfo=new SymbolInfo("","program");
     $$=new Node(sInfo,"program : unit");
     pTree.setCurrentNode($$);
-    pTree.addChildren({$1});
+    $$->makeChild({$1});
     util.printGrammar("program : unit");
 }
 ;
@@ -419,42 +440,44 @@ unit : var_declaration {
     SymbolInfo *sInfo=new SymbolInfo("","unit");
     $$=new Node(sInfo,"unit : var_declaration");
     pTree.setCurrentNode($$);
-    pTree.addChildren({$1});
+    $$->makeChild({$1});
     util.printGrammar("unit : var_declaration");
 }
     | func_declaration {
     SymbolInfo *sInfo=new SymbolInfo("","unit");
     $$=new Node(sInfo,"unit : func_declaration");
     pTree.setCurrentNode($$);
-    pTree.addChildren({$1});
+    $$->makeChild({$1});
     util.printGrammar("unit : func_declaration");
 }
     | func_definition {
 		SymbolInfo *sInfo = new SymbolInfo("", "unit");
         $$=new Node(sInfo,"unit : func_definition");
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1});
+        $$->makeChild({$1});
 		util.printGrammar("unit : func_definition");
 }
 ;
 func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON {
+    currentFunctionParameters.clear();
         SymbolInfo *sInfo = new SymbolInfo("", "func_declaration");
         $$=new Node(sInfo,"func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON");
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1,$2,$3,$4,$5,$6});
+        $$->makeChild({$1,$2,$3,$4,$5,$6});
         util.printGrammar("func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON");
         //Inserting the function in SymbolTable
         string functionName=$2->getName();
         string returnType=$1->getReturnOrDataType();
-        vector<pair<string, string>> parameterList = $4->getParameterList();
+        vector<pair<pair<string, string>,bool>> parameterList = $4->getParameterList();
         declareFunction(functionName, returnType, parameterList);
         
 }
     | type_specifier ID LPAREN RPAREN SEMICOLON {
+        currentFunctionParameters.clear();
         SymbolInfo *sInfo = new SymbolInfo("", "func_declaration");
         $$=new Node(sInfo,"func_declaration : type_specifier ID LPAREN RPAREN SEMICOLON");
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1,$2,$3,$4,$5});
+        $$->makeChild({$1,$2,$3,$4,$5});
         util.printGrammar("func_declaration : type_specifier ID LPAREN RPAREN SEMICOLON");
         //Inserting the function in SymbolTable
         string functionName=$2->getName();
@@ -464,35 +487,38 @@ func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON {
 }
 ;
 
-
-
-
-
-
-func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement {
+func_definition : type_specifier ID LPAREN parameter_list RPAREN {
+currentFunctionReturnType=$1->getReturnOrDataType();
+}
+ compound_statement {
     SymbolInfo *sInfo = new SymbolInfo("", "func_definition");
     $$=new Node(sInfo,"func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement");
     pTree.setCurrentNode($$);
-    pTree.addChildren({$1,$2,$3,$4,$5,$6});
+    $$->makeChild({$1,$2,$3,$4,$5,$7});
     util.printGrammar("func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement");
     string functionName=$2->getName();
     string returnType=$1->getReturnOrDataType();
-    currentFunctionReturnType=returnType;
-    vector<pair<string, string>> parameterList = $4->getParameterList();
+    
+    vector<pair<pair<string, string>,bool>> parameterList = $4->getParameterList();
     defineFunction(functionName,returnType,parameterList);
     
+    
     }
-       
+    | type_specifier ID LPAREN RPAREN {
+        currentFunctionReturnType=$1->getReturnOrDataType();
 
-    | type_specifier ID LPAREN RPAREN compound_statement {
+
+    }
+    compound_statement {  
     SymbolInfo *sInfo = new SymbolInfo("", "func_definition");
     $$=new Node(sInfo,"func_definition : type_specifier ID LPAREN RPAREN compound_statement");
     pTree.setCurrentNode($$);
-    pTree.addChildren({$1,$2,$3,$4,$5});
+    $$->makeChild({$1,$2,$3,$4,$6});
     util.printGrammar("func_definition : type_specifier ID LPAREN RPAREN compound_statement");
     string functionName=$2->getName();
     string returnType=$1->getReturnOrDataType();
-    currentFunctionReturnType=returnType;
+    
+    //cout<<functionName<<"  "<<currentFunctionReturnType<<endl;
     defineFunction(functionName,returnType);
 }
 ;
@@ -504,104 +530,97 @@ parameter_list : parameter_list COMMA type_specifier ID {
        SymbolInfo *sInfo = new SymbolInfo("", "parameter_list");
        $$=new Node(sInfo,"parameter_list : parameter_list COMMA type_specifier ID");
        $$->addParameter($1->getParameterList());
-        $$->addParameter({$3->getReturnOrDataType(),$4->getName()});
+        $$->addParameter({{$3->getReturnOrDataType(),$4->getName()},false});
+        currentFunctionParameters=$$->getParameterList();
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1,$2,$3,$4});
+        $$->makeChild({$1,$2,$3,$4});
         util.printGrammar("parameter_list : parameter_list COMMA type_specifier ID");
 }
     | parameter_list COMMA type_specifier {
         SymbolInfo *sInfo = new SymbolInfo("", "parameter_list");
         $$=new Node(sInfo,"parameter_list : parameter_list COMMA type_specifier");
         $$->addParameter($1->getParameterList());
-        $$->addParameter({$3->getReturnOrDataType(),""});
+        $$->addParameter({{$3->getReturnOrDataType(),""},false});
+        currentFunctionParameters=$$->getParameterList();
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1,$2,$3});
+       $$->makeChild({$1,$2,$3});
         util.printGrammar("parameter_list : parameter_list COMMA type_specifier");
 }
     | type_specifier ID{
         SymbolInfo *sInfo = new SymbolInfo("", "parameter_list");
         $$=new Node(sInfo,"parameter_list : type_specifier ID");
-        $$->addParameter({$1->getReturnOrDataType(),$2->getName()});
+        $$->addParameter({{$1->getReturnOrDataType(),$2->getName()},false});
+        currentFunctionParameters=$$->getParameterList();
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1,$2});
+        $$->makeChild({$1,$2});
         util.printGrammar("parameter_list : type_specifier ID");
 }
     | type_specifier {
         SymbolInfo *sInfo = new SymbolInfo("", "parameter_list");
         $$=new Node(sInfo,"parameter_list : type_specifier");
-        $$->addParameter({$1->getReturnOrDataType(),""});
+        $$->addParameter({{$1->getReturnOrDataType(),""},false});
+        currentFunctionParameters=$$->getParameterList();
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1});
+        $$->makeChild({$1});
         util.printGrammar("parameter_list : type_specifier");
 }
 ;
 compound_statement : lcurls statements RCURL {
     SymbolInfo *sInfo = new SymbolInfo("", "compound_statement");
-    $$=new Node(sInfo,"compound_statement : lcurls statements RCURL");
+    $$=new Node(sInfo,"compound_statement : LCURL statements RCURL");
     pTree.setCurrentNode($$);
-    pTree.addChildren({$1,$2,$3});
-    util.printGrammar("compound_statement : lcurls statements RCURL");
-    sTable.PrintAllScope(util.getLogFout());
-    sTable.ExitScope();
+   $$->makeChild({$1,$2,$3});
+   util.printGrammar("compound_statement : LCURL statements RCURL");
+   
+  sTable.PrintAllScope(util.getLogFout());
+  sTable.ExitScope();
+
     
 }
     | lcurls RCURL {
     SymbolInfo *sInfo = new SymbolInfo("", "compound_statement");
-    $$=new Node(sInfo,"compound_statement : lcurls RCURL");
+    $$=new Node(sInfo,"compound_statement : LCURL RCURL");
     pTree.setCurrentNode($$);
-    pTree.addChildren({$1,$2});
-    util.printGrammar("compound_statement : lcurls RCURL");
+    $$->makeChild({$1,$2});
+    util.printGrammar("compound_statement : LCURL RCURL");
+    
     sTable.PrintAllScope(util.getLogFout());
     sTable.ExitScope();
+    
     }
     ;
 var_declaration : type_specifier declaration_list SEMICOLON {
    SymbolInfo *sInfo = new SymbolInfo("", "var_declaration");
    $$=new Node(sInfo,"var_declaration : type_specifier declaration_list SEMICOLON",$1->getReturnOrDataType());
-    SaveData($1->getReturnOrDataType(),$2->getParameterList());
+
+    SaveData($1->getReturnOrDataType(),$2);
     pTree.setCurrentNode($$);
-    pTree.addChildren({$1,$2,$3});
+    $$->makeChild({$1,$2,$3});
     util.printGrammar("var_declaration : type_specifier declaration_list SEMICOLON");
 }
 ;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 type_specifier : INT {
     SymbolInfo *sInfo = new SymbolInfo("", "type_specifier");
-    $$=new Node(sInfo,"type_specifier : INT","int");
+    $$=new Node(sInfo,"type_specifier : INT","INT");
     pTree.setCurrentNode($$);
-    pTree.addChildren({$1});
+    $$->makeChild({$1});
     util.printGrammar("type_specifier : INT");
     
 }
     | FLOAT {
         SymbolInfo *sInfo = new SymbolInfo("", "type_specifier");
-        $$=new Node(sInfo,"type_specifier : FLOAT","float");
+        $$=new Node(sInfo,"type_specifier : FLOAT","FLOAT");
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1});
+        $$->makeChild({$1});
         util.printGrammar("type_specifier : FLOAT");
         
 }
     | VOID {
         SymbolInfo *sInfo = new SymbolInfo("", "type_specifier");
-        $$=new Node(sInfo,"type_specifier : VOID","void");
+        $$=new Node(sInfo,"type_specifier : VOID","VOID");
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1});
+        $$->makeChild({$1});
         util.printGrammar("type_specifier : VOID");
         
 }
@@ -610,36 +629,35 @@ declaration_list : declaration_list COMMA ID {
         SymbolInfo *sInfo= new SymbolInfo("", "declaration_list");
         $$=new Node(sInfo,"declaration_list : declaration_list COMMA ID");
         $$->addParameter($1->getParameterList());
-        $$->addParameter({"",$3->getName()});
+        $$->addParameter({{"",$3->getName()},false});
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1,$2,$3});
+        $$->makeChild({$1,$2,$3});
         util.printGrammar("declaration_list : declaration_list COMMA ID");
 }
     | declaration_list COMMA ID LSQUARE CONST_INT RSQUARE {
         SymbolInfo *sInfo = new SymbolInfo("", "declaration_list");
         $$=new Node(sInfo,"declaration_list : declaration_list COMMA ID LSQUARE CONST_INT RSQUARE");
         $$->addParameter($1->getParameterList());
-        $$->addParameter({"",$3->getName()});
+        $$->addParameter({{"",$3->getName()},true});
         $$->setArrayStatus(true);
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1,$2,$3,$4,$5,$6});
+        $$->makeChild({$1,$2,$3,$4,$5,$6});
         util.printGrammar("declaration_list : declaration_list COMMA ID LSQUARE CONST_INT RSQUARE");
 }
     | ID {
        SymbolInfo *sInfo = new SymbolInfo("", "declaration_list");
        $$=new Node(sInfo,"declaration_list : ID");
-       $$->addParameter({$1->getReturnOrDataType(),"ID"});
+       $$->addParameter({{$1->getReturnOrDataType(),$1->getName()},false});
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1});
+        $$->makeChild({$1});
         util.printGrammar("declaration_list : ID");   
 }
     | ID LSQUARE CONST_INT RSQUARE {
         SymbolInfo *sInfo= new SymbolInfo("", "declaration_list");
         $$=new Node(sInfo,"declaration_list : ID LSQUARE CONST_INT RSQUARE");
-        $$->addParameter({$1->getReturnOrDataType(),"ID"});
-        $$->setArrayStatus(true);
+        $$->addParameter({{$1->getReturnOrDataType(),$1->getName()},true});
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1,$2,$3,$4});
+        $$->makeChild({$1,$2,$3,$4});
         util.printGrammar("declaration_list : ID LSQUARE CONST_INT RSQUARE"); 
 }
 ;
@@ -647,14 +665,14 @@ statements : statement {
         SymbolInfo *sInfo = new SymbolInfo("", "statement");
         $$=new Node(sInfo,"statements : statement");
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1});
+        $$->makeChild({$1});
         util.printGrammar("statements : statement"); 
 }
     | statements statement {
        SymbolInfo *sInfo = new SymbolInfo("", "statement");
        $$=new Node(sInfo,"statements : statements statement");
        pTree.setCurrentNode($$);
-       pTree.addChildren({$1,$2});
+       $$->makeChild({$1,$2});
        util.printGrammar("statements : statements statement"); 
 }
 ;
@@ -662,7 +680,7 @@ statement : var_declaration {
        SymbolInfo *sInfo= new SymbolInfo("", "statement");
        $$=new Node(sInfo,"statement : var_declaration",$1->getReturnOrDataType());
        pTree.setCurrentNode($$);
-       pTree.addChildren({$1});
+       $$->makeChild({$1});
        util.printGrammar("statement : var_declaration");
        
 }
@@ -670,7 +688,7 @@ statement : var_declaration {
     SymbolInfo *sInfo = new SymbolInfo("", "statement");
     $$=new Node(sInfo,"statement : expression_statement",$1->getReturnOrDataType());
     pTree.setCurrentNode($$);
-    pTree.addChildren({$1});
+    $$->makeChild({$1});
     util.printGrammar("statement : expression_statement");
    
 }
@@ -678,7 +696,7 @@ statement : var_declaration {
         SymbolInfo *sInfo = new SymbolInfo("", "statement");
         $$=new Node(sInfo,"statement : compound_statement",$1->getReturnOrDataType());
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1});
+        $$->makeChild({$1});
         util.printGrammar("statement : compound_statement");
         
 }
@@ -686,28 +704,28 @@ statement : var_declaration {
         SymbolInfo *sInfo = new SymbolInfo("", "statement");
         $$=new Node(sInfo,"statement : FOR LPAREN expression_statement expression_statement expression RPAREN statement");
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1,$2,$3,$4,$5,$6,$7});
+        $$->makeChild({$1,$2,$3,$4,$5,$6,$7});
         util.printGrammar("statement : FOR LPAREN expression_statement expression_statement expression RPAREN statement");
 }
     | IF LPAREN expression RPAREN statement %prec THEN {
         SymbolInfo *sInfo = new SymbolInfo("", "statement");
         $$=new Node(sInfo,"statement : IF LPAREN expression RPAREN statement");
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1,$2,$3,$4,$5});
+        $$->makeChild({$1,$2,$3,$4,$5});
         util.printGrammar("statement : IF LPAREN expression RPAREN statement");
 }
     | IF LPAREN expression RPAREN statement ELSE statement {
         SymbolInfo *sInfo = new SymbolInfo("", "statement");
         $$=new Node(sInfo,"statement : IF LPAREN expression RPAREN statement ELSE statement");
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1,$2,$3,$4,$5,$6,$7});
+        $$->makeChild({$1,$2,$3,$4,$5,$6,$7});
         util.printGrammar("statement : IF LPAREN expression RPAREN statement ELSE statement");
 }
     | WHILE LPAREN expression RPAREN statement {
         SymbolInfo *sInfo= new SymbolInfo("", "statement");
         $$=new Node(sInfo,"statement : WHILE LPAREN expression RPAREN statement");
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1,$2,$3,$4,$5});
+        $$->makeChild({$1,$2,$3,$4,$5});
         util.printGrammar("statement : WHILE LPAREN expression RPAREN statement");  
 }
     | PRINTLN LPAREN ID RPAREN SEMICOLON {
@@ -715,7 +733,7 @@ statement : var_declaration {
         $$=new Node(sInfo,"statement : PRINTLN LPAREN ID RPAREN SEMICOLON");
         CheckVariableDeclaredOrNot($3);
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1,$2,$3,$4,$5});
+        $$->makeChild({$1,$2,$3,$4,$5});
         util.printGrammar("statement : PRINTLN LPAREN ID RPAREN SEMICOLON");
         
 
@@ -725,7 +743,7 @@ statement : var_declaration {
         $$=new Node(sInfo,"statement : RETURN expression SEMICOLON");
         CheckReturnIssues($2);
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1,$2,$3});
+        $$->makeChild({$1,$2,$3});
         util.printGrammar("statement : RETURN expression SEMICOLON");  
         
 }
@@ -734,14 +752,14 @@ expression_statement : SEMICOLON {
         SymbolInfo *sInfo = new SymbolInfo("", "expression_statement");
         $$=new Node(sInfo,"expression_statement : SEMICOLON");
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1});
+        $$->makeChild({$1});
         util.printGrammar("expression_statement : SEMICOLON"); 
 }
 	| expression SEMICOLON {
       SymbolInfo *sInfo = new SymbolInfo("", "expression_statement");
       $$=new Node(sInfo,"expression_statement : expression SEMICOLON");  
       pTree.setCurrentNode($$);
-      pTree.addChildren({$1,$2});
+      $$->makeChild({$1,$2});
       util.printGrammar("expression_statement : expression SEMICOLON"); 
       
 }
@@ -751,7 +769,7 @@ variable : ID {
         $$=new Node(sInfo,"variable : ID",$1->getReturnOrDataType());
         CheckVariableDeclaredOrNot($1);
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1});
+        $$->makeChild({$1});
         util.printGrammar("variable : ID");
         
         		
@@ -761,7 +779,7 @@ variable : ID {
         $$=new Node(sInfo,"variable : ID LSQUARE expression RSQUARE",$1->getReturnOrDataType());
         CheckArrayIssues($$,$1,$3);
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1,$2,$3,$4});
+        $$->makeChild({$1,$2,$3,$4});
         util.printGrammar("variable : ID LSQUARE expression RSQUARE");      
 }
 ;
@@ -770,7 +788,7 @@ expression : logic_expression {
         $$=new Node(sInfo,"expression : logic_expression",$1->getReturnOrDataType());
         $$->setArrayStatus($1->getArrayStatus());
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1});
+        $$->makeChild({$1});
         util.printGrammar("expression : logic_expression");
 }
     | variable ASSIGNOP logic_expression {
@@ -778,16 +796,16 @@ expression : logic_expression {
         $$=new Node(sInfo,"expression : variable ASSIGNOP logic_expression");
         CheckAssignmentIssues($$,$1,$3);
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1,$2,$3});
+        $$->makeChild({$1,$2,$3});
         util.printGrammar("expression : variable ASSIGNOP logic_expression");
 }
 ;
 logic_expression : rel_expression {
         SymbolInfo *sInfo = new SymbolInfo($1->getName(), "logic_expression");
-        $$=new Node(sInfo,"logic_expression : rel_expression");
+        $$=new Node(sInfo,"logic_expression : rel_expression",$1->getReturnOrDataType());
         $$->setArrayStatus($1->getArrayStatus());
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1});
+        $$->makeChild({$1});
         util.printGrammar("logic_expression : rel_expression");
 }
     | rel_expression LOGICOP rel_expression {
@@ -795,7 +813,7 @@ logic_expression : rel_expression {
         CheckLogicalIssues($$,$1,$3);
         $$=new Node(sInfo,"logic_expression : rel_expression LOGICOP rel_expression");
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1,$2,$3});
+        $$->makeChild({$1,$2,$3});
         util.printGrammar("logic_expression : rel_expression LOGICOP rel_expression");
 }
 ;
@@ -804,7 +822,7 @@ rel_expression : simple_expression {
         $$=new Node(sInfo,"rel_expression : simple_expression",$1->getReturnOrDataType());
         $$->setArrayStatus($1->getArrayStatus());
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1});
+        $$->makeChild({$1});
         util.printGrammar("rel_expression : simple_expression");
        
 }
@@ -813,7 +831,7 @@ rel_expression : simple_expression {
         $$=new Node(sInfo,"rel_expression : simple_expression RELOP simple_expression");
         CheckRelationalIssues($$,$1,$3);
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1,$2,$3});
+        $$->makeChild({$1,$2,$3});
         util.printGrammar("rel_expression : simple_expression RELOP simple_expression");
 }
 ;
@@ -822,18 +840,18 @@ simple_expression : term {
        $$=new Node(sInfo,"simple_expression : term",$1->getReturnOrDataType());
        $$->setArrayStatus($1->getArrayStatus());
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1});
+        $$->makeChild({$1});
         util.printGrammar("simple_expression : term");
         
 }
 	| simple_expression ADDOP term {
         SymbolInfo *sInfo = new SymbolInfo("", "simple_expression");
-        $$=new Node(sInfo,"simple_expression : simple_expression ADDOP term");
+        $$=new Node(sInfo,"simple_expression : simple_expression ADDOP term",TypeCasting($1->getReturnOrDataType(), $3->getReturnOrDataType()));
         if ($1->getReturnOrDataType() == "VOID" || $3->getReturnOrDataType() == "VOID") {
 			util.printError("Void cannot be used in expression", yylineno);
 		}
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1,$2,$3});
+        $$->makeChild({$1,$2,$3});
         util.printGrammar("simple_expression : simple_expression ADDOP term");	
 }
 ;
@@ -842,7 +860,7 @@ term : unary_expression {
         $$=new Node(sInfo,"term : unary_expression",$1->getReturnOrDataType());
         $$->setArrayStatus($1->getArrayStatus());
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1});
+        $$->makeChild({$1});
         util.printGrammar("term : unary_expression");
 }
     | term MULOP unary_expression {
@@ -850,7 +868,7 @@ term : unary_expression {
       $$=new Node(sInfo,"term : term MULOP unary_expression");
       CheckMultiplicationIssues($$,$1,$2,$3);
       pTree.setCurrentNode($$);
-      pTree.addChildren({$1,$2,$3});
+      $$->makeChild({$1,$2,$3});
       util.printGrammar("term : term MULOP unary_expression");  
 }
 ;
@@ -862,7 +880,7 @@ unary_expression : ADDOP unary_expression {
 		}
 		else {$$->setReturnOrDataType($2->getReturnOrDataType());}
     pTree.setCurrentNode($$);
-    pTree.addChildren({$1,$2});
+    $$->makeChild({$1,$2});
     util.printGrammar("unary_expression : ADDOP unary_expression");
 		
 }
@@ -871,7 +889,7 @@ unary_expression : ADDOP unary_expression {
         $$=new Node(sInfo,"unary_expression : NOT unary_expression");
         CheckUnaryExpression($$,$2);
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1,$2});
+        $$->makeChild({$1,$2});
         util.printGrammar("unary_expression : NOT unary_expression");
 
 }
@@ -880,33 +898,11 @@ unary_expression : ADDOP unary_expression {
         $$=new Node(sInfo,"unary_expression : factor",$1->getReturnOrDataType());
         $$->setArrayStatus($1->getArrayStatus());
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1});
+        $$->makeChild({$1});
         util.printGrammar("unary_expression : factor");
         
 }
 ;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 factor : variable {
@@ -914,7 +910,7 @@ factor : variable {
        $$=new Node(sInfo,"factor : variable",$1->getReturnOrDataType());
        $$->setArrayStatus($1->getArrayStatus());
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1});
+        $$->makeChild({$1});
         util.printGrammar("factor : variable");
         
 }
@@ -923,29 +919,15 @@ factor : variable {
         $$=new Node(sInfo,"factor : ID LPAREN argument_list RPAREN");
         callFunction($$,$1,$3);
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1,$2,$3,$4});
+        $$->makeChild({$1,$2,$3,$4});
         util.printGrammar("factor : ID LPAREN argument_list RPAREN");
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     | LPAREN expression RPAREN {
         SymbolInfo *sInfo = new SymbolInfo($2->getName(), "factor");
         $$=new Node(sInfo,"factor : LPAREN expression RPAREN",$2->getReturnOrDataType());
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1,$2,$3});
+        $$->makeChild({$1,$2,$3});
         util.printGrammar("factor : LPAREN expression RPAREN");
         
 }
@@ -953,14 +935,14 @@ factor : variable {
         SymbolInfo *sInfo = new SymbolInfo($1->getName(), "factor");	
         $$=new Node(sInfo,"factor : CONST_INT","INT");
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1});
+        $$->makeChild({$1});
         util.printGrammar("factor : CONST_INT");
 }
     | CONST_FLOAT {
         SymbolInfo *sInfo = new SymbolInfo($1->getName(), "factor");
         $$=new Node(sInfo,"factor : CONST_FLOAT","FLOAT");
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1});
+        $$->makeChild({$1});
         util.printGrammar("factor : CONST_FLOAT");
 
 }
@@ -969,7 +951,7 @@ factor : variable {
         $$=new Node(sInfo,"factor : variable INCOP");
         CheckUnaryOperandIssues($$,$1);
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1,$2});
+        $$->makeChild({$1,$2});
         util.printGrammar("factor : variable INCOP");
 		
 }
@@ -978,22 +960,18 @@ factor : variable {
         $$=new Node(sInfo,"factor : variable DECOP");
         CheckUnaryOperandIssues($$,$1);
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1,$2});
+        $$->makeChild({$1,$2});
         util.printGrammar("factor : variable DECOP");
 }
 ;
-
-
 
 argument_list : arguments {
        SymbolInfo *sInfo = new SymbolInfo("", "argument_list");
         $$=new Node(sInfo,"argument_list : arguments");
         $$->addParameter($1->getParameterList());
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1});
-        util.printGrammar("argument_list : arguments");
-    
-		
+        $$->makeChild({$1});
+        util.printGrammar("argument_list : arguments");		
 }
     | {
         SymbolInfo *sInfo= new SymbolInfo("", "argument_list");
@@ -1005,47 +983,39 @@ arguments : arguments COMMA logic_expression {
     SymbolInfo *sInfo = new SymbolInfo("", "arguments");
     $$=new Node(sInfo,"arguments : arguments COMMA logic_expression");
     $$->addParameter($1->getParameterList());
-    $$->addParameter({$3->getReturnOrDataType(),$3->getName()});
-    $$->setArrayStatus($3->getArrayStatus());
+    $$->addParameter({{$3->getReturnOrDataType(),$3->getName()},$3->getArrayStatus()});
     pTree.setCurrentNode($$);
-    pTree.addChildren({$1,$2,$3});
+    $$->makeChild({$1,$2,$3});
     util.printGrammar("arguments : arguments COMMA logic_expression");
 }
     | logic_expression {
         SymbolInfo *sInfo = new SymbolInfo("", "arguments");
         $$=new Node(sInfo,"arguments : logic_expression");
-        $$->addParameter({$1->getReturnOrDataType(),$1->getName()});
-        $$->setArrayStatus($1->getArrayStatus());
+        $$->addParameter({{$1->getReturnOrDataType(),$1->getName()},$1->getArrayStatus()});
         pTree.setCurrentNode($$);
-        pTree.addChildren({$1});
+        $$->makeChild({$1});
         util.printGrammar("arguments : logic_expression");
 }
 ;
 lcurls : LCURL {
     $$=$1;
     sTable.EnterScope();
+    for (auto functionArgument : currentFunctionParameters) {
+        string functionName=functionArgument.first.second;
+			if (functionName == "") {
+				continue;
+			}
+			Node* toBeInserted = new Node(new SymbolInfo(functionName, "ID"),"", functionArgument.first.first);
+			toBeInserted->setArrayStatus(functionArgument.second);
+			if (!sTable.Insert(toBeInserted)) {
+                util.printError("Redefinition of parameter \'"+toBeInserted->getName() +"\'",yylineno );
+				break;
+			}
+		}
+        currentFunctionParameters.clear();
 }
 ;
 %%
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 int main(int argc, char* argv[]) {
     if (argc != 2) {
@@ -1063,10 +1033,10 @@ int main(int argc, char* argv[]) {
     yyparse();
     fclose(yyin);
 
-    sTable.PrintAllScope(util.getLogFout());
-    util.getLogFout()<<"Total lines: "<<yylineno<<endl;
-    util.getLogFout()<<"Total errors: "<<util.getErrorCount()<<endl;
-    util.getLogFout()<<"Total warnings: "<<util.getWarningCount()<<endl;
-
+    //sTable.PrintAllScope(util.getLogFout());
+    util.getLogFout()<<"Total Lines: "<<yylineno<<endl;
+    util.getLogFout()<<"Total Errors: "<<util.getErrorCount()<<endl;
+    //util.getLogFout()<<"Total warnings: "<<util.getWarningCount()<<endl;
+//cout<<currentFunctionReturnType<<endl;
     return EXIT_SUCCESS;
 }

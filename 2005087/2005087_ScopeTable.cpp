@@ -17,7 +17,7 @@ class ScopeTable
 {
 private:
     Node **scopeTable;
-    string id;
+    int id;
     unsigned long long tableSize;
     ScopeTable *parentScope;
     int scopeNo;
@@ -31,7 +31,7 @@ public:
         {
             scopeTable[i] = NULL;
         }
-        id = "";
+        id =0;
         parentScope = NULL;
         scopeNo = 0;
     }
@@ -39,14 +39,14 @@ public:
     {
         this->parentScope = ParentScope;
     }
-    ScopeTable *getParentScope() { return this->parentScope; }
-    void setScopeNo(int scopeNo) { this->scopeNo = scopeNo; }
+     ScopeTable *getParentScope() { return this->parentScope; }
+    // void setScopeNo(int scopeNo) { this->scopeNo = scopeNo; }
     int getScopeNo() { return this->scopeNo; }
-    void setId(string id)
+    void setId(int id)
     {
         this->id = id;
     }
-    string getId()
+    int getId()
     {
         return this->id;
     }
@@ -145,22 +145,50 @@ public:
         {
             if (scopeTable[i] != NULL)
             {
-                fout <<"\t"<< i + 1 << " --> ";
+                fout << "\t" << i + 1 << " --> ";
                 Node *current = scopeTable[i];
                 while (current != NULL)
                 {
-                    if (current->getNext() == NULL)
+
+                    if (current->getType() == "FUNCTION")
                     {
-                        fout << "(" << current->getName() << "," << current->getType() << ")" << endl;
+                        if (current->getNext() == NULL)
+                        {
+                            fout << "<" << current->getName() << "," << current->getType() <<"," << current->getReturnOrDataType() << ">" << endl;
+                        }
+                        else
+                        {
+                            fout << "<" << current->getName() << "," << current->getType() <<"," << current->getReturnOrDataType() << "> " ;
+                        }
                     }
-                    else
+                    else if(current->getType() == "ARRAY")
                     {
-                        fout << "(" << current->getName() << "," << current->getType() << ") --> ";
+
+                        if (current->getNext() == NULL)
+                        {
+                            fout << "<" << current->getName() << "," << current->getType() << ">" << endl;
+                        }
+                        else
+                        {
+                            fout << "<" << current->getName() << "," << current->getType() << "> ";
+                        }
                     }
+                    else 
+                    {
+
+                        if (current->getNext() == NULL)
+                        {
+                            fout << "<" << current->getName() << "," << current->getReturnOrDataType() << ">" << endl;
+                        }
+                        else
+                        {
+                            fout << "<" << current->getName() << "," << current->getReturnOrDataType() << "> ";
+                        }
+                    }
+
                     current = current->getNext();
                 }
             }
         }
     }
-   
 };

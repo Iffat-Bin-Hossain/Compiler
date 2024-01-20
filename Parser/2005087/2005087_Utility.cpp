@@ -17,23 +17,31 @@ public:
         errorCount = 0;
         warnCount = 0;
     }
-    ofstream& gettreeFout(){
+    ofstream &getTreeFout()
+    {
         return treeFout;
     }
-    ofstream& getLogFout(){
+    ofstream &getLogFout()
+    {
         return logFout;
     }
-    ofstream& getErrorFout(){
+    ofstream &getErrorFout()
+    {
         return errorFout;
     }
-    
 
     void printLog(std::string token, std::string symbol, int lineNo)
     {
         logFout << "Line# " << lineNo << ": Token <" << token << "> Lexeme " << symbol << " found" << std::endl;
     }
-    void printGrammar(std::string grammar){
-        logFout << grammar << std::endl; 
+    void printError(std::string message, int lineNo)
+    {
+        errorCount++;
+        errorFout <<"Line# " << lineNo <<": " << message << std::endl;
+    }
+    void printGrammar(std::string grammar)
+    {
+        logFout << grammar << std::endl;
     }
     void printKeyword(std::string keyword, int lineNo)
     {
@@ -58,7 +66,7 @@ public:
             }
         }
     }
-   void printOperator(std::string tokenName, std::string symbol, int lineNo)
+    void printOperator(std::string tokenName, std::string symbol, int lineNo)
     {
         printLog(tokenName, symbol, lineNo);
     }
@@ -68,29 +76,31 @@ public:
     }
 
     void printSingleLineComment(std::string commentText, int lineNo)
-    { 
-        printLog("SINGLE LINE COMMENT", "//"+commentText, lineNo);
+    {
+        printLog("SINGLE LINE COMMENT", "//" + commentText, lineNo);
     }
     void printMultiLineComment(std::string commentText, int lineNo)
     {
-        printLog("MULTI LINE COMMENT","/*" + commentText+"*/" , lineNo);
+        printLog("MULTI LINE COMMENT", "/*" + commentText + "*/", lineNo);
     }
-
 
     void printError(std::string error, std::string text, int lineNo)
     {
         errorCount++;
-        cout<<error<<" "<<lineNo<<" "<<text<<endl;
+        cout << error << " " << lineNo << " " << text << endl;
         logFout << "Error at line# " << lineNo << ": " << error << " " << text << std::endl;
     }
-    void printWarning(std::string warning, int lineNo){
+    void printWarning(std::string warning, int lineNo)
+    {
         warnCount++;
-        logFout << "Line# " << lineNo  << warning  << std::endl;
+        logFout << "Line# " << lineNo << warning << std::endl;
     }
-    int getErrorCount(){
+    int getErrorCount()
+    {
         return errorCount;
     }
-    int getWarningCount(){
+    int getWarningCount()
+    {
         return warnCount;
     }
 };

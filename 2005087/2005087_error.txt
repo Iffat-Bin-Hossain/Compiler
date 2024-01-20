@@ -1,44 +1,25 @@
-Line# 10: redeclaration of foo3
-Line# 12: Undeclared variable 'a'
-Line# 19: Undeclared variable 'y'
-Line# 23: Undeclared variable 'a'
-Line# 27: Undeclared variable 'y'
-Line# 28:  Multiple declaration of foo3
-Line# 31:  Multiple declaration of foo3
-Line# 33: Undeclared variable 'd'
-Line# 37: Undeclared variable 'a'
-Line# 41: Undeclared variable 'a'
-Line# 49: Type mismatch for argument func
-Line# 52: Undeclared variable 'a'
-Line# 52: Undeclared variable 'a'
-Line# 52: Undeclared variable 'c'
-Line# 52: Type mismatch for argument correct_foo
-Line# 53: Undeclared variable 'b'
-Line# 53: Undeclared variable 'a'
-Line# 53: Too few arguments to function correct_foo
-Line# 54: Undeclared variable 'dd'
-Line# 54: Undeclared variable 'a'
-Line# 54: Undeclared variable 'b'
-Line# 54: Undeclared variable 'a'
-Line# 54: Too many arguments to function correct_foo
-Line# 56: Undeclared variable 'k'
-Line# 57: Undeclared variable 'b'
-Line# 58: Undeclared variable 'c'
-Line# 59: Undeclared variable 'c'
-Line# 59: Type mismatch for argument foo4
-Line# 60: Undeclared variable 'c'
-Line# 61: Undeclared variable 'c'
-Line# 61: Type mismatch for argument foo4
-Line# 62: Undeclared variable 'c'
-Line# 62: Undeclared variable 'c'
-Line# 62: Type mismatch for argument foo4
-Line# 63: Undeclared variable 'c'
-Line# 64: Undeclared variable 'b'
-Line# 64: Warning: division by zero
-Line# 65: Undeclared variable 'b'
-Line# 65: Operands of modulus must be integers
-Line# 67: Undeclared variable 'dd'
-Line# 67: Undeclared variable 'a'
-Line# 67: Undeclared function 'foo5'
-Line# 72: Undeclared variable 'h'
-Line# 72: Undeclared function 'printf'
+Line# 20: Redefinition of parameter 'a'
+Line# 26: Conflicting types for 'foo3'
+Line# 30: 'z' redeclared as different kind of symbol
+Line# 34: Conflicting types for 'var'
+Line# 37: Function return type void
+Line# 42: Variable or field 'e' declared void
+Line# 43: Conflicting types for 'a'
+Line# 43: Conflicting types for 'c'
+Line# 45: Type mismatch for argument 1 of 'func'
+Line# 45: Type mismatch for argument 2 of 'func'
+Line# 48: Type mismatch for argument 1 of 'correct_foo'
+Line# 48: Type mismatch for argument 2 of 'correct_foo'
+Line# 49: Too few arguments to function 'correct_foo'
+Line# 50: Too many arguments to function 'correct_foo'
+Line# 52: Undeclared variable 'k'
+Line# 53: 'b' is not an array
+Line# 54: Array subscript is not an integer
+Line# 55: Void cannot be used in expression
+Line# 58: Void cannot be used in expression
+Line# 59: Warning: possible loss of data in assignment of FLOAT to INT
+Line# 60: Warning: division by zero i=0f=1Const=0
+Line# 61: Operands of modulus must be integers
+Line# 63: Undeclared function 'foo5'
+Line# 68: Undeclared variable 'h'
+Line# 68: Undeclared function 'printf'

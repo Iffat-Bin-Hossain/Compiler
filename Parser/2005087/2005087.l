@@ -9,7 +9,7 @@
 #include<bits/stdc++.h>
 #include "2005087_SymbolTable.cpp"
 #include "2005087_Utility.cpp"
-#include "2005087_Node.cpp"
+#include "2005087_Node.h"
 #include "y.tab.h"
 using namespace std;
 void yyerror(char *s);

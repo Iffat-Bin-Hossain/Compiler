@@ -17,7 +17,7 @@ public:
         errorCount = 0;
         warnCount = 0;
     }
-    ofstream &gettreeFout()
+    ofstream &getTreeFout()
     {
         return treeFout;
     }

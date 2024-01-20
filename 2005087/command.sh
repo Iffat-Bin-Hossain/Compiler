@@ -1,3 +1,4 @@
+
 yacc -d -y 2005087.y
 g++ -w -c -o y.o y.tab.c
 flex 2005087.l

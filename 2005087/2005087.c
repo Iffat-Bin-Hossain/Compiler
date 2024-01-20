@@ -7,13 +7,11 @@ int foo3(int a, int b);
 int func(int c, int d){
 	return 7;
 }
-int foo3(int a, int b);
+
 int correct_foo(int a, float b){
 	return a+3;
 }
-int foo3(int a, int b){
-return 4;
-}
+
 
 void foo(int a){
 	y = 6;
@@ -26,9 +24,7 @@ int foo2(int a, int a, float b){
 void foo3(int a , int b){
 	y = 7;
 }
-int foo3(int a, int b){
 
-}
 int z(int d){
 	return d;
 }

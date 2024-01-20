@@ -134,7 +134,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 25 "2005087.y" /* yacc.c:1909  */
+#line 396 "2005087.y" /* yacc.c:1909  */
 
     Node *node;
 

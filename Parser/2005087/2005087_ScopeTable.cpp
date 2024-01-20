@@ -1,5 +1,5 @@
 #include <bits/stdc++.h>
-#include "2005087_SymbolInfo.h"
+#include "2005087_Node.h"
 using namespace std;
 
 static unsigned long long sdbm(string str)
@@ -16,8 +16,8 @@ static unsigned long long sdbm(string str)
 class ScopeTable
 {
 private:
-    SymbolInfo **scopeTable;
-    string id;
+    Node **scopeTable;
+    int id;
     unsigned long long tableSize;
     ScopeTable *parentScope;
     int scopeNo;
@@ -26,12 +26,12 @@ public:
     ScopeTable(unsigned long long totalSize)
     {
         tableSize = totalSize;
-        scopeTable = new SymbolInfo *[tableSize];
+        scopeTable = new Node *[tableSize];
         for (unsigned long long i = 0; i < tableSize; ++i)
         {
             scopeTable[i] = NULL;
         }
-        id = "";
+        id =0;
         parentScope = NULL;
         scopeNo = 0;
     }
@@ -39,29 +39,29 @@ public:
     {
         this->parentScope = ParentScope;
     }
-    ScopeTable *getParentScope() { return this->parentScope; }
-    void setScopeNo(int scopeNo) { this->scopeNo = scopeNo; }
+     ScopeTable *getParentScope() { return this->parentScope; }
+    // void setScopeNo(int scopeNo) { this->scopeNo = scopeNo; }
     int getScopeNo() { return this->scopeNo; }
-    void setId(string id)
+    void setId(int id)
     {
         this->id = id;
     }
-    string getId()
+    int getId()
     {
         return this->id;
     }
-    unsigned long long hashFunction(SymbolInfo *sInfo)
+    unsigned long long hashFunction(Node *node)
     {
-        return sdbm(sInfo->getName()) % tableSize;
+        return sdbm(node->getName()) % tableSize;
     }
-    bool Insert(SymbolInfo *sInfo)
+    bool Insert(Node *node)
     {
-        unsigned long long index = hashFunction(sInfo);
-        SymbolInfo *current = scopeTable[index];
-        SymbolInfo *parent = NULL;
+        unsigned long long index = hashFunction(node);
+        Node *current = scopeTable[index];
+        Node *parent = NULL;
         while (current != NULL)
         {
-            if (current->getName() == sInfo->getName() && current->getType() == sInfo->getType())
+            if (current->getName() == node->getName() && current->getType() == node->getType())
             {
                 return false;
             }
@@ -70,21 +70,21 @@ public:
         }
         if (scopeTable[index] == NULL)
         {
-            scopeTable[index] = sInfo;
+            scopeTable[index] = node;
         }
         else
         {
-            parent->setNext(sInfo);
+            parent->setNext(node);
         }
         return true;
     }
-    bool Delete(SymbolInfo *sInfo)
+    bool Delete(Node *node)
     {
 
-        unsigned long long index = hashFunction(sInfo);
-        SymbolInfo *current = scopeTable[index];
-        SymbolInfo *previous = NULL;
-        while (current != NULL && !(current->getName() == sInfo->getName()))
+        unsigned long long index = hashFunction(node);
+        Node *current = scopeTable[index];
+        Node *previous = NULL;
+        while (current != NULL && !(current->getName() == node->getName()))
         {
             previous = current;
             current = current->getNext();
@@ -108,13 +108,13 @@ public:
         }
     }
 
-    SymbolInfo *Lookup(SymbolInfo *sInfo)
+    Node *Lookup(Node *node)
     {
-        unsigned long long index = hashFunction(sInfo);
-        SymbolInfo *current = scopeTable[index];
+        unsigned long long index = hashFunction(node);
+        Node *current = scopeTable[index];
         while (current != NULL)
         {
-            if (current->getName() == sInfo->getName())
+            if (current->getName() == node->getName())
             {
                 return current;
             }
@@ -122,14 +122,14 @@ public:
         }
         return NULL;
     }
-    unsigned long long Position(SymbolInfo *sInfo)
+    unsigned long long Position(Node *node)
     {
-        unsigned long long bucketNo = hashFunction(sInfo);
+        unsigned long long bucketNo = hashFunction(node);
         unsigned long long chainIndex = 0;
-        SymbolInfo *current = scopeTable[bucketNo];
+        Node *current = scopeTable[bucketNo];
         while (current != NULL)
         {
-            if (current->getName() == sInfo->getName())
+            if (current->getName() == node->getName())
             {
                 break;
             }
@@ -143,43 +143,52 @@ public:
         fout << "\tScopeTable# " << id << endl;
         for (unsigned long long i = 0; i < tableSize; i++)
         {
-            fout << "\t";
-            if (scopeTable[i] == NULL)
+            if (scopeTable[i] != NULL)
             {
-                fout << i + 1 << endl;
-            }
-            else
-            {
-                fout << i + 1 << " --> ";
-                SymbolInfo *current = scopeTable[i];
+                fout << "\t" << i + 1 << " --> ";
+                Node *current = scopeTable[i];
                 while (current != NULL)
                 {
-                    if (current->getNext() == NULL)
+
+                    if (current->getType() == "FUNCTION")
                     {
-                        fout << "(" << current->getName() << "," << current->getType() << ")" << endl;
+                        if (current->getNext() == NULL)
+                        {
+                            fout << "<" << current->getName() << "," << current->getType() <<"," << current->getReturnOrDataType() << ">" << endl;
+                        }
+                        else
+                        {
+                            fout << "<" << current->getName() << "," << current->getType() <<"," << current->getReturnOrDataType() << "> " ;
+                        }
                     }
-                    else
+                    else if(current->getType() == "ARRAY")
                     {
-                        fout << "(" << current->getName() << "," << current->getType() << ") --> ";
+
+                        if (current->getNext() == NULL)
+                        {
+                            fout << "<" << current->getName() << "," << current->getType() << ">" << endl;
+                        }
+                        else
+                        {
+                            fout << "<" << current->getName() << "," << current->getType() << "> ";
+                        }
                     }
+                    else 
+                    {
+
+                        if (current->getNext() == NULL)
+                        {
+                            fout << "<" << current->getName() << "," << current->getReturnOrDataType() << ">" << endl;
+                        }
+                        else
+                        {
+                            fout << "<" << current->getName() << "," << current->getReturnOrDataType() << "> ";
+                        }
+                    }
+
                     current = current->getNext();
                 }
             }
         }
     }
-    /* ~ScopeTable()
-    {
-        for (unsigned long long i = 0; i < tableSize; ++i)
-        {
-            SymbolInfo *current = scopeTable[i];
-            while (current != NULL)
-            {
-                SymbolInfo *temp = current;
-                current = current->getNext();
-                delete temp;
-            }
-            scopeTable[i] = NULL;
-        }
-        delete[] scopeTable;
-    }*/
 };
