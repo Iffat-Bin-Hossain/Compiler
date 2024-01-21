@@ -19,8 +19,7 @@ int startLine;
 string currentFunctionReturnType="";
 vector<pair<pair<string,string>,bool>>currentFunctionParameters={};
 
-
-void declareFunction(string functionName, string returnType,int startLine, vector<pair<pair<string, string>,bool>> parameterList = {})
+void declareFunction(string functionName, string returnType, int startLine, vector<pair<pair<string, string>, bool>> parameterList = {})
 {
 	Node *toBeInserted = new Node(new SymbolInfo(functionName, "FUNCTION"));
 	bool beInserted = sTable.Insert(toBeInserted);
@@ -40,10 +39,10 @@ void declareFunction(string functionName, string returnType,int startLine, vecto
 		}
 	}
 }
-void defineFunction(string functionName, string returnType,int startLine, vector<pair<pair<string, string>,bool>> parameterList = {})
+void defineFunction(string functionName, string returnType, int startLine, vector<pair<pair<string, string>, bool>> parameterList = {})
 {
-    currentFunctionParameters.clear();
-    currentFunctionParameters=parameterList;
+	currentFunctionParameters.clear();
+	currentFunctionParameters = parameterList;
 	Node *toBeChecked = new Node(new SymbolInfo(functionName, "FUNCTION"));
 	Node *searched = sTable.Lookup(toBeChecked);
 	if (searched == NULL)
@@ -60,15 +59,16 @@ void defineFunction(string functionName, string returnType,int startLine, vector
 		if (searched->getFunctionInfo() == "FUNCTION_DECLARATION")
 		{
 
-				if (searched->getReturnOrDataType() != returnType)
-				{
-					util.printError("Conflicting types for \'" + functionName+"\'",startLine);
-					//return;
-				}
-			
-                if(searched->getParameterList().size() != parameterList.size()){
-                   util.printError("Conflicting types for \'" + functionName+"\'", startLine); 
-                }
+			if (searched->getReturnOrDataType() != returnType)
+			{
+				util.printError("Conflicting types for \'" + functionName + "\'", startLine);
+				// return;
+			}
+
+			if (searched->getParameterList().size() != parameterList.size())
+			{
+				util.printError("Conflicting types for \'" + functionName + "\'", startLine);
+			}
 
 			searched->setFunctionInfo("FUNCTION_DEFINITION");
 			searched->addParameter(parameterList);
@@ -76,84 +76,83 @@ void defineFunction(string functionName, string returnType,int startLine, vector
 		}
 		else
 		{
-			util.printError("\'" + functionName+"\' redeclared as different kind of symbol", startLine);
+			util.printError("\'" + functionName + "\' redeclared as different kind of symbol", startLine);
 			return;
 		}
 	}
-    currentFunctionParameters.clear();
+	currentFunctionParameters.clear();
 }
 void callFunction(Node *actualNode, Node *nameNode, Node *argNode)
 {
-    auto parameterList=argNode->getParameterList();
+	auto parameterList = argNode->getParameterList();
 	Node *searched = sTable.Lookup(nameNode);
 	if (searched == NULL)
 	{
 		util.printError("Undeclared function \'" + nameNode->getName() + "\'", actualNode->getStartLine());
 	}
-	else if (!(searched->getFunctionInfo() == "FUNCTION_DECLARATION" ||searched->getFunctionInfo() == "FUNCTION_DEFINITION") )
+	else if (!(searched->getFunctionInfo() == "FUNCTION_DECLARATION" || searched->getFunctionInfo() == "FUNCTION_DEFINITION"))
 	{
 		util.printError("\'" + nameNode->getName() + "\' is not a function", actualNode->getStartLine());
 	}
 	else if (searched->getParameterList().size() < parameterList.size())
 	{
-		util.printError("Too many arguments to function \'" + nameNode->getName()+"\'", actualNode->getStartLine());
+		util.printError("Too many arguments to function \'" + nameNode->getName() + "\'", actualNode->getStartLine());
 		return;
 	}
 	else if (searched->getParameterList().size() > parameterList.size())
 	{
-		util.printError("Too few arguments to function \'" + nameNode->getName()+"\'",actualNode->getStartLine());
+		util.printError("Too few arguments to function \'" + nameNode->getName() + "\'", actualNode->getStartLine());
 		return;
 	}
-	else 
+	else
 	{
-        //bool everythingIsOk=true;
 		for (int i = 0; i < searched->getParameterList().size(); i++)
 		{
-            
-            //cout<<searched->getName()<<searched->getParameterList().at(i).first.first<<" "<<parameterList[i].first.first<<" "<<parameterList[i].first.second<<endl;
+
+			
 			if ((searched->getParameterList().at(i).first.first != parameterList[i].first.first))
 			{
-				util.printError("Type mismatch for argument "+to_string(i+1)+" of \'" + nameNode->getName()+"\'", actualNode->getStartLine());
-                //everythingIsOk=false;
+				util.printError("Type mismatch for argument " + to_string(i + 1) + " of \'" + nameNode->getName() + "\'", actualNode->getStartLine());
+				
 			}
 		}
-            actualNode->setReturnOrDataType(searched->getReturnOrDataType());
-        
+		actualNode->setReturnOrDataType(searched->getReturnOrDataType());
 	}
-
 }
-void SaveData(string dataType,Node* node,int startLine) {
-   auto list=node->getParameterList();
-        for (auto element : list) {
-             if (dataType == "VOID") {
-                util.printError("Variable or field \'"+element.first.second+"\' declared void", startLine);
-                    return;
-                 } 
-            //element.first.first=dataType;     
-            Node *toBeSearched = new Node(new SymbolInfo(element.first.second, ""),"",dataType);
-            Node *searched = sTable.LookupCurrent(toBeSearched);
+void SaveData(string dataType, Node *node, int startLine)
+{
+	auto list = node->getParameterList();
+	for (auto element : list)
+	{
+		if (dataType == "VOID")
+		{
+			util.printError("Variable or field \'" + element.first.second + "\' declared void", startLine);
+			return;
+		}
+		Node *toBeSearched = new Node(new SymbolInfo(element.first.second, ""), "", dataType);
+		Node *searched = sTable.LookupCurrent(toBeSearched);
 
-            if (searched == NULL) {
-                Node *toBeInserted = new Node(new SymbolInfo(element.first.second, "ID"), "", dataType);
+		if (searched == NULL)
+		{
+			Node *toBeInserted = new Node(new SymbolInfo(element.first.second, "ID"), "", dataType);
 
-                if (element.second) {
-                    toBeInserted->setArrayStatus(true);
-                }
-                sTable.Insert(toBeInserted);
-                element.first.first=dataType;
-               // toBeInserted->setReturnOrDataType(dataType);
-            } else if (searched->getReturnOrDataType() != dataType) {
-                util.printError("Conflicting types for \'" + element.first.second + "\'", startLine);
-            } else {
-                util.printError("Redefinition of variable \'" + element.first.second + "\'", startLine);
-            }
-            //node->addParameter(list);
-        }
+			if (element.second)
+			{
+				toBeInserted->setArrayStatus(true);
+			}
+			sTable.Insert(toBeInserted);
+			element.first.first = dataType;
+		}
+		else if (searched->getReturnOrDataType() != dataType)
+		{
+			util.printError("Conflicting types for \'" + element.first.second + "\'", startLine);
+		}
+		else
+		{
+			util.printError("Redefinition of variable \'" + element.first.second + "\'", startLine);
+		}
+	}
 }
-
-	
-
-
 
 void CheckVariableDeclaredOrNot(Node *node)
 {
@@ -170,11 +169,11 @@ void CheckVariableDeclaredOrNot(Node *node)
 }
 void CheckReturnIssues(Node *node)
 {
-    //cout<<currentFunctionReturnType;
-	// if (currentFunctionReturnType == "VOID")
-	// {
-	// 	util.printError("Function return type void", node->getStartLine());
-	// }
+	// cout<<currentFunctionReturnType;
+	//  if (currentFunctionReturnType == "VOID")
+	//  {
+	//  	util.printError("Function return type void", node->getStartLine());
+	//  }
 	if (currentFunctionReturnType == "INT" && node->getReturnOrDataType() == "FLOAT")
 	{
 		util.printError("Warning: possible loss of data in assignment of FLOAT to INT", node->getStartLine());
@@ -254,33 +253,40 @@ void CheckRelationalIssues(Node *actualNode, Node *leftNode, Node *rightNode)
 		actualNode->setReturnOrDataType("INT");
 	}
 }
-bool CheckingZerOperand(string str){
-    bool hasNonZeroDigit = false;
+bool CheckingZerOperand(string str)
+{
+	bool hasNonZeroDigit = false;
 
-    for (int i = 0; i < str.size(); ++i) {
-        char c = str[i];
+	for (int i = 0; i < str.size(); ++i)
+	{
+		char c = str[i];
 
-        if (c == 'e' || c == 'E') {
-            break;
-        }
+		if (c == 'e' || c == 'E')
+		{
+			break;
+		}
 
-        if (c != '0' && c != '.') {
-            hasNonZeroDigit = true;
-            break;
-        }
+		if (c != '0' && c != '.')
+		{
+			hasNonZeroDigit = true;
+			break;
+		}
 
-        if (c == '.') {
-            for (++i; i < str.size(); ++i) {
-                if (str[i] != '0') {
-                    hasNonZeroDigit = true;
-                    break;
-                }
-            }
-            break;
-        }
-    }
+		if (c == '.')
+		{
+			for (++i; i < str.size(); ++i)
+			{
+				if (str[i] != '0')
+				{
+					hasNonZeroDigit = true;
+					break;
+				}
+			}
+			break;
+		}
+	}
 
-    return !hasNonZeroDigit;
+	return !hasNonZeroDigit;
 }
 // string TypeCasting(string  x, string y){
 //     if (x == "VOID" || y == "VOID" || x == "ERROR" || y == "ERROR") {
@@ -301,70 +307,89 @@ bool CheckingZerOperand(string str){
 // 		return y->getDataType();
 // 	}
 
-
-string TypeCasting(string s1, const string s2) {
-    if (s1 == "VOID" || s2 == "VOID" || s1 == "ERROR" || s2 == "ERROR") {
-        return "ERROR";
-    } else if (s1 == "FLOAT" || s2 == "FLOAT") {
-        return "FLOAT";
-    } else {
-        return "INT";
-    }
+string TypeCasting(string s1, const string s2)
+{
+	if (s1 == "VOID" || s2 == "VOID" || s1 == "ERROR" || s2 == "ERROR")
+	{
+		return "ERROR";
+	}
+	else if (s1 == "FLOAT" || s2 == "FLOAT")
+	{
+		return "FLOAT";
+	}
+	else
+	{
+		return "INT";
+	}
 }
 
-void CheckMultiplicationIssues(Node* actualNode,Node* leftNode,Node* midNode,Node* rightNode){
-    if (leftNode->getReturnOrDataType() == "VOID" || rightNode->getReturnOrDataType() == "VOID") {
-			util.printError("Void cannot be used in expression", actualNode->getStartLine());
-			
+void CheckMultiplicationIssues(Node *actualNode, Node *leftNode, Node *midNode, Node *rightNode)
+{
+	if (leftNode->getReturnOrDataType() == "VOID" || rightNode->getReturnOrDataType() == "VOID")
+	{
+		util.printError("Void cannot be used in expression", actualNode->getStartLine());
+	}
+
+	else if (midNode->getName() == "%")
+	{
+		if (leftNode->getReturnOrDataType() == "FLOAT" || rightNode->getReturnOrDataType() == "FLOAT")
+		{
+			util.printError("Operands of modulus must be integers", actualNode->getStartLine());
 		}
-		
-		else if (midNode->getName() == "%") {
-			if (leftNode->getReturnOrDataType() == "FLOAT" || rightNode->getReturnOrDataType() == "FLOAT") {
-				util.printError("Operands of modulus must be integers" , actualNode->getStartLine());
-				
-			}
-			else if (CheckingZerOperand(rightNode->getName())) {
-				util.printError("Warning: division by zero i=0f=1Const=0" , actualNode->getStartLine());	
-			}
-			else {
-				actualNode->setReturnOrDataType("INT");
-			}
+		else if (CheckingZerOperand(rightNode->getName()))
+		{
+			util.printError("Warning: division by zero i=0f=1Const=0", actualNode->getStartLine());
 		}
-		else if (midNode->getName() == "/") {
-			if (CheckingZerOperand(rightNode->getName())) {
-				util.printError("Warning: division by zero i=0f=1Const=0" , actualNode->getStartLine());
-			}
-			else {
-				actualNode->setReturnOrDataType(TypeCasting(leftNode->getReturnOrDataType(), rightNode->getReturnOrDataType()));
-			}
+		else
+		{
+			actualNode->setReturnOrDataType("INT");
 		}
-		else if (midNode->getName() == "*") {
+	}
+	else if (midNode->getName() == "/")
+	{
+		if (CheckingZerOperand(rightNode->getName()))
+		{
+			util.printError("Warning: division by zero i=0f=1Const=0", actualNode->getStartLine());
+		}
+		else
+		{
 			actualNode->setReturnOrDataType(TypeCasting(leftNode->getReturnOrDataType(), rightNode->getReturnOrDataType()));
 		}
+	}
+	else if (midNode->getName() == "*")
+	{
+		actualNode->setReturnOrDataType(TypeCasting(leftNode->getReturnOrDataType(), rightNode->getReturnOrDataType()));
+	}
 }
-void CheckUnaryExpression(Node *actualNode,Node *node){
-   if (node->getReturnOrDataType() == "VOID") {
-			util.printError("Void cannot be used in expression", actualNode->getStartLine());
-			return;
-		}
-   else if (node->getReturnOrDataType() == "FLOAT") {
-			util.printError("Warning :Operands of bitwise operation should be integers", actualNode->getStartLine());
-    }
-actualNode->setReturnOrDataType("INT"); 
-}
-void CheckUnaryOperandIssues(Node* actualNode,Node* operand)
+void CheckUnaryExpression(Node *actualNode, Node *node)
 {
-    if (operand->getReturnOrDataType() == "VOID") {
-			util.printError("Void cannot be used in expression", actualNode->getStartLine());
-			actualNode->setReturnOrDataType("ERROR");
-            return;
-		}
-		else if (operand->getReturnOrDataType() == "ERROR") {
-			actualNode->setReturnOrDataType("ERROR");
-            return;
-		}
-			actualNode->setReturnOrDataType(operand->getReturnOrDataType());
-}   
+	if (node->getReturnOrDataType() == "VOID")
+	{
+		util.printError("Void cannot be used in expression", actualNode->getStartLine());
+		return;
+	}
+	else if (node->getReturnOrDataType() == "FLOAT")
+	{
+		util.printError("Warning :Operands of bitwise operation should be integers", actualNode->getStartLine());
+	}
+	actualNode->setReturnOrDataType("INT");
+}
+void CheckUnaryOperandIssues(Node *actualNode, Node *operand)
+{
+	if (operand->getReturnOrDataType() == "VOID")
+	{
+		util.printError("Void cannot be used in expression", actualNode->getStartLine());
+		actualNode->setReturnOrDataType("ERROR");
+		return;
+	}
+	else if (operand->getReturnOrDataType() == "ERROR")
+	{
+		actualNode->setReturnOrDataType("ERROR");
+		return;
+	}
+	actualNode->setReturnOrDataType(operand->getReturnOrDataType());
+}
+ 
 
 %}
 
@@ -386,61 +411,61 @@ void CheckUnaryOperandIssues(Node* actualNode,Node* operand)
 
 start : program {
     
-    SymbolInfo *sInfo=new SymbolInfo("","start");
-    $$ =new Node(sInfo,"start : program");
-    pTree.setCurrentNode($$);
-    $$->setStartLine($1->getStartLine());
-    $$->setEndLine($1->getEndLine());
-    $$->makeChild({$1});
-    util.printGrammar("start : program");
-    pTree.printParseTree(util.getTreeFout());
+        SymbolInfo *sInfo=new SymbolInfo("","start");
+        $$ =new Node(sInfo,"start : program");
+        pTree.setCurrentNode($$);
+        $$->setStartLine($1->getStartLine());
+        $$->setEndLine($1->getEndLine());
+        $$->makeChild({$1});
+        util.printGrammar("start : program");
+        pTree.printParseTree(util.getTreeFout());
     
 }
 ;   
 program : program unit{
     
-    SymbolInfo *sInfo=new SymbolInfo("","program");
-    $$=new Node(sInfo,"program : program unit");
-    $$->setStartLine($1->getStartLine());
-    $$->setEndLine($2->getEndLine());
-    pTree.setCurrentNode($$);
-    $$->makeChild({$1,$2});
-    util.printGrammar("program : program unit");
+        SymbolInfo *sInfo=new SymbolInfo("","program");
+        $$=new Node(sInfo,"program : program unit");
+        $$->setStartLine($1->getStartLine());
+        $$->setEndLine($2->getEndLine());
+        pTree.setCurrentNode($$);
+        $$->makeChild({$1,$2});
+        util.printGrammar("program : program unit");
      
     
 }
     | unit {
    
-    SymbolInfo *sInfo=new SymbolInfo("","program");
-    $$=new Node(sInfo,"program : unit");
-    $$->setStartLine($1->getStartLine());
-    $$->setEndLine($1->getEndLine());
-    pTree.setCurrentNode($$);
-    $$->makeChild({$1});
-    util.printGrammar("program : unit");
+        SymbolInfo *sInfo=new SymbolInfo("","program");
+        $$=new Node(sInfo,"program : unit");
+        $$->setStartLine($1->getStartLine());
+        $$->setEndLine($1->getEndLine());
+        pTree.setCurrentNode($$);
+        $$->makeChild({$1});
+        util.printGrammar("program : unit");
    
 }
 ;
 unit : var_declaration {
    
-    SymbolInfo *sInfo=new SymbolInfo("","unit");
-    $$=new Node(sInfo,"unit : var_declaration");
-    $$->setStartLine($1->getStartLine());
-    $$->setEndLine($1->getEndLine());
-    pTree.setCurrentNode($$);
-    $$->makeChild({$1});
-    util.printGrammar("unit : var_declaration");
+        SymbolInfo *sInfo=new SymbolInfo("","unit");
+        $$=new Node(sInfo,"unit : var_declaration");
+        $$->setStartLine($1->getStartLine());
+        $$->setEndLine($1->getEndLine());
+        pTree.setCurrentNode($$);
+        $$->makeChild({$1});
+        util.printGrammar("unit : var_declaration");
     
 }
     | func_declaration {
     
-    SymbolInfo *sInfo=new SymbolInfo("","unit");
-    $$=new Node(sInfo,"unit : func_declaration");
-    $$->setStartLine($1->getStartLine());
-    $$->setEndLine($1->getEndLine());
-    pTree.setCurrentNode($$);
-    $$->makeChild({$1});
-    util.printGrammar("unit : func_declaration");
+        SymbolInfo *sInfo=new SymbolInfo("","unit");
+        $$=new Node(sInfo,"unit : func_declaration");
+        $$->setStartLine($1->getStartLine());
+        $$->setEndLine($1->getEndLine());
+        pTree.setCurrentNode($$);
+        $$->makeChild({$1});
+        util.printGrammar("unit : func_declaration");
    
 }
     | func_definition {
@@ -493,21 +518,21 @@ func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON {
 ;
 
 func_definition : type_specifier ID LPAREN parameter_list RPAREN {
-    currentFunctionReturnType=$1->getReturnOrDataType();
+        currentFunctionReturnType=$1->getReturnOrDataType();
 }
  compound_statement {
      
-    SymbolInfo *sInfo = new SymbolInfo("", "func_definition");
-    $$=new Node(sInfo,"func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement");
-    $$->setStartLine($1->getStartLine());
-    $$->setEndLine($7->getEndLine());
-    pTree.setCurrentNode($$);
-    $$->makeChild({$1,$2,$3,$4,$5,$7});
-    util.printGrammar("func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement");
-    string functionName=$2->getName();
-    string returnType=$1->getReturnOrDataType();  
-    vector<pair<pair<string, string>,bool>> parameterList = $4->getParameterList();
-    defineFunction(functionName,returnType,$$->getStartLine(),parameterList);
+        SymbolInfo *sInfo = new SymbolInfo("", "func_definition");
+        $$=new Node(sInfo,"func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement");
+        $$->setStartLine($1->getStartLine());
+        $$->setEndLine($7->getEndLine());
+        pTree.setCurrentNode($$);
+        $$->makeChild({$1,$2,$3,$4,$5,$7});
+        util.printGrammar("func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement");
+        string functionName=$2->getName();
+        string returnType=$1->getReturnOrDataType();  
+        vector<pair<pair<string, string>,bool>> parameterList = $4->getParameterList();
+        defineFunction(functionName,returnType,$$->getStartLine(),parameterList);
     
     }
     | type_specifier ID LPAREN RPAREN {
@@ -515,16 +540,16 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN {
     }
     compound_statement { 
     
-    SymbolInfo *sInfo = new SymbolInfo("", "func_definition");
-    $$=new Node(sInfo,"func_definition : type_specifier ID LPAREN RPAREN compound_statement");
-    $$->setStartLine($1->getStartLine());
-    $$->setEndLine($6->getEndLine()); 
-    pTree.setCurrentNode($$);
-    $$->makeChild({$1,$2,$3,$4,$6});
-    util.printGrammar("func_definition : type_specifier ID LPAREN RPAREN compound_statement");
-    string functionName=$2->getName();
-    string returnType=$1->getReturnOrDataType();
-    defineFunction(functionName,returnType,$$->getStartLine());
+        SymbolInfo *sInfo = new SymbolInfo("", "func_definition");
+        $$=new Node(sInfo,"func_definition : type_specifier ID LPAREN RPAREN compound_statement");
+        $$->setStartLine($1->getStartLine());
+        $$->setEndLine($6->getEndLine()); 
+        pTree.setCurrentNode($$);
+        $$->makeChild({$1,$2,$3,$4,$6});
+        util.printGrammar("func_definition : type_specifier ID LPAREN RPAREN compound_statement");
+        string functionName=$2->getName();
+        string returnType=$1->getReturnOrDataType();
+        defineFunction(functionName,returnType,$$->getStartLine());
     
 }
 ;
@@ -605,70 +630,70 @@ compound_statement : LCURL{
     } 
      statements RCURL {
 
-    SymbolInfo *sInfo = new SymbolInfo("", "compound_statement");
-    $$=new Node(sInfo,"compound_statement : LCURL statements RCURL");
-    $$->setStartLine($1->getStartLine());
-    $$->setEndLine($4->getEndLine());
-    pTree.setCurrentNode($$);
-    $$->makeChild({$1,$3,$4});
-    util.printGrammar("compound_statement : LCURL statements RCURL");  
-    sTable.PrintAllScope(util.getLogFout());
-    sTable.ExitScope();
+        SymbolInfo *sInfo = new SymbolInfo("", "compound_statement");
+        $$=new Node(sInfo,"compound_statement : LCURL statements RCURL");
+        $$->setStartLine($1->getStartLine());
+        $$->setEndLine($4->getEndLine());
+        pTree.setCurrentNode($$);
+        $$->makeChild({$1,$3,$4});
+        util.printGrammar("compound_statement : LCURL statements RCURL");  
+        sTable.PrintAllScope(util.getLogFout());
+        sTable.ExitScope();
      
 }
     | LCURL{
         sTable.EnterScope();
         for (auto functionArgument : currentFunctionParameters) {
         string argumentName=functionArgument.first.second;
-			if (argumentName == "") {
-				continue;
-			}
-			Node* toBeInserted = new Node(new SymbolInfo(argumentName, "ID"),"", functionArgument.first.first);
-			toBeInserted->setArrayStatus(functionArgument.second);
-			if (!sTable.Insert(toBeInserted)) {
+            if (argumentName == "") {
+                continue;
+            }
+            Node* toBeInserted = new Node(new SymbolInfo(argumentName, "ID"),"", functionArgument.first.first);
+            toBeInserted->setArrayStatus(functionArgument.second);
+            if (!sTable.Insert(toBeInserted)) {
                 util.printError("Redefinition of parameter \'"+toBeInserted->getName() +"\'",$1->getStartLine() );
-				break;
-			}
-		}
+                break;
+            }
+        }
         currentFunctionParameters.clear();
     } 
     RCURL {
 
-    SymbolInfo *sInfo = new SymbolInfo("", "compound_statement");
-    $$=new Node(sInfo,"compound_statement : LCURL RCURL");
-    $$->setStartLine($1->getStartLine());
-    $$->setEndLine($3->getEndLine());
-    pTree.setCurrentNode($$);
-    $$->makeChild({$1,$3});
-    util.printGrammar("compound_statement : LCURL RCURL"); 
-    sTable.PrintAllScope(util.getLogFout());
-    sTable.ExitScope();
+        SymbolInfo *sInfo = new SymbolInfo("", "compound_statement");
+        $$=new Node(sInfo,"compound_statement : LCURL RCURL");
+        $$->setStartLine($1->getStartLine());
+        $$->setEndLine($3->getEndLine());
+        pTree.setCurrentNode($$);
+        $$->makeChild({$1,$3});
+        util.printGrammar("compound_statement : LCURL RCURL"); 
+        sTable.PrintAllScope(util.getLogFout());
+        sTable.ExitScope();
      
     }
     ;
 var_declaration : type_specifier declaration_list SEMICOLON {
 
-    SymbolInfo *sInfo = new SymbolInfo("", "var_declaration");
-    $$=new Node(sInfo,"var_declaration : type_specifier declaration_list SEMICOLON",$1->getReturnOrDataType());
-    $$->setStartLine($1->getStartLine());
-    $$->setEndLine($3->getEndLine());
-    SaveData($1->getReturnOrDataType(),$2,$$->getStartLine());
-    pTree.setCurrentNode($$);
-    $$->makeChild({$1,$2,$3});
-    util.printGrammar("var_declaration : type_specifier declaration_list SEMICOLON");
+        SymbolInfo *sInfo = new SymbolInfo("", "var_declaration");
+        $$=new Node(sInfo,"var_declaration : type_specifier declaration_list SEMICOLON",$1->getReturnOrDataType());
+        $$->setStartLine($1->getStartLine());
+        $$->setEndLine($3->getEndLine());
+        SaveData($1->getReturnOrDataType(),$2,$$->getStartLine());
+        pTree.setCurrentNode($$);
+        $$->makeChild({$1,$2,$3});
+        util.printGrammar("var_declaration : type_specifier declaration_list SEMICOLON");
      
 }
 ;
 
 type_specifier : INT {
 
-    SymbolInfo *sInfo = new SymbolInfo("", "type_specifier");
-    $$=new Node(sInfo,"type_specifier : INT","INT");
-    $$->setStartLine($1->getStartLine());
-    $$->setEndLine($1->getEndLine());
-    pTree.setCurrentNode($$);
-    $$->makeChild({$1});
-    util.printGrammar("type_specifier : INT");
+        SymbolInfo *sInfo = new SymbolInfo("", "type_specifier");
+        $$=new Node(sInfo,"type_specifier : INT","INT");
+        $$->setStartLine($1->getStartLine());
+        $$->setEndLine($1->getEndLine());
+        pTree.setCurrentNode($$);
+        $$->makeChild({$1});
+        util.printGrammar("type_specifier : INT");
        
 }
     | FLOAT {
@@ -759,36 +784,36 @@ statements : statement {
 }
     | statements statement {
 
-       SymbolInfo *sInfo = new SymbolInfo("", "statement");
-       $$=new Node(sInfo,"statements : statements statement");
-       $$->setStartLine($1->getStartLine());
-       $$->setEndLine($2->getEndLine());
-       pTree.setCurrentNode($$);
-       $$->makeChild({$1,$2});
-       util.printGrammar("statements : statements statement"); 
+        SymbolInfo *sInfo = new SymbolInfo("", "statement");
+        $$=new Node(sInfo,"statements : statements statement");
+        $$->setStartLine($1->getStartLine());
+        $$->setEndLine($2->getEndLine());
+        pTree.setCurrentNode($$);
+        $$->makeChild({$1,$2});
+        util.printGrammar("statements : statements statement"); 
  
 }
 ;
 statement : var_declaration {
 
-       SymbolInfo *sInfo= new SymbolInfo("", "statement");
-       $$=new Node(sInfo,"statement : var_declaration",$1->getReturnOrDataType());
-       $$->setStartLine($1->getStartLine());
-       $$->setEndLine($1->getEndLine());
-       pTree.setCurrentNode($$);
-       $$->makeChild({$1});
-       util.printGrammar("statement : var_declaration");
+        SymbolInfo *sInfo= new SymbolInfo("", "statement");
+        $$=new Node(sInfo,"statement : var_declaration",$1->getReturnOrDataType());
+        $$->setStartLine($1->getStartLine());
+        $$->setEndLine($1->getEndLine());
+        pTree.setCurrentNode($$);
+        $$->makeChild({$1});
+        util.printGrammar("statement : var_declaration");
       
 }
     | expression_statement {
 
-    SymbolInfo *sInfo = new SymbolInfo("", "statement");
-    $$=new Node(sInfo,"statement : expression_statement",$1->getReturnOrDataType());
-    $$->setStartLine($1->getStartLine());
-    $$->setEndLine($1->getEndLine());
-    pTree.setCurrentNode($$);
-    $$->makeChild({$1});
-    util.printGrammar("statement : expression_statement");
+        SymbolInfo *sInfo = new SymbolInfo("", "statement");
+        $$=new Node(sInfo,"statement : expression_statement",$1->getReturnOrDataType());
+        $$->setStartLine($1->getStartLine());
+        $$->setEndLine($1->getEndLine());
+        pTree.setCurrentNode($$);
+        $$->makeChild({$1});
+        util.printGrammar("statement : expression_statement");
      
 }
     | compound_statement {
@@ -882,13 +907,13 @@ expression_statement : SEMICOLON {
 }
 	| expression SEMICOLON {
 
-      SymbolInfo *sInfo = new SymbolInfo("", "expression_statement");
-      $$=new Node(sInfo,"expression_statement : expression SEMICOLON");  
-      $$->setStartLine($1->getStartLine());
-      $$->setEndLine($2->getEndLine());
-      pTree.setCurrentNode($$);
-      $$->makeChild({$1,$2});
-      util.printGrammar("expression_statement : expression SEMICOLON"); 
+        SymbolInfo *sInfo = new SymbolInfo("", "expression_statement");
+        $$=new Node(sInfo,"expression_statement : expression SEMICOLON");  
+        $$->setStartLine($1->getStartLine());
+        $$->setEndLine($2->getEndLine());
+        pTree.setCurrentNode($$);
+        $$->makeChild({$1,$2});
+        util.printGrammar("expression_statement : expression SEMICOLON"); 
        
 }
 ;
@@ -1034,30 +1059,30 @@ term : unary_expression {
 }
     | term MULOP unary_expression {
 
-      SymbolInfo *sInfo = new SymbolInfo("", "term");  
-      $$=new Node(sInfo,"term : term MULOP unary_expression");
-      $$->setStartLine($1->getStartLine());
-      $$->setEndLine($3->getEndLine());
-      CheckMultiplicationIssues($$,$1,$2,$3);
-      pTree.setCurrentNode($$);
-      $$->makeChild({$1,$2,$3});
-      util.printGrammar("term : term MULOP unary_expression");  
+        SymbolInfo *sInfo = new SymbolInfo("", "term");  
+        $$=new Node(sInfo,"term : term MULOP unary_expression");
+        $$->setStartLine($1->getStartLine());
+        $$->setEndLine($3->getEndLine());
+        CheckMultiplicationIssues($$,$1,$2,$3);
+        pTree.setCurrentNode($$);
+        $$->makeChild({$1,$2,$3});
+        util.printGrammar("term : term MULOP unary_expression");  
 
 }
 ;
 unary_expression : ADDOP unary_expression {
 
-    SymbolInfo *sInfo = new SymbolInfo("", "unary_expression");
-    $$=new Node(sInfo,"unary_expression : ADDOP unary_expression");
-    $$->setStartLine($1->getStartLine());
-    $$->setEndLine($2->getEndLine());
-    if ($2->getReturnOrDataType() == "VOID") {
-			util.printError("Void cannot be used in expression", $$->getStartLine());
-		}
-	else {$$->setReturnOrDataType($2->getReturnOrDataType());}
-    pTree.setCurrentNode($$);
-    $$->makeChild({$1,$2});
-    util.printGrammar("unary_expression : ADDOP unary_expression");
+        SymbolInfo *sInfo = new SymbolInfo("", "unary_expression");
+        $$=new Node(sInfo,"unary_expression : ADDOP unary_expression");
+        $$->setStartLine($1->getStartLine());
+        $$->setEndLine($2->getEndLine());
+        if ($2->getReturnOrDataType() == "VOID") {
+                util.printError("Void cannot be used in expression", $$->getStartLine());
+            }
+        else {$$->setReturnOrDataType($2->getReturnOrDataType());}
+        pTree.setCurrentNode($$);
+        $$->makeChild({$1,$2});
+        util.printGrammar("unary_expression : ADDOP unary_expression");
 
 		
 }
@@ -1091,14 +1116,14 @@ unary_expression : ADDOP unary_expression {
 
 factor : variable {
 
-       SymbolInfo *sInfo = new SymbolInfo($1->getName(), "factor");
-       $$=new Node(sInfo,"factor : variable",$1->getReturnOrDataType());
-       $$->setStartLine($1->getStartLine());
-       $$->setEndLine($1->getEndLine());
-       $$->setArrayStatus($1->getArrayStatus());
-       pTree.setCurrentNode($$);
-       $$->makeChild({$1});
-       util.printGrammar("factor : variable");
+        SymbolInfo *sInfo = new SymbolInfo($1->getName(), "factor");
+        $$=new Node(sInfo,"factor : variable",$1->getReturnOrDataType());
+        $$->setStartLine($1->getStartLine());
+        $$->setEndLine($1->getEndLine());
+        $$->setArrayStatus($1->getArrayStatus());
+        pTree.setCurrentNode($$);
+        $$->makeChild({$1});
+        util.printGrammar("factor : variable");
 
         
 }
@@ -1177,7 +1202,7 @@ factor : variable {
 
 argument_list : arguments {
 	
-       SymbolInfo *sInfo = new SymbolInfo("", "argument_list");
+        SymbolInfo *sInfo = new SymbolInfo("", "argument_list");
         $$=new Node(sInfo,"argument_list : arguments");
         $$->setStartLine($1->getStartLine());
         $$->setEndLine($1->getEndLine());
@@ -1195,15 +1220,15 @@ argument_list : arguments {
 ;
 arguments : arguments COMMA logic_expression {
 
-    SymbolInfo *sInfo = new SymbolInfo("", "arguments");
-    $$=new Node(sInfo,"arguments : arguments COMMA logic_expression");
-    $$->setStartLine($1->getStartLine());
-    $$->setEndLine($3->getEndLine());
-    $$->addParameter($1->getParameterList());
-    $$->addParameter({{$3->getReturnOrDataType(),$3->getName()},$3->getArrayStatus()});
-    pTree.setCurrentNode($$);
-    $$->makeChild({$1,$2,$3});
-    util.printGrammar("arguments : arguments COMMA logic_expression");
+        SymbolInfo *sInfo = new SymbolInfo("", "arguments");
+        $$=new Node(sInfo,"arguments : arguments COMMA logic_expression");
+        $$->setStartLine($1->getStartLine());
+        $$->setEndLine($3->getEndLine());
+        $$->addParameter($1->getParameterList());
+        $$->addParameter({{$3->getReturnOrDataType(),$3->getName()},$3->getArrayStatus()});
+        pTree.setCurrentNode($$);
+        $$->makeChild({$1,$2,$3});
+        util.printGrammar("arguments : arguments COMMA logic_expression");
 
 }
     | logic_expression {
