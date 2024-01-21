@@ -309,11 +309,11 @@ bool CheckingZerOperand(string str)
 
 string TypeCasting(string s1, const string s2)
 {
-	if (s1 == "VOID" || s2 == "VOID" || s1 == "ERROR" || s2 == "ERROR")
-	{
-		return "ERROR";
-	}
-	else if (s1 == "FLOAT" || s2 == "FLOAT")
+	// if (s1 == "VOID" || s2 == "VOID" || s1 == "ERROR" || s2 == "ERROR")
+	// {
+	// 	return "ERROR";
+	// }
+	if (s1 == "FLOAT" || s2 == "FLOAT")
 	{
 		return "FLOAT";
 	}
@@ -406,7 +406,6 @@ void CheckUnaryOperandIssues(Node *actualNode, Node *operand)
 %nonassoc THEN
 %nonassoc ELSE
 
-
 %%
 
 start : program {
@@ -444,7 +443,7 @@ program : program unit{
         $$->makeChild({$1});
         util.printGrammar("program : unit");
    
-}
+}    
 ;
 unit : var_declaration {
    
