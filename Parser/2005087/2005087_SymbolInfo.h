@@ -1,15 +1,11 @@
 #include <bits/stdc++.h>
 using namespace std;
-
-
-
 #ifndef SYMBOL_INFO_H
 #define SYMBOL_INFO_H
 class SymbolInfo
 {
 private:
     string name, type;
-    //SymbolInfo *next;
 
 public:
     SymbolInfo()
@@ -19,7 +15,6 @@ public:
     {
         this->name = name;
         this->type = type;
-        //this->next = NULL;
     }
     void setName(string name)
     {
@@ -37,16 +32,5 @@ public:
     {
         return type;
     }
-    // void setNext(SymbolInfo *next)
-    // {
-    //     this->next = next;
-    // }
-    // SymbolInfo *getNext()
-    // {
-    //     return next;
-    // }
-    // ~SymbolInfo(){
-    //     delete this->next;
-    // }
 };
 #endif

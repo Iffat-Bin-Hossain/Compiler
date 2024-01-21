@@ -4,7 +4,7 @@ class SymbolTable
 private:
     unsigned long long bucketSize;
     ScopeTable *currentScope;
-    int globalId=1;
+    int globalId = 1;
 
 public:
     SymbolTable(unsigned long long bucketSize)
@@ -12,17 +12,14 @@ public:
         this->bucketSize = bucketSize;
         currentScope = new ScopeTable(bucketSize);
         currentScope->setId(globalId);
-
     }
     ScopeTable *getCurrentScope() { return currentScope; }
     void EnterScope()
     {
         ScopeTable *newScope = new ScopeTable(bucketSize);
         newScope->setParentScope(currentScope);
-        //currentScope->setScopeNo(currentScope->getScopeNo() + 1);
         newScope->setId(++globalId);
         currentScope = newScope;
-
     }
     void ExitScope()
     {
@@ -33,15 +30,25 @@ public:
             currentScope = temp;
         }
     }
-    bool Insert(Node * node)
+    bool Insert(Node *node)
     {
         return currentScope->Insert(node);
     }
-    bool Remove(Node * node)
+    bool Remove(Node *node)
     {
         return currentScope->Delete(node);
     }
-    Node *Lookup(Node * node)
+    Node *LookupCurrent(Node *node)
+    {
+        ScopeTable *current = currentScope;
+        Node *searched = current->Lookup(node);
+        if (searched != NULL)
+        {
+            return searched;
+        }
+        return NULL;
+    }
+    Node *Lookup(Node *node)
     {
         ScopeTable *current = currentScope;
         while (current != NULL)
@@ -49,30 +56,12 @@ public:
             Node *searched = current->Lookup(node);
             if (searched != NULL)
             {
-                //cout << "\t'" << node->getName() << "' found at position <" << current->hashFunction(node) + 1 << ", " << current->Position(node) + 1 << "> of ScopeTable# " << current->getId() << endl;
                 return searched;
             }
             current = current->getParentScope();
         }
         return NULL;
     }
-Node *LookupCurrent(Node * node)
-    {
-        ScopeTable *current = currentScope;
-       // while (current != NULL)
-       // {
-            Node *searched = current->Lookup(node);
-            if (searched != NULL)
-            {
-                //cout << "\t'" << node->getName() << "' found at position <" << current->hashFunction(node) + 1 << ", " << current->Position(node) + 1 << "> of ScopeTable# " << current->getId() << endl;
-                return searched;
-            }
-            //current = current->getParentScope();
-        //}
-        return NULL;
-    }
-
-
 
     void PrintCurrentScope(ofstream &fout)
     {

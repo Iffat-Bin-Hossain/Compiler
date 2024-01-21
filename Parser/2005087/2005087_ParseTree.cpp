@@ -26,10 +26,16 @@ public:
         {
             fout << " ";
         }
-
-        fout << currentNode->getRule() << "\t";
-        fout << "<Line: "
-             << "\n";
+        if (currentNode->getRule() != "")
+        {
+            fout << currentNode->getRule() << "\t";
+            fout << "<Line: " << currentNode->getStartLine() << "-" << currentNode->getEndLine() << ">\n";
+        }
+        else
+        {
+            fout << currentNode->getType() << " : " << currentNode->getName() << "\t";
+            fout << "<Line: " << currentNode->getStartLine() << ">\n";
+        }
 
         for (Node *child : currentNode->getChildren())
         {
@@ -37,6 +43,6 @@ public:
             printParseTree(fout, level + 1);
         }
 
-        currentNode = originalNode; // Restore the original currentNode after processing children
+        currentNode = originalNode;
     }
 };

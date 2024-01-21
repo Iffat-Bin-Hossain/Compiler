@@ -31,7 +31,7 @@ public:
         {
             scopeTable[i] = NULL;
         }
-        id =0;
+        id = 0;
         parentScope = NULL;
         scopeNo = 0;
     }
@@ -39,8 +39,7 @@ public:
     {
         this->parentScope = ParentScope;
     }
-     ScopeTable *getParentScope() { return this->parentScope; }
-    // void setScopeNo(int scopeNo) { this->scopeNo = scopeNo; }
+    ScopeTable *getParentScope() { return this->parentScope; }
     int getScopeNo() { return this->scopeNo; }
     void setId(int id)
     {
@@ -154,14 +153,14 @@ public:
                     {
                         if (current->getNext() == NULL)
                         {
-                            fout << "<" << current->getName() << "," << current->getType() <<"," << current->getReturnOrDataType() << ">" << endl;
+                            fout << "<" << current->getName() << "," << current->getType() << "," << current->getReturnOrDataType() << ">" << endl;
                         }
                         else
                         {
-                            fout << "<" << current->getName() << "," << current->getType() <<"," << current->getReturnOrDataType() << "> " ;
+                            fout << "<" << current->getName() << "," << current->getType() << "," << current->getReturnOrDataType() << "> ";
                         }
                     }
-                    else if(current->getType() == "ARRAY")
+                    else if (current->getType() == "ARRAY")
                     {
 
                         if (current->getNext() == NULL)
@@ -173,7 +172,7 @@ public:
                             fout << "<" << current->getName() << "," << current->getType() << "> ";
                         }
                     }
-                    else 
+                    else
                     {
 
                         if (current->getNext() == NULL)
