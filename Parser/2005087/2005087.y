@@ -168,11 +168,6 @@ void CheckVariableDeclaredOrNot(Node *node)
 }
 void CheckReturnIssues(Node *node)
 {
-	// cout<<currentFunctionReturnType;
-	//  if (currentFunctionReturnType == "VOID")
-	//  {
-	//  	util.printError("Function return type void", node->getStartLine());
-	//  }
 	if (currentFunctionReturnType == "INT" && node->getReturnOrDataType() == "FLOAT")
 	{
 		util.printError("Warning: possible loss of data in assignment of FLOAT to INT", node->getStartLine());
@@ -287,31 +282,9 @@ bool CheckingZerOperand(string str)
 
 	return !hasNonZeroDigit;
 }
-// string TypeCasting(string  x, string y){
-//     if (x == "VOID" || y == "VOID" || x == "ERROR" || y == "ERROR") {
-//         return "ERROR";
-//     }
-// 		if(x == y)
-// 			return x;
-// 		if(x == "INT" && y->getDataType() == "float"){
-// 			x->setDataType("float");
-// 			return "float";
-// 		}else if(x->getDataType() == "float" && y->getDataType() == "int"){
-// 			y->setDataType("float");
-// 			return "float";
-// 		}
-// 		if(x->getDataType()!="void"){
-// 			return x->getDataType();
-// 		}
-// 		return y->getDataType();
-// 	}
-
 string TypeCasting(string s1, const string s2)
 {
-	// if (s1 == "VOID" || s2 == "VOID" || s1 == "ERROR" || s2 == "ERROR")
-	// {
-	// 	return "ERROR";
-	// }
+
 	if (s1 == "FLOAT" || s2 == "FLOAT")
 	{
 		return "FLOAT";
@@ -860,6 +833,7 @@ statement : var_declaration {
  
 }
     | WHILE LPAREN expression RPAREN statement {
+
         SymbolInfo *sInfo= new SymbolInfo("", "statement");
         $$=new Node(sInfo,"statement : WHILE LPAREN expression RPAREN statement");
         $$->setStartLine($1->getStartLine());
@@ -870,6 +844,7 @@ statement : var_declaration {
  
 }
     | PRINTLN LPAREN ID RPAREN SEMICOLON {
+
         SymbolInfo *sInfo = new SymbolInfo("", "statement");
         $$=new Node(sInfo,"statement : PRINTLN LPAREN ID RPAREN SEMICOLON");
         $$->setStartLine($1->getStartLine());
@@ -925,8 +900,7 @@ variable : ID {
         pTree.setCurrentNode($$);
         $$->makeChild({$1});
         util.printGrammar("variable : ID");
-  
-        		
+         		
 }
     | ID LSQUARE expression RSQUARE {
 
