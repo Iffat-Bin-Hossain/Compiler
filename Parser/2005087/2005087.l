@@ -6,7 +6,7 @@
 %x INDENTATION
 
 %{
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 #include "2005087_SymbolTable.cpp"
 #include "2005087_Utility.cpp"
 #include "2005087_Node.h"
@@ -17,44 +17,61 @@ extern SymbolTable sTable;
 extern Utility util;
 extern YYSTYPE yylval;
 int startLineNo;
-int tabNeeded=0;
-int tabGot=0;
-bool tabDeleted=false;
+int tabNeeded = 0;
+int tabGot = 0;
+bool tabDeleted = false;
 
 std::string singlelineComment = "";
 std::string multilineComment = "";
-std::string String="";
-std::string stringToken="";
+std::string String = "";
+std::string stringToken = "";
 
-    char specialCharacter(char c){
-    if (c == 'n') return '\n';
-	else if (c == 't') return '\t';
-	else if (c == 'a') return '\a';
-	else if (c == 'f') return '\f';
-	else if (c == 'b') return '\b';
-	else if (c == 'v') return '\v';
-	else if (c == 'r') return '\r';
-	else if (c == '0') return '\0';
-    else if (c=='\"') return '\"';
-    else if (c=='\'') return '\'';
-    else if (c == '\\') return '\\';
-	else return c;
-    }
-  
-    string currentCharacter(string s){
-    string ret = "";
-    
-    for (int i = 0; i <s.size(); i++) {
-        if (s[i] != '\\') {
-            ret += s[i];
-        } 
-        else {
-                char c = specialCharacter(s[i + 1]);
-                ret += c;
-                i++;
-        }
-    }
-    return ret;
+char specialCharacter(char c)
+{
+	if (c == 'n')
+		return '\n';
+	else if (c == 't')
+		return '\t';
+	else if (c == 'a')
+		return '\a';
+	else if (c == 'f')
+		return '\f';
+	else if (c == 'b')
+		return '\b';
+	else if (c == 'v')
+		return '\v';
+	else if (c == 'r')
+		return '\r';
+	else if (c == '0')
+		return '\0';
+	else if (c == '\"')
+		return '\"';
+	else if (c == '\'')
+		return '\'';
+	else if (c == '\\')
+		return '\\';
+	else
+		return c;
+}
+
+string currentCharacter(string s)
+{
+	string ret = "";
+
+	for (int i = 0; i < s.size(); i++)
+	{
+		if (s[i] != '\\')
+		{
+			ret += s[i];
+		}
+		else
+		{
+			char c = specialCharacter(s[i + 1]);
+			ret += c;
+			i++;
+		}
+	}
+	return ret;
 }
 
 %}
