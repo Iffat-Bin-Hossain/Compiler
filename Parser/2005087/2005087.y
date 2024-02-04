@@ -231,7 +231,7 @@ void CheckLogicalIssues(Node *actualNode, Node *leftNode, Node *rightNode)
 	}
 	if (leftNode->getReturnOrDataType() == "FLOAT" || rightNode->getReturnOrDataType() == "FLOAT")
 	{
-		util.printError("Warning: Void cannot be used in expression", actualNode->getStartLine());
+		util.printError("Warning: Float cannot be used in expression", actualNode->getStartLine());
 		actualNode->setReturnOrDataType("INT");
 	}
 	actualNode->setReturnOrDataType("INT");
