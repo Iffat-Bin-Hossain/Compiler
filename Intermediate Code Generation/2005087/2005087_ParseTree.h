@@ -1,4 +1,6 @@
 #include "2005087_Node.h"
+#ifndef PARSETREE_H
+#define PARSETREE_H
 class ParseTree
 {
 private:
@@ -39,3 +41,4 @@ public:
         currentNode = originalNode;
     }
 };
+#endif

@@ -20,7 +20,9 @@ private:
     int id;
     unsigned long long tableSize;
     ScopeTable *parentScope;
+    int baseOffset = 0;
     int scopeNo;
+    
 
 public:
     ScopeTable(unsigned long long totalSize)
@@ -49,6 +51,11 @@ public:
     {
         return this->id;
     }
+    void setBaseOffset(int baseOffset)
+    {
+        this->baseOffset = baseOffset;
+    }
+    int getBaseOffset() { return this->baseOffset; }
     unsigned long long hashFunction(Node *node)
     {
         return sdbm(node->getName()) % tableSize;

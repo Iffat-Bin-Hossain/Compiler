@@ -8,14 +8,19 @@ class Node
 private:
    SymbolInfo *symbol;
    string rule;
-   string returnOrDataType; // return type for function,datatype for id
+   string returnOrDataType; // Return type for function,datatype for id
    vector<Node *> children;
    Node *next;
    vector<pair<pair<string, string>, bool>> parameterList;
    string functionInfo; // Is it a declaration or a definition
-   bool arrayStatus;
+   bool arrayStatus;    // Is it an array or not
    int startLine;
    int endLine;
+   int stackOffset = -1; //-1 means global variable
+   bool compareOffset = true; // If previousOffset==currentOffset
+   int offsetDifference; // Previous offset ~ current Offset
+   bool isEvaluated = false; // Is a expression evaluated or not
+   vector<int> trueList, falseList, nextList;
 
 public:
    Node(SymbolInfo *symbol, string rule = "", string returnOrDataType = "")
@@ -52,6 +57,20 @@ public:
    int getStartLine() { return startLine; }
    void setEndLine(int endLine) { this->endLine = endLine; }
    int getEndLine() { return endLine; }
+   void setStackOffset(int stackOffset) { this->stackOffset = stackOffset; }
+   int getStackOffset() { return stackOffset; }
+   void setCompareOffset(bool compareOffset) { this->compareOffset = compareOffset; }
+   bool getCompareOffset() { return compareOffset; }
+   void setOffsetDifference(int offsetDifference) { this->offsetDifference = offsetDifference; }
+   int getOffsetDifference() { return offsetDifference; }
+   void setIsEvaluated(bool isEvaluated) { this->isEvaluated = isEvaluated; }
+   bool getIsEvaluated() { return isEvaluated; }
+   void setTrueList(vector<int> trueList) { this->trueList = trueList; }
+   void setFalseList(vector<int> falseList) { this->falseList = falseList; }
+   void setNextList(vector<int> nextList) { this->nextList = nextList; }
+   vector<int> getTrueList() { return trueList; }
+   vector<int> getFalseList() { return falseList; }
+   vector<int> getNextList() { return nextList; }
    void makeChild(vector<Node *> childrenList)
    {
       for (auto child : childrenList)

@@ -1,8 +1,8 @@
 %{
 #include<bits/stdc++.h>
 #include "2005087_SymbolTable.cpp"
-#include "2005087_Utility.cpp"
-#include "2005087_ParseTree.cpp"
+#include "2005087_ICG.cpp"
+#include "2005087_ParseTree.h"
 using namespace std;
 int yyparse(void);
 int yylex(void);
@@ -14,10 +14,11 @@ void yyerror(const std::string& message) {
 
 ParseTree pTree;
 SymbolTable sTable(11);
-Utility util;
+ICG icg;
 int startLine;
 string currentFunctionReturnType="";
 vector<pair<pair<string,string>,bool>>currentFunctionParameters={};
+int currentOffset=0, previousOffset;
 
 void declareFunction(string functionName, string returnType, int startLine, vector<pair<pair<string, string>, bool>> parameterList = {})
 {
@@ -196,6 +197,7 @@ void CheckArrayIssues(Node *actualNode, Node *nameNode, Node *indexNode)
 	{
 		actualNode->setReturnOrDataType(searched->getReturnOrDataType());
 		actualNode->setArrayStatus(false);
+        actualNode->setType("ARRAY_VARIABLE");
 	}
 }
 void CheckAssignmentIssues(Node *actualNode, Node *leftNode, Node *rightNode)
@@ -360,8 +362,6 @@ void CheckUnaryOperandIssues(Node *actualNode, Node *operand)
 	}
 	actualNode->setReturnOrDataType(operand->getReturnOrDataType());
 }
- 
-
 %}
 
 %union {
@@ -387,6 +387,9 @@ start : program {
         $$->setEndLine($1->getEndLine());
         $$->makeChild({$1});
         pTree.setCurrentNode($$);
+        //pTree.printParseTree();
+        icg.generateIntermediateCode(pTree);
+        
     
 }
 ;   
@@ -557,8 +560,10 @@ parameter_list : parameter_list COMMA type_specifier ID {
     
 }
 ;
-compound_statement : LCURL{
+compound_statement : LCURL {
         sTable.EnterScope();
+        sTable.getCurrentScope()->setBaseOffset(currentOffset);
+        int offset=-2-currentFunctionParameters.size()*2;
         for (auto functionArgument : currentFunctionParameters) {
         string argumentName=functionArgument.first.second;
 			if (argumentName == "") {
@@ -566,6 +571,8 @@ compound_statement : LCURL{
 			}
 			Node* toBeInserted = new Node(new SymbolInfo(argumentName, "ID"),"", functionArgument.first.first);
 			toBeInserted->setArrayStatus(functionArgument.second);
+            toBeInserted->setStackOffset(offset);
+            offset=offset+2;
 			if (!sTable.Insert(toBeInserted)) {
                 cout<<"Line# " << $1->getStartLine() <<": " <<"Redefinition of parameter \'"+toBeInserted->getName() +"\'"<<std::endl;
 				break;
@@ -574,29 +581,36 @@ compound_statement : LCURL{
         currentFunctionParameters.clear();
     } 
      statements RCURL {
-
         SymbolInfo *sInfo = new SymbolInfo("", "compound_statement");
         $$=new Node(sInfo,"compound_statement : LCURL statements RCURL");
+        //$$->setScope(sTable.getCurrentScope());
         $$->setStartLine($1->getStartLine());
         $$->setEndLine($4->getEndLine());
+        //$$->setScope(sTable->getCurrentScope());
         $$->makeChild({$1,$3,$4}); 
+        previousOffset=currentOffset;
+        currentOffset=sTable.getCurrentScope()->getBaseOffset();
         sTable.ExitScope();
      
 }
-    | LCURL{
+    | LCURL {
         sTable.EnterScope();
+        sTable.getCurrentScope()->setBaseOffset(currentOffset);
+        int offset=-2-currentFunctionParameters.size()*2;
         for (auto functionArgument : currentFunctionParameters) {
         string argumentName=functionArgument.first.second;
-            if (argumentName == "") {
-                continue;
-            }
-            Node* toBeInserted = new Node(new SymbolInfo(argumentName, "ID"),"", functionArgument.first.first);
-            toBeInserted->setArrayStatus(functionArgument.second);
-            if (!sTable.Insert(toBeInserted)) {
+			if (argumentName == "") {
+				continue;
+			}
+			Node* toBeInserted = new Node(new SymbolInfo(argumentName, "ID"),"", functionArgument.first.first);
+			toBeInserted->setArrayStatus(functionArgument.second);
+            toBeInserted->setStackOffset(offset);
+            offset=offset+2;
+			if (!sTable.Insert(toBeInserted)) {
                 cout<<"Line# " << $1->getStartLine() <<": " <<"Redefinition of parameter \'"+toBeInserted->getName() +"\'"<<std::endl;
-                break;
-            }
-        }
+				break;
+			}
+		}
         currentFunctionParameters.clear();
     } 
     RCURL {
@@ -606,6 +620,12 @@ compound_statement : LCURL{
         $$->setStartLine($1->getStartLine());
         $$->setEndLine($3->getEndLine());
         $$->makeChild({$1,$3}); 
+        previousOffset=currentOffset;
+        currentOffset=sTable.getCurrentScope()->getBaseOffset();
+        if(previousOffset!=currentOffset) {
+            $$->setCompareOffset(false);
+            $$->setOffsetDifference(previousOffset-currentOffset);
+        }
         sTable.ExitScope();
      
     }
@@ -788,6 +808,7 @@ statement : var_declaration {
         $$->setEndLine($5->getEndLine());
         CheckVariableDeclaredOrNot($3);
         $$->makeChild({$1,$2,$3,$4,$5});
+        $$->setStackOffset(sTable.Lookup($3)->getStackOffset());
 }
     | RETURN expression SEMICOLON {
 
@@ -824,6 +845,7 @@ variable : ID {
         SymbolInfo *sInfo = new SymbolInfo($1->getName(), "VARIABLE");
         CheckVariableDeclaredOrNot($1);
         $$=new Node(sInfo,"variable : ID",$1->getReturnOrDataType()); 
+        //$$->setScopeNo(sTable.getCurrentScope());
         $$->setStartLine($1->getStartLine());
         $$->setEndLine($1->getEndLine());
         $$->makeChild({$1});
@@ -920,7 +942,7 @@ simple_expression : term {
         $$->setStartLine($1->getStartLine());
         $$->setEndLine($3->getEndLine());
         if ($1->getReturnOrDataType() == "VOID" || $3->getReturnOrDataType() == "VOID") {
-            cout<<"Line# " << $$->getStartLine() <<": " <<"Void cannot be used in expression"<<std::endl;
+        cout<<"Line# " << $$->getStartLine() <<": " <<"Void cannot be used in expression"<<std::endl;
 		}
         $$->makeChild({$1,$2,$3});
 	
@@ -954,8 +976,8 @@ unary_expression : ADDOP unary_expression {
         $$->setStartLine($1->getStartLine());
         $$->setEndLine($2->getEndLine());
         if ($2->getReturnOrDataType() == "VOID") {
-            cout<<"Line# " << $$->getStartLine() <<": " <<"Void cannot be used in expression"<<std::endl;
-            }
+        cout<<"Line# " << $$->getStartLine() <<": " <<"Void cannot be used in expression"<<std::endl;
+        }
         else {$$->setReturnOrDataType($2->getReturnOrDataType());}
         $$->makeChild({$1,$2});
 
