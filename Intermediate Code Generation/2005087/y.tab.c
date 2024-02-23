@@ -83,7 +83,8 @@ ICG icg;
 int startLine;
 string currentFunctionReturnType="";
 vector<pair<pair<string,string>,bool>>currentFunctionParameters={};
-int currentOffset=0, previousOffset;
+vector<Node *> globals={};
+
 
 void declareFunction(string functionName, string returnType, int startLine, vector<pair<pair<string, string>, bool>> parameterList = {})
 {
@@ -198,14 +199,20 @@ void SaveData(string dataType, Node *node, int startLine)
 
 		if (searched == NULL)
 		{
+            
 			Node *toBeInserted = new Node(new SymbolInfo(element.first.second, "ID"), "", dataType);
 
 			if (element.second)
 			{
 				toBeInserted->setArrayStatus(true);
 			}
-			sTable.Insert(toBeInserted);
+            if(sTable.getCurrentScope()->getId()==1){
+                toBeInserted->setIsGlobal(true);
+                globals.push_back(toBeInserted);
+            }
+            sTable.Insert(toBeInserted);
 			element.first.first = dataType;
+			
 		}
 		else if (searched->getReturnOrDataType() != dataType)
 		{
@@ -217,6 +224,7 @@ void SaveData(string dataType, Node *node, int startLine)
 		}
 	}
 }
+
 
 void CheckVariableDeclaredOrNot(Node *node)
 {
@@ -428,7 +436,7 @@ void CheckUnaryOperandIssues(Node *actualNode, Node *operand)
 	actualNode->setReturnOrDataType(operand->getReturnOrDataType());
 }
 
-#line 432 "y.tab.c" /* yacc.c:339  */
+#line 440 "y.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -552,11 +560,11 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 367 "2005087.y" /* yacc.c:355  */
+#line 375 "2005087.y" /* yacc.c:355  */
 
     Node *node;
 
-#line 560 "y.tab.c" /* yacc.c:355  */
+#line 568 "y.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -573,7 +581,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 577 "y.tab.c" /* yacc.c:358  */
+#line 585 "y.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -874,13 +882,13 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   382,   382,   396,   406,   417,   426,   436,   447,   463,
-     480,   480,   496,   496,   516,   528,   540,   551,   563,   563,
-     596,   596,   633,   645,   654,   663,   673,   685,   697,   707,
-     719,   729,   739,   748,   757,   767,   776,   785,   794,   803,
-     813,   824,   833,   843,   854,   865,   875,   886,   896,   907,
-     917,   928,   938,   951,   961,   972,   986,   997,  1010,  1020,
-    1031,  1040,  1049,  1059,  1069,  1081,  1091,  1096,  1107
+       0,   390,   390,   404,   414,   425,   434,   444,   455,   471,
+     488,   488,   504,   504,   524,   536,   548,   559,   571,   571,
+     599,   599,   627,   638,   647,   656,   666,   678,   690,   700,
+     712,   722,   732,   741,   750,   760,   769,   778,   787,   796,
+     806,   817,   826,   836,   847,   858,   868,   879,   889,   900,
+     910,   921,   931,   944,   954,   965,   979,   990,  1003,  1013,
+    1024,  1033,  1042,  1052,  1062,  1074,  1084,  1089,  1100
 };
 #endif
 
@@ -1740,7 +1748,7 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 382 "2005087.y" /* yacc.c:1646  */
+#line 390 "2005087.y" /* yacc.c:1646  */
     {
     
         SymbolInfo *sInfo=new SymbolInfo("","start");
@@ -1754,11 +1762,11 @@ yyreduce:
         
     
 }
-#line 1758 "y.tab.c" /* yacc.c:1646  */
+#line 1766 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 396 "2005087.y" /* yacc.c:1646  */
+#line 404 "2005087.y" /* yacc.c:1646  */
     {
     
         SymbolInfo *sInfo=new SymbolInfo("","program");
@@ -1769,11 +1777,11 @@ yyreduce:
      
     
 }
-#line 1773 "y.tab.c" /* yacc.c:1646  */
+#line 1781 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 406 "2005087.y" /* yacc.c:1646  */
+#line 414 "2005087.y" /* yacc.c:1646  */
     {
    
         SymbolInfo *sInfo=new SymbolInfo("","program");
@@ -1784,11 +1792,11 @@ yyreduce:
 
    
 }
-#line 1788 "y.tab.c" /* yacc.c:1646  */
+#line 1796 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 417 "2005087.y" /* yacc.c:1646  */
+#line 425 "2005087.y" /* yacc.c:1646  */
     {
    
         SymbolInfo *sInfo=new SymbolInfo("","unit");
@@ -1798,11 +1806,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[0].node)});
     
 }
-#line 1802 "y.tab.c" /* yacc.c:1646  */
+#line 1810 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 426 "2005087.y" /* yacc.c:1646  */
+#line 434 "2005087.y" /* yacc.c:1646  */
     {
     
         SymbolInfo *sInfo=new SymbolInfo("","unit");
@@ -1813,11 +1821,11 @@ yyreduce:
 
    
 }
-#line 1817 "y.tab.c" /* yacc.c:1646  */
+#line 1825 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 436 "2005087.y" /* yacc.c:1646  */
+#line 444 "2005087.y" /* yacc.c:1646  */
     {
         
 		SymbolInfo *sInfo = new SymbolInfo("", "unit");
@@ -1828,11 +1836,11 @@ yyreduce:
 
        
 }
-#line 1832 "y.tab.c" /* yacc.c:1646  */
+#line 1840 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 447 "2005087.y" /* yacc.c:1646  */
+#line 455 "2005087.y" /* yacc.c:1646  */
     {
      
     currentFunctionParameters.clear();
@@ -1849,11 +1857,11 @@ yyreduce:
        
         
 }
-#line 1853 "y.tab.c" /* yacc.c:1646  */
+#line 1861 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 463 "2005087.y" /* yacc.c:1646  */
+#line 471 "2005087.y" /* yacc.c:1646  */
     {
         
         currentFunctionParameters.clear();
@@ -1869,19 +1877,19 @@ yyreduce:
          
         
 }
-#line 1873 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 10:
-#line 480 "2005087.y" /* yacc.c:1646  */
-    {
-        currentFunctionReturnType=(yyvsp[-4].node)->getReturnOrDataType();
-}
 #line 1881 "y.tab.c" /* yacc.c:1646  */
     break;
 
+  case 10:
+#line 488 "2005087.y" /* yacc.c:1646  */
+    {
+        currentFunctionReturnType=(yyvsp[-4].node)->getReturnOrDataType();
+}
+#line 1889 "y.tab.c" /* yacc.c:1646  */
+    break;
+
   case 11:
-#line 483 "2005087.y" /* yacc.c:1646  */
+#line 491 "2005087.y" /* yacc.c:1646  */
     {
      
         SymbolInfo *sInfo = new SymbolInfo("", "func_definition");
@@ -1895,19 +1903,19 @@ yyreduce:
         defineFunction(functionName,returnType,(yyval.node)->getStartLine(),parameterList);
     
     }
-#line 1899 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 12:
-#line 496 "2005087.y" /* yacc.c:1646  */
-    {
-        currentFunctionReturnType=(yyvsp[-3].node)->getReturnOrDataType();
-    }
 #line 1907 "y.tab.c" /* yacc.c:1646  */
     break;
 
+  case 12:
+#line 504 "2005087.y" /* yacc.c:1646  */
+    {
+        currentFunctionReturnType=(yyvsp[-3].node)->getReturnOrDataType();
+    }
+#line 1915 "y.tab.c" /* yacc.c:1646  */
+    break;
+
   case 13:
-#line 499 "2005087.y" /* yacc.c:1646  */
+#line 507 "2005087.y" /* yacc.c:1646  */
     { 
     
         SymbolInfo *sInfo = new SymbolInfo("", "func_definition");
@@ -1920,11 +1928,11 @@ yyreduce:
         defineFunction(functionName,returnType,(yyval.node)->getStartLine());
     
 }
-#line 1924 "y.tab.c" /* yacc.c:1646  */
+#line 1932 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 516 "2005087.y" /* yacc.c:1646  */
+#line 524 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo("", "parameter_list");
@@ -1937,11 +1945,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[-3].node),(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
    
 }
-#line 1941 "y.tab.c" /* yacc.c:1646  */
+#line 1949 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 528 "2005087.y" /* yacc.c:1646  */
+#line 536 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo("", "parameter_list");
@@ -1954,11 +1962,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
        
 }
-#line 1958 "y.tab.c" /* yacc.c:1646  */
+#line 1966 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 540 "2005087.y" /* yacc.c:1646  */
+#line 548 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo("", "parameter_list");
@@ -1970,11 +1978,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[-1].node),(yyvsp[0].node)});
   
 }
-#line 1974 "y.tab.c" /* yacc.c:1646  */
+#line 1982 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 551 "2005087.y" /* yacc.c:1646  */
+#line 559 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo("", "parameter_list");
@@ -1986,15 +1994,13 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[0].node)});
     
 }
-#line 1990 "y.tab.c" /* yacc.c:1646  */
+#line 1998 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 563 "2005087.y" /* yacc.c:1646  */
+#line 571 "2005087.y" /* yacc.c:1646  */
     {
         sTable.EnterScope();
-        sTable.getCurrentScope()->setBaseOffset(currentOffset);
-        int offset=-2-currentFunctionParameters.size()*2;
         for (auto functionArgument : currentFunctionParameters) {
         string argumentName=functionArgument.first.second;
 			if (argumentName == "") {
@@ -2002,8 +2008,6 @@ yyreduce:
 			}
 			Node* toBeInserted = new Node(new SymbolInfo(argumentName, "ID"),"", functionArgument.first.first);
 			toBeInserted->setArrayStatus(functionArgument.second);
-            toBeInserted->setStackOffset(offset);
-            offset=offset+2;
 			if (!sTable.Insert(toBeInserted)) {
                 cout<<"Line# " << (yyvsp[0].node)->getStartLine() <<": " <<"Redefinition of parameter \'"+toBeInserted->getName() +"\'"<<std::endl;
 				break;
@@ -2011,11 +2015,11 @@ yyreduce:
 		}
         currentFunctionParameters.clear();
     }
-#line 2015 "y.tab.c" /* yacc.c:1646  */
+#line 2019 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 583 "2005087.y" /* yacc.c:1646  */
+#line 587 "2005087.y" /* yacc.c:1646  */
     {
         SymbolInfo *sInfo = new SymbolInfo("", "compound_statement");
         (yyval.node)=new Node(sInfo,"compound_statement : LCURL statements RCURL");
@@ -2024,20 +2028,17 @@ yyreduce:
         (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
         //$$->setScope(sTable->getCurrentScope());
         (yyval.node)->makeChild({(yyvsp[-3].node),(yyvsp[-1].node),(yyvsp[0].node)}); 
-        previousOffset=currentOffset;
-        currentOffset=sTable.getCurrentScope()->getBaseOffset();
+
         sTable.ExitScope();
      
 }
-#line 2033 "y.tab.c" /* yacc.c:1646  */
+#line 2036 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 596 "2005087.y" /* yacc.c:1646  */
+#line 599 "2005087.y" /* yacc.c:1646  */
     {
         sTable.EnterScope();
-        sTable.getCurrentScope()->setBaseOffset(currentOffset);
-        int offset=-2-currentFunctionParameters.size()*2;
         for (auto functionArgument : currentFunctionParameters) {
         string argumentName=functionArgument.first.second;
 			if (argumentName == "") {
@@ -2045,8 +2046,6 @@ yyreduce:
 			}
 			Node* toBeInserted = new Node(new SymbolInfo(argumentName, "ID"),"", functionArgument.first.first);
 			toBeInserted->setArrayStatus(functionArgument.second);
-            toBeInserted->setStackOffset(offset);
-            offset=offset+2;
 			if (!sTable.Insert(toBeInserted)) {
                 cout<<"Line# " << (yyvsp[0].node)->getStartLine() <<": " <<"Redefinition of parameter \'"+toBeInserted->getName() +"\'"<<std::endl;
 				break;
@@ -2054,11 +2053,11 @@ yyreduce:
 		}
         currentFunctionParameters.clear();
     }
-#line 2058 "y.tab.c" /* yacc.c:1646  */
+#line 2057 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 616 "2005087.y" /* yacc.c:1646  */
+#line 615 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo("", "compound_statement");
@@ -2066,22 +2065,16 @@ yyreduce:
         (yyval.node)->setStartLine((yyvsp[-2].node)->getStartLine());
         (yyval.node)->setEndLine((yyvsp[0].node)->getEndLine());
         (yyval.node)->makeChild({(yyvsp[-2].node),(yyvsp[0].node)}); 
-        previousOffset=currentOffset;
-        currentOffset=sTable.getCurrentScope()->getBaseOffset();
-        if(previousOffset!=currentOffset) {
-            (yyval.node)->setCompareOffset(false);
-            (yyval.node)->setOffsetDifference(previousOffset-currentOffset);
-        }
+    
         sTable.ExitScope();
      
     }
-#line 2079 "y.tab.c" /* yacc.c:1646  */
+#line 2073 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 633 "2005087.y" /* yacc.c:1646  */
+#line 627 "2005087.y" /* yacc.c:1646  */
     {
-
         SymbolInfo *sInfo = new SymbolInfo("", "var_declaration");
         (yyval.node)=new Node(sInfo,"var_declaration : type_specifier declaration_list SEMICOLON",(yyvsp[-2].node)->getReturnOrDataType());
         (yyval.node)->setStartLine((yyvsp[-2].node)->getStartLine());
@@ -2090,11 +2083,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
      
 }
-#line 2094 "y.tab.c" /* yacc.c:1646  */
+#line 2087 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 645 "2005087.y" /* yacc.c:1646  */
+#line 638 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo("", "type_specifier");
@@ -2104,11 +2097,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[0].node)});
        
 }
-#line 2108 "y.tab.c" /* yacc.c:1646  */
+#line 2101 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 654 "2005087.y" /* yacc.c:1646  */
+#line 647 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo("", "type_specifier");
@@ -2118,11 +2111,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[0].node)});
         
 }
-#line 2122 "y.tab.c" /* yacc.c:1646  */
+#line 2115 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 663 "2005087.y" /* yacc.c:1646  */
+#line 656 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo("", "type_specifier");
@@ -2132,11 +2125,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[0].node)});
         
 }
-#line 2136 "y.tab.c" /* yacc.c:1646  */
+#line 2129 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 26:
-#line 673 "2005087.y" /* yacc.c:1646  */
+#line 666 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo= new SymbolInfo("", "declaration_list");
@@ -2149,11 +2142,11 @@ yyreduce:
 
       
 }
-#line 2153 "y.tab.c" /* yacc.c:1646  */
+#line 2146 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 685 "2005087.y" /* yacc.c:1646  */
+#line 678 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo("", "declaration_list");
@@ -2166,11 +2159,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[-5].node),(yyvsp[-4].node),(yyvsp[-3].node),(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
  
 }
-#line 2170 "y.tab.c" /* yacc.c:1646  */
+#line 2163 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 697 "2005087.y" /* yacc.c:1646  */
+#line 690 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo("", "declaration_list");
@@ -2181,11 +2174,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[0].node)}); 
  
 }
-#line 2185 "y.tab.c" /* yacc.c:1646  */
+#line 2178 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 707 "2005087.y" /* yacc.c:1646  */
+#line 700 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo= new SymbolInfo("", "declaration_list");
@@ -2197,11 +2190,11 @@ yyreduce:
  
 
 }
-#line 2201 "y.tab.c" /* yacc.c:1646  */
+#line 2194 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 719 "2005087.y" /* yacc.c:1646  */
+#line 712 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo("", "statement");
@@ -2212,11 +2205,11 @@ yyreduce:
 
   
 }
-#line 2216 "y.tab.c" /* yacc.c:1646  */
+#line 2209 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 729 "2005087.y" /* yacc.c:1646  */
+#line 722 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo("", "statement");
@@ -2226,11 +2219,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[-1].node),(yyvsp[0].node)});
  
 }
-#line 2230 "y.tab.c" /* yacc.c:1646  */
+#line 2223 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 739 "2005087.y" /* yacc.c:1646  */
+#line 732 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo= new SymbolInfo("", "statement");
@@ -2240,11 +2233,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[0].node)});
       
 }
-#line 2244 "y.tab.c" /* yacc.c:1646  */
+#line 2237 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 748 "2005087.y" /* yacc.c:1646  */
+#line 741 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo("", "statement");
@@ -2254,11 +2247,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[0].node)});
      
 }
-#line 2258 "y.tab.c" /* yacc.c:1646  */
+#line 2251 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 757 "2005087.y" /* yacc.c:1646  */
+#line 750 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo("", "statement");
@@ -2269,11 +2262,11 @@ yyreduce:
    
         
 }
-#line 2273 "y.tab.c" /* yacc.c:1646  */
+#line 2266 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 35:
-#line 767 "2005087.y" /* yacc.c:1646  */
+#line 760 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo("", "statement");
@@ -2283,11 +2276,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[-6].node),(yyvsp[-5].node),(yyvsp[-4].node),(yyvsp[-3].node),(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
  
 }
-#line 2287 "y.tab.c" /* yacc.c:1646  */
+#line 2280 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 36:
-#line 776 "2005087.y" /* yacc.c:1646  */
+#line 769 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo("", "statement");
@@ -2297,11 +2290,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[-4].node),(yyvsp[-3].node),(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
      
 }
-#line 2301 "y.tab.c" /* yacc.c:1646  */
+#line 2294 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 785 "2005087.y" /* yacc.c:1646  */
+#line 778 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo("", "statement");
@@ -2311,11 +2304,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[-6].node),(yyvsp[-5].node),(yyvsp[-4].node),(yyvsp[-3].node),(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
  
 }
-#line 2315 "y.tab.c" /* yacc.c:1646  */
+#line 2308 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 794 "2005087.y" /* yacc.c:1646  */
+#line 787 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo= new SymbolInfo("", "statement");
@@ -2325,11 +2318,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[-4].node),(yyvsp[-3].node),(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});  
  
 }
-#line 2329 "y.tab.c" /* yacc.c:1646  */
+#line 2322 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 803 "2005087.y" /* yacc.c:1646  */
+#line 796 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo("", "statement");
@@ -2340,11 +2333,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[-4].node),(yyvsp[-3].node),(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
         (yyval.node)->setStackOffset(sTable.Lookup((yyvsp[-2].node))->getStackOffset());
 }
-#line 2344 "y.tab.c" /* yacc.c:1646  */
+#line 2337 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 813 "2005087.y" /* yacc.c:1646  */
+#line 806 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo("", "statement");
@@ -2355,11 +2348,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});  
  
 }
-#line 2359 "y.tab.c" /* yacc.c:1646  */
+#line 2352 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 41:
-#line 824 "2005087.y" /* yacc.c:1646  */
+#line 817 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo("", "expression_statement");
@@ -2369,11 +2362,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[0].node)}); 
      
 }
-#line 2373 "y.tab.c" /* yacc.c:1646  */
+#line 2366 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 833 "2005087.y" /* yacc.c:1646  */
+#line 826 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo("", "expression_statement");
@@ -2383,11 +2376,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[-1].node),(yyvsp[0].node)});
        
 }
-#line 2387 "y.tab.c" /* yacc.c:1646  */
+#line 2380 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 843 "2005087.y" /* yacc.c:1646  */
+#line 836 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo((yyvsp[0].node)->getName(), "VARIABLE");
@@ -2399,11 +2392,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[0].node)});
          		
 }
-#line 2403 "y.tab.c" /* yacc.c:1646  */
+#line 2396 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 854 "2005087.y" /* yacc.c:1646  */
+#line 847 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo((yyvsp[-3].node)->getName(), "VARIABLE");
@@ -2414,11 +2407,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[-3].node),(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});    
       
 }
-#line 2418 "y.tab.c" /* yacc.c:1646  */
+#line 2411 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 865 "2005087.y" /* yacc.c:1646  */
+#line 858 "2005087.y" /* yacc.c:1646  */
     {
  
         SymbolInfo *sInfo = new SymbolInfo((yyvsp[0].node)->getName(), "expression");
@@ -2429,11 +2422,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[0].node)});
         
 }
-#line 2433 "y.tab.c" /* yacc.c:1646  */
+#line 2426 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 875 "2005087.y" /* yacc.c:1646  */
+#line 868 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo("", "expression");
@@ -2444,11 +2437,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
  
 }
-#line 2448 "y.tab.c" /* yacc.c:1646  */
+#line 2441 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 886 "2005087.y" /* yacc.c:1646  */
+#line 879 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo((yyvsp[0].node)->getName(), "logic_expression");
@@ -2459,11 +2452,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[0].node)});
  
 }
-#line 2463 "y.tab.c" /* yacc.c:1646  */
+#line 2456 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 48:
-#line 896 "2005087.y" /* yacc.c:1646  */
+#line 889 "2005087.y" /* yacc.c:1646  */
     {
 
 		SymbolInfo *sInfo = new SymbolInfo("", "logic_expression");
@@ -2474,11 +2467,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
 
 }
-#line 2478 "y.tab.c" /* yacc.c:1646  */
+#line 2471 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 49:
-#line 907 "2005087.y" /* yacc.c:1646  */
+#line 900 "2005087.y" /* yacc.c:1646  */
     {
  
         SymbolInfo *sInfo = new SymbolInfo((yyvsp[0].node)->getName(), "rel_expression");
@@ -2489,11 +2482,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[0].node)});
        
 }
-#line 2493 "y.tab.c" /* yacc.c:1646  */
+#line 2486 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 50:
-#line 917 "2005087.y" /* yacc.c:1646  */
+#line 910 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo= new SymbolInfo("", "rel_expression");
@@ -2504,11 +2497,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
 
 }
-#line 2508 "y.tab.c" /* yacc.c:1646  */
+#line 2501 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 51:
-#line 928 "2005087.y" /* yacc.c:1646  */
+#line 921 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo((yyvsp[0].node)->getName(), "simple_expression");
@@ -2519,11 +2512,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[0].node)});
        
 }
-#line 2523 "y.tab.c" /* yacc.c:1646  */
+#line 2516 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 52:
-#line 938 "2005087.y" /* yacc.c:1646  */
+#line 931 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo("", "simple_expression");
@@ -2536,11 +2529,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
 	
 }
-#line 2540 "y.tab.c" /* yacc.c:1646  */
+#line 2533 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 53:
-#line 951 "2005087.y" /* yacc.c:1646  */
+#line 944 "2005087.y" /* yacc.c:1646  */
     {
 
        SymbolInfo *sInfo = new SymbolInfo((yyvsp[0].node)->getName(), "term");
@@ -2551,11 +2544,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[0].node)});
        
 }
-#line 2555 "y.tab.c" /* yacc.c:1646  */
+#line 2548 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 54:
-#line 961 "2005087.y" /* yacc.c:1646  */
+#line 954 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo("", "term");  
@@ -2566,11 +2559,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
 
 }
-#line 2570 "y.tab.c" /* yacc.c:1646  */
+#line 2563 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 55:
-#line 972 "2005087.y" /* yacc.c:1646  */
+#line 965 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo("", "unary_expression");
@@ -2585,11 +2578,11 @@ yyreduce:
 
 		
 }
-#line 2589 "y.tab.c" /* yacc.c:1646  */
+#line 2582 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 56:
-#line 986 "2005087.y" /* yacc.c:1646  */
+#line 979 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo("", "unary_expression");
@@ -2601,11 +2594,11 @@ yyreduce:
  
 
 }
-#line 2605 "y.tab.c" /* yacc.c:1646  */
+#line 2598 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 57:
-#line 997 "2005087.y" /* yacc.c:1646  */
+#line 990 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo((yyvsp[0].node)->getName(), "unary_expression");
@@ -2616,11 +2609,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[0].node)});
        
 }
-#line 2620 "y.tab.c" /* yacc.c:1646  */
+#line 2613 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 58:
-#line 1010 "2005087.y" /* yacc.c:1646  */
+#line 1003 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo((yyvsp[0].node)->getName(), "factor");
@@ -2631,11 +2624,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[0].node)});
         
 }
-#line 2635 "y.tab.c" /* yacc.c:1646  */
+#line 2628 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 59:
-#line 1020 "2005087.y" /* yacc.c:1646  */
+#line 1013 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo("", "factor");
@@ -2646,11 +2639,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[-3].node),(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
 
 }
-#line 2650 "y.tab.c" /* yacc.c:1646  */
+#line 2643 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 60:
-#line 1031 "2005087.y" /* yacc.c:1646  */
+#line 1024 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo((yyvsp[-1].node)->getName(), "factor");
@@ -2660,11 +2653,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
         
 }
-#line 2664 "y.tab.c" /* yacc.c:1646  */
+#line 2657 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 61:
-#line 1040 "2005087.y" /* yacc.c:1646  */
+#line 1033 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo((yyvsp[0].node)->getName(), "factor");	
@@ -2674,11 +2667,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[0].node)});
 
 }
-#line 2678 "y.tab.c" /* yacc.c:1646  */
+#line 2671 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 62:
-#line 1049 "2005087.y" /* yacc.c:1646  */
+#line 1042 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo((yyvsp[0].node)->getName(), "factor");
@@ -2689,11 +2682,11 @@ yyreduce:
 
 
 }
-#line 2693 "y.tab.c" /* yacc.c:1646  */
+#line 2686 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 63:
-#line 1059 "2005087.y" /* yacc.c:1646  */
+#line 1052 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo("", "factor");
@@ -2704,11 +2697,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[-1].node),(yyvsp[0].node)});
 
 }
-#line 2708 "y.tab.c" /* yacc.c:1646  */
+#line 2701 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 64:
-#line 1069 "2005087.y" /* yacc.c:1646  */
+#line 1062 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo= new SymbolInfo("", "factor");
@@ -2719,11 +2712,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[-1].node),(yyvsp[0].node)});
 
 }
-#line 2723 "y.tab.c" /* yacc.c:1646  */
+#line 2716 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 65:
-#line 1081 "2005087.y" /* yacc.c:1646  */
+#line 1074 "2005087.y" /* yacc.c:1646  */
     {
 	
         SymbolInfo *sInfo = new SymbolInfo("", "argument_list");
@@ -2734,20 +2727,20 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[0].node)});	
 
 }
-#line 2738 "y.tab.c" /* yacc.c:1646  */
+#line 2731 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 66:
-#line 1091 "2005087.y" /* yacc.c:1646  */
+#line 1084 "2005087.y" /* yacc.c:1646  */
     {
         SymbolInfo *sInfo= new SymbolInfo("", "argument_list");
         (yyval.node)=new Node(sInfo,"argument_list : ");
 }
-#line 2747 "y.tab.c" /* yacc.c:1646  */
+#line 2740 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 67:
-#line 1096 "2005087.y" /* yacc.c:1646  */
+#line 1089 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo("", "arguments");
@@ -2759,11 +2752,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node)});
 
 }
-#line 2763 "y.tab.c" /* yacc.c:1646  */
+#line 2756 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 68:
-#line 1107 "2005087.y" /* yacc.c:1646  */
+#line 1100 "2005087.y" /* yacc.c:1646  */
     {
 
         SymbolInfo *sInfo = new SymbolInfo("", "arguments");
@@ -2774,11 +2767,11 @@ yyreduce:
         (yyval.node)->makeChild({(yyvsp[0].node)});
 
 }
-#line 2778 "y.tab.c" /* yacc.c:1646  */
+#line 2771 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 2782 "y.tab.c" /* yacc.c:1646  */
+#line 2775 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -3006,7 +2999,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 1119 "2005087.y" /* yacc.c:1906  */
+#line 1112 "2005087.y" /* yacc.c:1906  */
 
 
 int main(int argc, char* argv[]) {

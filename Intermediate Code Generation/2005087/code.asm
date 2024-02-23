@@ -1,8 +1,11 @@
+	; line 1
 .model small
 .stack 1000h
-.data
-
-
+.Data
+	number DB "00000$"
+	 DW 1 DUP (0000H)
+	 DW 1 DUP (0000H)
+	 DW 1 DUP (0000H)
 .code
 Print proc
 	; Preserve AX,BX,CX,DX register
@@ -60,216 +63,155 @@ Newline proc
 	POP AX
 	RET
 Newline ENDP
-Main proc
-	MOV ax,@data
-	MOV ds,ax
+	SUB SP, 2
+	; line 2
+main PROC
+	MOV AX, @DATA
+	MOV DS, AX
 	PUSH BP
-	MOV BP,SP
-L1:
-MOV ax,1
-PUSH ax
-	POP ax
-	MOV i,ax
-POP ax
-L2:
-	PUSH ax
-	MOV ax,i
+	MOV BP, SP
+	; line 4
+	SUB SP, 2
+	SUB SP, 2
+	SUB SP, 2
+	SUB SP, 2
+	SUB SP, 2
+	SUB SP, 2
+	; line 6
+	MOV AX, 1
+	MOV [BP+0], AX
+	; line 7
 	CALL Print
 	CALL Newline
-	POP ax
-L3:
-MOV ax,5
-PUSH ax
-MOV ax,8
-PUSH ax
-	POP bx
-	POP ax
-	ADD ax,bx
-	PUSH ax
-	POP ax
-	MOV j,ax
-POP ax
-L4:
-	PUSH ax
-	MOV ax,j
+	; line 9
+	MOV AX, 8
+	PUSH AX
+	MOV AX, 5
+	POP CX
+	ADD AX, CX
+	MOV [BP+0], AX
+	; line 10
 	CALL Print
 	CALL Newline
-	POP ax
-L5:
-	MOV ax,i
-	PUSH ax
-MOV ax,2
-PUSH ax
-	MOV ax,j
-	PUSH ax
-	POP bx
-	POP ax
-	MUL BX
-	PUSH ax
-	POP bx
-	POP ax
-	ADD ax,bx
-	PUSH ax
-	POP ax
-	MOV k,ax
-POP ax
-L6:
-	PUSH ax
-	MOV ax,k
-	CALL Print
-	CALL Newline
-	POP ax
-L7:
-	MOV ax,k
-	PUSH ax
-MOV ax,9
-PUSH ax
-	POP bx
-	POP ax
+	; line 12
+	MOV AX, [BP+0]
+	PUSH AX
+	MOV AX, 2
+	POP CX
 	CWD
-	DIV BX
-	MOV AX,DX
-	PUSH ax
-	POP ax
-	MOV m,ax
-POP ax
+	MUL CX
+	PUSH AX
+	MOV AX, [BP+0]
+	POP CX
+	ADD AX, CX
+	MOV [BP+0], AX
+	; line 13
+	CALL Print
+	CALL Newline
+	; line 15
+	MOV AX, 9
+	PUSH AX
+	MOV AX, [BP+0]
+	POP CX
+	CWD
+	DIV CX
+	MOV AX, DX
+	MOV [BP+0], AX
+	; line 16
+	CALL Print
+	CALL Newline
+	; line 18
+	MOV AX, [BP+0]
+	PUSH AX
+	MOV AX, [BP+0]
+	POP DX
+	CMP DX,AX
+	JLE L1
+	JMP L2
+L1:
+	MOV AX, 1
+	JMP L3
+L2:
+	MOV AX, 0
+L3:
+	MOV [BP+0], AX
+	; line 19
+	CALL Print
+	CALL Newline
+	; line 21
+	MOV AX, [BP+0]
+	PUSH AX
+	MOV AX, [BP+0]
+	POP DX
+	CMP DX,AX
+	JNE L4
+	JMP L5
+L4:
+	MOV AX, 1
+	JMP L6
+L5:
+	MOV AX, 0
+L6:
+	MOV [BP+0], AX
+	; line 22
+	CALL Print
+	CALL Newline
+	; line 24
+	MOV AX, [BP+0]
+	CMP AX,0
+	JNE L7
+	MOV AX, [BP+0]
+	CMP AX,0
+	JNE L7
+	MOV AX,0
+	JMP L8
+L7:
+	MOV AX,1
 L8:
-	PUSH ax
-	MOV ax,m
+	MOV [BP+0], AX
+	; line 25
 	CALL Print
 	CALL Newline
-	POP ax
+	; line 27
+	MOV AX, [BP+0]
+	CMP AX,0
+	JE L9
+	MOV AX, [BP+0]
+	CMP AX,0
+	JE L9
+	MOV AX,1
+	JMP L10
 L9:
-	MOV ax,m
-	PUSH ax
-	MOV ax,ll
-	PUSH ax
-	POP bx
-	POP ax
-	CMP ax,bx
-	JLE 
-	JMP 
-PUSH ax
-	POP ax
-	MOV n,ax
-POP ax
+	MOV AX,0
 L10:
-	PUSH ax
-	MOV ax,n
+	MOV [BP+0], AX
+	; line 28
 	CALL Print
 	CALL Newline
-	POP ax
+	; line 30
+	MOV AX, [BP+0]
+	PUSH AX
+	DEC AX
+	MOV [BP+0], AX
+	POP AX
+	; line 31
+	CALL Print
+	CALL Newline
+	; line 33
+	MOV AX, [BP+0]
+	NEG AX
+	MOV [BP+0], AX
+	; line 34
+	CALL Print
+	CALL Newline
+	; line 36
+	MOV AX, 0
+	JMP L11
+	; line 37
 L11:
-	MOV ax,i
-	PUSH ax
-	MOV ax,j
-	PUSH ax
-	POP bx
-	POP ax
-	CMP ax,bx
-	JNE 
-	JMP 
-PUSH ax
-	POP ax
-	MOV o,ax
-POP ax
-L12:
-	PUSH ax
-	MOV ax,o
-	CALL Print
-	CALL Newline
-	POP ax
-L13:
-	MOV ax,n
-	PUSH ax
-	POP ax
-	CMP AX, 0
-	JNE
-	JMP
-	PUSH ax
-L14:
-	MOV ax,o
-	PUSH ax
-	POP ax
-	CMP AX, 0
-	JNE
-	JMP
-	PUSH ax
-POP bx
-	POP ax
-	PUSH ax
-	POP ax
-	MOV p,ax
-POP ax
-L15:
-	PUSH ax
-	MOV ax,p
-	CALL Print
-	CALL Newline
-	POP ax
-L16:
-	MOV ax,n
-	PUSH ax
-	POP ax
-	CMP AX, 0
-	JNE
-	JMP
-	PUSH ax
-L17:
-	MOV ax,o
-	PUSH ax
-	POP ax
-	CMP AX, 0
-	JNE
-	JMP
-	PUSH ax
-POP bx
-	POP ax
-	PUSH ax
-	POP ax
-	MOV p,ax
-POP ax
-L18:
-	PUSH ax
-	MOV ax,p
-	CALL Print
-	CALL Newline
-	POP ax
-L19:
-	MOV ax,p
-PUSH ax
-INC W .p
-POP ax
-L20:
-	PUSH ax
-	MOV ax,p
-	CALL Print
-	CALL Newline
-	POP ax
-L21:
-	MOV ax,p
-	PUSH ax
-	POP ax
-	NEG ax
-	PUSH ax
-	POP ax
-	MOV k,ax
-POP ax
-L22:
-	PUSH ax
-	MOV ax,k
-	CALL Print
-	CALL Newline
-	POP ax
-L23:
-MOV ax,0
-PUSH ax
-L24:
-L25:
-	MOV SP, BP
+	ADD SP, 12
 	POP BP
-
-	Exit:
-	MOV ax,4ch
-	int 21h
-Main ENDP
+	MOV AX, 4CH
+	INT 21H
+main ENDP
+END main

@@ -1,25 +1,23 @@
 #include <bits/stdc++.h>
 #include "2005087_ParseTree.h"
 using namespace std;
-
+extern vector<Node *> globals;
+extern SymbolTable sTable;
 class ICG
 {
     std::ofstream icgFout;
+    
+    int lineNo;
+    int offset, popCount, returnLabel;
     int label;
-    string currentFunctionName;
-    vector<pair<pair<string, string>, bool>> currentArgumentList;
-    vector<int> endList;
-    bool isGlobal = true;
-    map<int, string> labelMap;
-    Node *currentExpression;
+    
 
 public:
     ICG()
     {
         icgFout.open("code.asm");
-        label = 0;
     }
-    ofstream &getIcgFout()
+    ofstream &geticgFout()
     {
         return icgFout;
     }
@@ -29,9 +27,7 @@ public:
     }
     void initializeDataSegment()
     {
-        icgFout << ".data" << endl;
-        icgFout << "\n"
-                << endl;
+        icgFout << ".Data\n\tnumber DB \"00000$\"\n";
     }
     void initializeCodeSegment()
     {
@@ -55,676 +51,485 @@ public:
     {
         icgFout << "\tPUSH ax\n\tMOV ax," + id + "\n\tCALL Print\n\tCALL Newline\n\tPOP ax" << endl;
     }
-
-    string VariableAddress(Node *node)
+    void allocatePlaceForArguments(Node *node, int offset)
     {
-        int offset = node->getStackOffset();
-        string name = node->getName();
-
-        if (offset == -1)
+        for (Node *child : node->getChildren())
         {
-            return name; // Global variable
-        }
-        else // Local variable
-        {
-            if (offset == 0)
+            if (child->getType() == "parameter_list")
             {
-                return "[BP]";
+                allocatePlaceForArguments(child, offset + 2);
             }
-
-            else if (offset > 0)
+            else if (child->getType() == "ID")
             {
-                return "[BP-" + to_string(offset) + "]";
-            }
-            else
-            {
-                return "[BP+" + to_string(abs(offset)) + "]";
+                child->setStackOffset(offset);
             }
         }
     }
-    string VariableAddress(string name, int offset)
+    void performArithmeticOperations(Node *node)
     {
-        if (offset == -1)
-        {
-            return name;
-        }
 
-        else
+        traverse(node->getChildren().at(2));
+        icgFout << "\tPUSH AX\n";
+        traverse(node->getChildren().at(0));
+        icgFout << "\tPOP CX\n";
+        if (node->getChildren().at(1)->getName() == "+")
         {
-            return "[BP" + (offset ? ((offset > 0 ? "-" : "") + to_string(offset)) : "") + "]";
+            icgFout << "\tADD AX, CX\n";
+        }
+        else if (node->getChildren().at(1)->getName() == "-")
+        {
+            icgFout << "\tSUB AX, CX\n";
+        }
+        else if (node->getChildren().at(1)->getName() == "*")
+        {
+            icgFout << "\tCWD\n\tMUL CX\n";
+        }
+        else if (node->getChildren().at(1)->getName() == "/")
+        {
+            icgFout << "\tCWD\n\tDIV CX\n";
+        }
+        else if (node->getChildren().at(1)->getName() == "%")
+        {
+            icgFout << "\tCWD\n\tDIV CX\n\tMOV AX, DX\n";
         }
     }
-
-    void performArithmeticOperation(string Operator)
+    void performRelationalOperations(Node *node)
     {
-        if (Operator == "+")
-        {
-            icgFout << "\tADD ax,bx" << endl;
-        }
-        else if (Operator == "-")
-        {
-            icgFout << "\tSUB ax,bx" << endl;
-        }
-        else if (Operator == "*")
-        {
-            icgFout << "\tMUL BX" << endl;
-        }
-        else if (Operator == "/")
-        {
-            icgFout << "\tCWD\n\tDIV BX" << endl;
-        }
-        else if (Operator == "%")
-        {
-            icgFout << "\tCWD\n\tDIV BX\n\tMOV AX,DX" << endl;
-        }
-    }
-
-    void createNewLabel()
-    {
-        label++;
-        icgFout << "L" + to_string(label) << ":" << endl;
-    }
-
-    void performIncrementOperation(string Operator, Node *node)
-    {
-        if (node->getType() != "ARRAY_VARIABLE")
-        {
-            string address = VariableAddress(node);
-            icgFout << "\tMOV ax," + address << endl;
-            icgFout << "PUSH ax" << endl;
-            icgFout << Operator + " W ." + address << endl;
-        }
-        else
-        {
-            if (node->getStackOffset() == -1)
-            {
-                icgFout << "\tPOP cx\n\tLEA SI," + node->getName() + "\n\tSHL cx,1\n\tADD SI,cx\n\tMOV ax,[SI]\n\tPUSH ax\n\t" + Operator + " W.[SI]" << endl;
-            }
-            else
-            {
-                icgFout << "\tPOP cx\n\tSHL cx,1\n\tADD cx," + to_string(node->getStackOffset()) + "\n\tMOV DI,BP\n\tSUB DI,CX\n\tMOV AX,[DI]\n\tPUSH ax\n\t" + Operator + " W.[DI]" << endl;
-            }
-        }
-    }
-
-    void performRelationalOperation(string Operator, Node *node)
-    {
+        string Operator = node->getChildren().at(1)->getName();
+        traverse(node->getChildren().at(0));
+        icgFout << "\tPUSH AX\n";
+        traverse(node->getChildren().at(2));
+        icgFout << "\tPOP DX\n\tCMP DX,AX\n";
         if (Operator == "<")
-        {
-            icgFout << "\tCMP ax,bx\n\tJL " << endl;
-        }
-        else if (Operator == ">")
-        {
-            icgFout << "\tCMP ax,bx\n\tJG " << endl;
-        }
-        else if (Operator == "==")
-        {
-            icgFout << "\tCMP ax,bx\n\tJE " << endl;
-        }
-        else if (Operator == "!=")
-        {
-            icgFout << "\tCMP ax,bx\n\tJNE " << endl;
-        }
-        else if (Operator == ">=")
-        {
-            icgFout << "\tCMP ax,bx\n\tJGE " << endl;
-        }
+            icgFout << "\tJL ";
         else if (Operator == "<=")
-        {
-            icgFout << "\tCMP ax,bx\n\tJLE " << endl;
-        }
-        icgFout << "\tJMP " << endl;
+            icgFout << "\tJLE ";
+        else if (Operator == ">")
+            icgFout << "\tJG ";
+        else if (Operator == ">=")
+            icgFout << "\tJGE ";
+        else if (Operator == "==")
+            icgFout << "\tJE ";
+        else if (Operator == "!=")
+            icgFout << "\tJNE ";
+        int truelabel, falselabel;
+        truelabel = ++label;
+        icgFout << "L" << truelabel << "\n";
+        falselabel = ++label;
+        icgFout << "\tJMP L" << falselabel << "\n";
+        icgFout << "L" << truelabel << ":\n";
+        icgFout << "\tMOV AX, 1\n\tJMP L" << ++label << "\n";
+        icgFout << "L" << falselabel << ":\n";
+        icgFout << "\tMOV AX, 0\n";
+        icgFout << "L" << label << ":\n";
     }
-
-    void performLogicalOperation(string Operator)
+    void performLogicalOperations(Node *node)
     {
-        if (Operator == "NOT")
+        bool isOr = node->getChildren().at(1)->getName() == "||";
+        int intermediateLabel, finalLabel;
+        traverse(node->getChildren().at(0));
+        icgFout << "\tCMP AX,0" << endl;
+        intermediateLabel = ++label;
+        if (isOr)
         {
-            icgFout << "\tCMP AX, 0\n\t";
-            int trueLabel = label;
-            icgFout << "JE L" + to_string(trueLabel) + "\n\t";
-            int falseLabel = label + 1;
-            icgFout << "JMP L" + to_string(falseLabel) + "\n\t";
-            icgFout << "L" + to_string(trueLabel) << ":" << endl;
-            icgFout << "MOV AX, 1";
-            icgFout << "JMP L" + to_string(falseLabel + 1) + "\n\t";
-            icgFout << "L" + to_string(falseLabel) << ":" << endl;
-            icgFout << "XOR AX, AX";
-            icgFout << "L" + to_string(falseLabel + 1) << ":" << endl;
-            label += 3;
+            icgFout << "\tJNE L" << intermediateLabel << endl;
         }
         else
         {
-            if (Operator == "&&")
-                icgFout << "AND AX, BX" << endl;
-            else if (Operator == "||")
-                icgFout << "OR AX, BX" << endl;
+            icgFout << "\tJE L" << intermediateLabel << endl;
         }
-    }
-
-    void initializeFunction(string functionName)
-    {
-        if (functionName == "main")
+        traverse(node->getChildren().at(2));
+        icgFout << "\tCMP AX,0" << endl;
+        finalLabel = ++label;
+        if (isOr)
         {
-            icgFout << "Main proc\n\tMOV ax,@data\n\tMOV ds,ax" << endl;
-        }
-        else
-        {
-            icgFout << functionName + " PROC" << endl;
-        }
-        icgFout << "\tPUSH BP" << endl;
-        icgFout << "\tMOV BP,SP" << endl;
-    }
-
-    void returnFromFunction(string functionName, int argumentsCount)
-    {
-        icgFout << "\tMOV SP, BP\n\tPOP BP" << endl;
-        if (functionName == "main")
-        {
-            icgFout << "\n\tExit:\n\tMOV ax,4ch\n\tint 21h\nMain ENDP" << endl;
+            icgFout << "\tJNE L" << intermediateLabel << endl;
+            icgFout << "\tMOV AX,0\n\tJMP L" << finalLabel << endl;
+            icgFout << "L" << intermediateLabel << ":\n";
+            icgFout << "\tMOV AX,1\nL" << finalLabel << ":" << endl;
         }
         else
         {
-            if (argumentsCount == 0)
+            icgFout << "\tJE L" << intermediateLabel << endl;
+            icgFout << "\tMOV AX,1\n\tJMP L" << finalLabel << endl;
+            icgFout << "L" << intermediateLabel << ":\n";
+            icgFout << "\tMOV AX,0\nL" << finalLabel << ":" << endl;
+        }
+    }
+    void performAssignmentOperations(Node *node)
+    {
+        Node *variable = node->getChildren().at(0);
+        if (node->getType() == "ARRAY_VARIABLE")
+        {
+            icgFout << "\tPUSH AX\n";
+            traverse(node->getChildren().at(2));
+            icgFout << "\tMOV BX, AX\n\tMOV AX, 2\n\tMUL BX\n\tMOV BX, AX\n";
+            if (variable->getIsGlobal())
             {
-                icgFout << "\tRET" << endl;
+                icgFout << "\tPOP AX\n\tMOV " << variable->getChildren().at(0)->getName() << "[BX], AX\n";
             }
-
             else
             {
-                icgFout << "\tRET " + to_string(argumentsCount * 2) << endl;
+                icgFout << "\tMOV AX," << -variable->getStackOffset() << "\n";
+                icgFout << "\tSUB AX,BX\n\tMOV SI, AX\n\tNEG SI\n\tPOP AX\n\tMOV [BP+SI], AX\n";
             }
-
-            icgFout << functionName + " ENDP" << endl;
         }
-    }
-    void performUnaryBooleanOperation(Node *node)
-    {
-        int trueLabel = label;
-        icgFout << "L" + to_string(trueLabel) + ":" << endl;
-        icgFout << "MOV AX, 1";
-        int falseLabel = label + 1;
-        icgFout << "JMP L" + to_string(falseLabel) + "\n\t";
-        icgFout << "L" + to_string(falseLabel) << ":" << endl;
-        icgFout << "XOR AX, AX";
-        icgFout << "L" + to_string(falseLabel + 1) << ":" << endl;
-        label += 3;
-    }
-
-    void backPatch(const vector<int> &list, const string label)
-    {
-        for (int i : list)
+        else
         {
-            labelMap[i] = label;
+            if (variable->getIsGlobal())
+            {
+                icgFout << "\tMOV " << variable->getChildren().at(0)->getName() << ", AX\n";
+            }
+            else
+            {
+                icgFout << "\tMOV [BP" << showpos << variable->getStackOffset() << "], AX\n";
+            }
+            icgFout << noshowpos;
         }
     }
-
-    void CheckExpressionEvaluatedOrNot(Node *node)
+    void performRetrievalOperations(Node *node)
     {
-        if (!node->getIsEvaluated())
+        Node *variable =node->getChildren().at(0);
+        variable=sTable.Lookup(variable);
+        if (node->getType() == "ARRAY_VARIABLE")
         {
-            icgFout << "\tPOP ax\n\tCMP AX,0\n\tJNE" << endl;
-            // add code here
-            icgFout << "\tPUSH ax" << endl;
+            traverse(node->getChildren().at(2));
+            icgFout << "\tMOV BX, AX\n\tMOV AX, 2\n\tMUL BX\n\tMOV BX, AX\n";
+            if (variable->getIsGlobal())
+            {
+                icgFout << "\tMOV AX," << variable->getName() << "[BX]\n";
+            }
+            else
+            {
+                icgFout << "\tMOV AX," << -variable->getStackOffset() << "\n";
+                icgFout << "\tSUB AX,BX\n\tMOV SI, AX\n\tNEG SI\n\tMOV AX, [BP+SI]\n";
+            }
         }
-        node->setIsEvaluated(true);
+        else
+        {
+            cout<<variable->getName()<<variable->getIsGlobal()<<endl;
+            if (variable->getIsGlobal())
+            {
+                icgFout << "\tMOV AX," << variable->getName() << "\n";
+            }
+            else
+            {
+                icgFout << "\tMOV AX, [BP" << showpos << variable->getStackOffset() << "]\n";
+            }
+            icgFout << noshowpos;
+        }
+    }
+    void performIncrementOperations(Node *node)
+    {
+        icgFout << "\tPUSH AX\n\tDEC AX\n";
+        performAssignmentOperations(node->getChildren().at(0));
+        icgFout << "\tPOP AX\n";
+    }
+    void performDecrementOperations(Node *node)
+    {
+        icgFout << "\tPUSH AX\n\tINC AX\n";
+        performAssignmentOperations(node->getChildren().at(0));
+        icgFout << "\tPOP AX\n";
+    }
+    void executeIfStatement(Node *node)
+    {
+        int truelabel;
+        int nextlabel;
+        traverse(node->getChildren().at(2));
+        icgFout << "\tCMP AX, 0\n";
+        truelabel = ++label;
+        icgFout << "JNE L" << truelabel << "\n";
+        if (node->getChildren().size() > 5)
+        {
+            traverse(node->getChildren().at(6));
+        }
+        nextlabel = ++label;
+        icgFout << "\tJMP L" << nextlabel << endl;
+        icgFout << "L" << truelabel << ":\n";
+        traverse(node->getChildren().at(4));
+        icgFout << "L" << nextlabel << ":\n";
+    }
+    void executeForLoop(Node *node)
+    {
+        int startlabel;
+        int exitlabel;
+        traverse(node->getChildren().at(2));
+        startlabel = ++label;
+        icgFout << "L" << startlabel << ":\n";
+        traverse(node->getChildren().at(3));
+        icgFout << "\tCMP AX, 0\n";
+        exitlabel = ++label;
+        icgFout << "\tJE L" << exitlabel << endl;
+        traverse(node->getChildren().at(6));
+        traverse(node->getChildren().at(4));
+        icgFout << "\tJMP L" << startlabel << "\n";
+        icgFout << "L" << exitlabel << ":\n";
+    }
+    void executeWhileLoop(Node *node)
+    {
+        int startlabel;
+        int exitlabel;
+        startlabel = ++label;
+        icgFout << "L" << startlabel << ":\n";
+        traverse(node->getChildren().at(2));
+        icgFout << "\tCMP AX, 0\n";
+        exitlabel = ++label;
+        icgFout << "\tJE L" << exitlabel << endl;
+        traverse(node->getChildren().at(4));
+        icgFout << "\tJMP L" << startlabel << "\n";
+        icgFout << "L" << exitlabel << ":\n";
+    }
+
+    void initializeFunction(Node *node)
+    {
+        string functionname = node->getChildren().at(1)->getName();
+        Node *arguments = node->getChildren().at(3);
+        icgFout << functionname << " PROC\n";
+        if (functionname == "main")
+        {
+            icgFout << "\tMOV AX, @DATA\n\tMOV DS, AX\n";
+        }
+        icgFout << "\tPUSH BP\n\tMOV BP, SP\n";
+        offset = 0;
+        popCount = 0;
+        returnLabel = 0;
+        if (arguments->getType() == "parameter_list")
+        {
+            allocatePlaceForArguments(arguments, 4);
+        }
+    }
+    void terminateFunction(Node *node)
+    {
+        if (returnLabel != 0)
+        {
+            icgFout << "L" << returnLabel << ":\n";
+        }
+        if (popCount != 0)
+        {
+            icgFout << "\tADD SP, " << popCount << "\n";
+        }
+        icgFout << "\tPOP BP\n";
+        string functionName = node->getChildren().at(1)->getName();
+        if (functionName == "main")
+        {
+            icgFout << "\tMOV AX, 4CH\n\tINT 21H\nmain ENDP\n";
+        }
+        else
+        {
+            Node *toBeSearched = new Node(new SymbolInfo(functionName, "ID"));
+            Node *searched = sTable.LookupCurrent(toBeSearched);
+            int toReturn = searched->getParameterList().size() * 2;
+            icgFout << "\tRET ";
+            if (toReturn != 0)
+            {
+                icgFout << toReturn;
+            }
+            icgFout << "\n" + functionName + " ENDP\n";
+        }
+    }
+    void declareVariable(Node *node)
+    {
+        for (Node *child : node->getChildren())
+        {
+            if (child->getType() == "declaration_list")
+            {
+                nestedVariableDeclaration(child);
+            }
+            popCount = -offset;
+        }
+    }
+    void nestedVariableDeclaration(Node *node)
+    {
+        for (Node *child : node->getChildren())
+        {
+            if (child->getType() == "declaration_list")
+            {
+                nestedVariableDeclaration(child);
+            }
+            else if (child->getType() == "ID")
+            {
+                if (child->getIsGlobal())
+                {
+                    return;
+                }
+                offset = offset - 2 * child->getSize();
+                child->setStackOffset(offset);
+                icgFout << "\tSUB SP, " << 2 * child->getSize() << "\n";
+            }
+        }
     }
 
     void traverse(Node *node)
     {
-        cout << node->getRule() << endl;
+        cout<<node->getRule()<<endl;
+        if (node->getStartLine() > lineNo)
+        {
+            lineNo = node->getStartLine();
+            icgFout << "\t; line " << lineNo << "\n";
+        }
+        if (node->getRule() == "start : program")
+        {
+            initializeMemorySegment();
+            initializeDataSegment();
+            for (Node *child : globals)
+            {
+                
+                if (node->getFunctionInfo() == "") // not functions
+                {
+                    icgFout << "\t" << node->getName() << " DW " << node->getSize() << " DUP (0000H)\n";
+                }
+            }
+            initializeCodeSegment();
+            
+        }
+
         if (node->getRule() == "func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement")
         {
-            traverse(node->getChildren().at(0));
-            traverse(node->getChildren().at(1));
-            traverse(node->getChildren().at(2));
-            traverse(node->getChildren().at(3));
-            traverse(node->getChildren().at(4));
-            currentFunctionName = node->getChildren().at(1)->getName();
-            currentArgumentList = node->getChildren().at(3)->getParameterList();
-            initializeFunction(currentFunctionName);
-            traverse(node->getChildren().at(5));
-            createNewLabel();
-            backPatch(endList, to_string(label));
-            endList.clear();
-            returnFromFunction(currentFunctionName, currentArgumentList.size());
+            initializeFunction(node);
+            
         }
         else if (node->getRule() == "func_definition : type_specifier ID LPAREN RPAREN compound_statement")
         {
-            traverse(node->getChildren().at(0));
-            traverse(node->getChildren().at(1));
-            traverse(node->getChildren().at(2));
-            traverse(node->getChildren().at(3));
-            string currentFunctionName = node->getChildren().at(1)->getName();
-            initializeFunction(currentFunctionName);
-            traverse(node->getChildren().at(4));
-            createNewLabel();
-            backPatch(endList, to_string(label));
-            endList.clear();
-            returnFromFunction(currentFunctionName, 0);
-        }
-        else if (node->getRule() == "compound_statement : LCURL statements RCURL")
-        {
-            traverse(node->getChildren().at(0));
-            traverse(node->getChildren().at(1));
-            createNewLabel();
-            traverse(node->getChildren().at(2));
-            backPatch(node->getChildren().at(1)->getNextList(), to_string(label));
-            node->setNextList(node->getChildren().at(1)->getNextList());
-        }
-        else if (node->getRule() == "compound_statement : LCURL RCURL")
-        {
-            traverse(node->getChildren().at(0));
-            traverse(node->getChildren().at(1));
-            if (!node->getCompareOffset())
-            {
-                icgFout << "\tADD SP," + to_string(node->getOffsetDifference()) << endl;
-            }
+            initializeFunction(node);
+            
         }
 
-        else if (node->getRule() == "statements : statement")
-        {
-            traverse(node->getChildren().at(0));
-            node->setNextList(node->getChildren().at(0)->getNextList());
-        }
-        else if (node->getRule() == "statements : statements statement")
-        {
-            traverse(node->getChildren().at(0));
-            createNewLabel();
-            traverse(node->getChildren().at(1));
-            backPatch(node->getChildren().at(0)->getNextList(), to_string(label));
-            node->setNextList(node->getChildren().at(1)->getNextList());
-        }
-        else if (node->getRule() == "statement : expression_statement")
-        {
-            traverse(node->getChildren().at(0));
-            node->setNextList(node->getChildren().at(0)->getNextList());
-        }
-        else if (node->getRule() == "statement : compound_statement")
-        {
-            traverse(node->getChildren().at(0));
-            node->setNextList(node->getChildren().at(0)->getNextList());
-        }
         else if (node->getRule() == "statement : FOR LPAREN expression_statement expression_statement expression RPAREN statement")
         {
-            traverse(node->getChildren().at(0));
-            traverse(node->getChildren().at(1));
-            traverse(node->getChildren().at(2));
-            createNewLabel();
-            int l1 = label;
-            traverse(node->getChildren().at(3));
-            createNewLabel();
-            int l2 = label;
-            traverse(node->getChildren().at(4));
-            icgFout << "\tPOP ax" << endl;
-            icgFout << "\tJMP" << endl;
-            vector<int> list1;
-
-            // add code here
-
-            traverse(node->getChildren().at(5));
-            createNewLabel();
-            int l3 = label;
-            traverse(node->getChildren().at(6));
-            icgFout << "\tJMP" << endl;
-            vector<int> list2;
-
-            // add code here
-
-            node->setNextList(node->getChildren().at(3)->getFalseList());
-            backPatch(node->getChildren().at(2)->getNextList(), to_string(l1));
-            backPatch(node->getChildren().at(3)->getTrueList(), to_string(l3));
-            backPatch(node->getChildren().at(6)->getNextList(), to_string(l2));
-            backPatch(node->getChildren().at(4)->getNextList(), to_string(l1));
-            backPatch(list2, to_string(l2));
-            backPatch(list1, to_string(l1));
+            executeForLoop(node);
+            return;
         }
         else if (node->getRule() == "statement : IF LPAREN expression RPAREN statement")
         {
-            traverse(node->getChildren().at(0));
-            traverse(node->getChildren().at(1));
-            traverse(node->getChildren().at(2));
-            CheckExpressionEvaluatedOrNot(currentExpression);
-            traverse(node->getChildren().at(3));
-            createNewLabel();
-            traverse(node->getChildren().at(4));
+            executeIfStatement(node);
+            return;
         }
         else if (node->getRule() == "statement : IF LPAREN expression RPAREN statement ELSE statement")
         {
-            traverse(node->getChildren().at(0));
-            traverse(node->getChildren().at(1));
-            traverse(node->getChildren().at(2));
-            CheckExpressionEvaluatedOrNot(currentExpression);
-            traverse(node->getChildren().at(3));
-            createNewLabel();
-            traverse(node->getChildren().at(4));
-            traverse(node->getChildren().at(5));
-            icgFout << "\tJMP" << endl;
-            createNewLabel();
-            traverse(node->getChildren().at(6));
+            executeIfStatement(node);
+            return;
         }
         else if (node->getRule() == "statement : WHILE LPAREN expression RPAREN statement")
         {
-            traverse(node->getChildren().at(0));
-            createNewLabel();
-            int l1 = label;
-            traverse(node->getChildren().at(1));
-            traverse(node->getChildren().at(2));
-            CheckExpressionEvaluatedOrNot(currentExpression);
-            traverse(node->getChildren().at(3));
-            createNewLabel();
-            traverse(node->getChildren().at(4));
-            icgFout << "JMP " + to_string(l1) << endl;
+            executeWhileLoop(node);
+            return;
         }
-        else if (node->getRule() == "statement : PRINTLN LPAREN ID RPAREN SEMICOLON")
+        else if (node->getRule() == "expression : variable ASSIGNOP logic_expression")
         {
-            for (Node *child : node->getChildren())
-            {
-                traverse(child);
-            }
-            int offset = node->getStackOffset();
-            print(VariableAddress(node->getChildren().at(2)->getName(), offset));
+            traverse(node->getChildren().at(2));
+            performAssignmentOperations(node->getChildren().at(0));
+            return;
+        }
+        else if (node->getRule() == "logic_expression : rel_expression LOGICOP rel_expression")
+        {
+            performLogicalOperations(node);
+            return;
+        }
+
+        else if (node->getRule() == "rel_expression : simple_expression RELOP simple_expression")
+        {
+            performRelationalOperations(node);
+            return;
+        }
+
+        else if (node->getRule() == "simple_expression : simple_expression ADDOP term")
+        {
+            performArithmeticOperations(node);
+            return;
+        }
+
+        else if (node->getRule() == "term : term MULOP unary_expression")
+        {
+            performArithmeticOperations(node);
+            return;
+        }
+
+        for (Node *child : node->getChildren())
+        {
+            traverse(child);
+        }
+        if (node->getRule() == "func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement")
+        {
+            terminateFunction(node);
+        }
+        else if (node->getRule() == "func_definition : type_specifier ID LPAREN RPAREN compound_statement")
+        {
+            terminateFunction(node);
         }
         else if (node->getRule() == "statement : RETURN expression SEMICOLON")
         {
-            traverse(node->getChildren().at(0));
-            traverse(node->getChildren().at(1));
-            if (!(node->getChildren().at(1)->getTrueList().empty()) || !(node->getChildren().at(1)->getFalseList().empty()) || !(node->getChildren().at(1)->getNextList().empty()))
+            if (returnLabel == 0)
             {
-                icgFout << "\tPOP ax" << endl;
-                performUnaryBooleanOperation(node->getChildren().at(1));
-                icgFout << "\tPUSH ax" << endl;
-                traverse(node->getChildren().at(2));
-                icgFout << "POP ax" << endl;
-                icgFout << "JMP" << endl;
+                returnLabel = ++label;
             }
-        }
 
-        else if (node->getRule() == "expression_statement : SEMICOLON")
-        {
-            traverse(node->getChildren().at(0));
-            icgFout << "\tPOP ax" << endl;
+            icgFout << "\tJMP L" << returnLabel << "\n";
         }
-        else if (node->getRule() == "expression_statement : expression SEMICOLON")
+        else if (node->getRule() == "var_declaration : type_specifier declaration_list SEMICOLON")
         {
-            traverse(node->getChildren().at(0));
-            traverse(node->getChildren().at(1));
-            node->setTrueList(node->getChildren().at(0)->getTrueList());
-            node->setFalseList(node->getChildren().at(0)->getFalseList());
-            node->setNextList(node->getChildren().at(0)->getNextList());
-            node->setIsEvaluated(node->getChildren().at(0)->getIsEvaluated());
-            icgFout << "POP ax" << endl;
+            declareVariable(node);
+            
         }
-
-        else if (node->getRule() == "expression : logic_expression")
+        else if (node->getRule() == "variable : ID")
         {
-            traverse(node->getChildren().at(0));
-            node->setTrueList(node->getChildren().at(0)->getTrueList());
-            node->setFalseList(node->getChildren().at(0)->getFalseList());
-            node->setNextList(node->getChildren().at(0)->getNextList());
-            node->setIsEvaluated(node->getChildren().at(0)->getIsEvaluated());
-            currentExpression = node;
+            performRetrievalOperations(node);
         }
-
-        else if (node->getRule() == "expression : variable ASSIGNOP logic_expression")
+        else if (node->getRule() == "variable : ID LSQUARE expression RSQUARE")
         {
-            if (node->getChildren().at(0)->getReturnOrDataType() == "INT")
-            {
-                traverse(node->getChildren().at(0));
-                traverse(node->getChildren().at(1));
-                traverse(node->getChildren().at(2));
-                node->setTrueList(node->getChildren().at(2)->getTrueList());
-                node->setFalseList(node->getChildren().at(2)->getFalseList());
-                node->setNextList(node->getChildren().at(2)->getNextList());
-                icgFout << "\tPOP ax" << endl;
-                if (!(node->getChildren().at(2)->getTrueList().empty()) || !(node->getChildren().at(2)->getFalseList().empty()) || !(node->getChildren().at(2)->getNextList().empty()))
-                {
-                    icgFout << "\tPOP ax" << endl;
-                    performUnaryBooleanOperation(node->getChildren().at(2));
-                    icgFout << "\tPUSH ax" << endl;
-                }
-                if (node->getChildren().at(0)->getType() != "ARRAY_VARIABLE")
-                {
-                    icgFout << "\tMOV " + VariableAddress(node->getChildren().at(0)) + ",ax" << endl;
-                }
-                else
-                {
-                    if (node->getChildren().at(0)->getStackOffset() == -1)
-                    {
-                        icgFout << "\tPOP cx\n\tLEA SI," + node->getChildren().at(0)->getName() + "\n\tSHL cx,1\n\tADD SI,cx\n\tMOV [SI],ax" << endl;
-                    }
-                    else
-                    {
-                        icgFout << "POP cx\n\tSHL cx,1\n\tADD cx," + to_string(node->getChildren().at(0)->getStackOffset()) + "\n\tMOV DI, BP\n\tSUB DI, CX\n\tMOV [DI], AX" << endl;
-                    }
-                    node->setIsEvaluated(node->getChildren().at(2)->getIsEvaluated());
-                }
-            }
-            currentExpression = node;
-        }
-        else if (node->getRule() == "logic_expression : rel_expression")
-        {
-            traverse(node->getChildren().at(0));
-            node->setTrueList(node->getChildren().at(0)->getTrueList());
-            node->setFalseList(node->getChildren().at(0)->getFalseList());
-            node->setNextList(node->getChildren().at(0)->getNextList());
-            node->setIsEvaluated(node->getChildren().at(0)->getIsEvaluated());
-        }
-
-
-        else if (node->getRule() == "factor : ID LPAREN argument_list RPAREN")
-        {
-            icgFout << "\tCALL " + node->getChildren().at(0)->getName() + "\n\tPUSH ax" << endl;
-        }
-        else if (node->getRule() == "factor : variable")
-        {
-            traverse(node->getChildren().at(0));
-            if (node->getChildren().at(0)->getType() != "ARRAY_VARIABLE")
-            {
-                icgFout << "\tMOV ax," + VariableAddress(node->getChildren().at(0)) << endl;
-            }
-            else
-            {
-                // global array
-                int offset = node->getChildren().at(0)->getStackOffset();
-                string name = node->getChildren().at(0)->getName();
-                if (offset == -1)
-                {
-                    icgFout << "\tPOP cx\n\tLEA SI," + name + "\n\tSHL cx,1\n\tADD SI,cx\n\tMOV ax,[SI]" << endl;
-                }
-                else
-                {
-                    // local array
-                    icgFout << "\tPOP cx\n\tSHL cx,1\n\tADD cx," + to_string(offset) + "\n\tMOV DI, BP\n\tSUB DI, CX\n\tMOV AX, [DI]" << endl;
-                }
-            }
-            icgFout << "\tPUSH ax" << endl;
+            performRetrievalOperations(node);
         }
         else if (node->getRule() == "factor : ID LPAREN argument_list RPAREN")
         {
-            traverse(node->getChildren().at(0));
-            traverse(node->getChildren().at(1));
-            traverse(node->getChildren().at(2));
-            traverse(node->getChildren().at(3));
-            icgFout << "\tCALL " + node->getChildren().at(1)->getName() << endl;
-            icgFout << "\tPUSH ax" << endl;
+            icgFout << "\tCALL " << node->getChildren().at(0)->getName() << endl;
         }
-        else if (node->getRule() == "factor : LPAREN expression RPAREN")
-        {
-            traverse(node->getChildren().at(0));
-            traverse(node->getChildren().at(1));
-            traverse(node->getChildren().at(2));
-            node->setTrueList(node->getChildren().at(1)->getTrueList());
-            node->setFalseList(node->getChildren().at(1)->getFalseList());
-            node->setNextList(node->getChildren().at(1)->getNextList());
-            node->setIsEvaluated(node->getChildren().at(1)->getIsEvaluated());
-            if (!(node->getChildren().at(1)->getTrueList().empty()) || !(node->getChildren().at(1)->getFalseList().empty()) || !(node->getChildren().at(1)->getNextList().empty()))
-            {
-                icgFout << "\tPOP ax" << endl;
-                performUnaryBooleanOperation(node->getChildren().at(1));
-                icgFout << "\tPUSH ax" << endl;
-            }
-        }
-
         else if (node->getRule() == "factor : CONST_INT")
         {
-            traverse(node->getChildren().at(0));
-            icgFout << "MOV ax," + node->getChildren().at(0)->getName() << endl;
-            icgFout << "PUSH ax" << endl;
+            icgFout << "\tMOV AX, " << node->getChildren().at(0)->getName() << "\n";
         }
         else if (node->getRule() == "factor : variable INCOP")
         {
-            traverse(node->getChildren().at(0));
-            traverse(node->getChildren().at(1));
-            performIncrementOperation("INC", node->getChildren().at(0));
+            performIncrementOperations(node);
         }
         else if (node->getRule() == "factor : variable DECOP")
         {
-            traverse(node->getChildren().at(0));
-            traverse(node->getChildren().at(1));
-            performIncrementOperation("DEC", node->getChildren().at(0));
-        }
-
-        
-        else if (node->getRule() == "logic_expression : rel_expression LOGICOP rel_expression")
-        {
-            traverse(node->getChildren().at(0));
-            if (!node->getChildren().at(0)->getIsEvaluated())
-            {
-                icgFout << "\tPOP ax" << endl;
-                icgFout << "\tCMP AX, 0" << endl;
-                icgFout << "\tJNE" << endl;
-                icgFout<<"\tJMP"<<endl;
-                // add code here
-                icgFout << "\tPUSH ax" << endl;
-                node->getChildren().at(0)->setIsEvaluated(true);
-            }
-            traverse(node->getChildren().at(1));
-            createNewLabel();
-            traverse(node->getChildren().at(2));
-            if (!node->getChildren().at(2)->getIsEvaluated())
-            {
-                icgFout << "\tPOP ax" << endl;
-                icgFout << "\tCMP AX, 0" << endl;
-                icgFout << "\tJNE" << endl;
-                icgFout<<"\tJMP"<<endl;
-                // add code here
-                icgFout << "\tPUSH ax" << endl;
-                node->getChildren().at(2)->setIsEvaluated(true);
-            }
-            icgFout << "POP bx\n\tPOP ax" << endl;
-            icgFout << "\tPUSH ax" << endl;
-        }
-        else if (node->getRule() == "rel_expression : simple_expression")
-        {
-            traverse(node->getChildren().at(0));
-            node->setTrueList(node->getChildren().at(0)->getTrueList());
-            node->setFalseList(node->getChildren().at(0)->getFalseList());
-            node->setNextList(node->getChildren().at(0)->getNextList());
-            node->setIsEvaluated(node->getChildren().at(0)->getIsEvaluated());
-        }
-        else if (node->getRule() == "rel_expression : simple_expression RELOP simple_expression")
-        {
-            for (Node *child : node->getChildren())
-            {
-                traverse(child);
-            }
-            icgFout << "\tPOP bx\n\tPOP ax" << endl;
-            performRelationalOperation(node->getChildren().at(1)->getName(), node);
-            icgFout << "PUSH ax" << endl;
-            node->setIsEvaluated(true);
-        }
-
-        else if (node->getRule() == "simple_expression : term")
-        {
-            traverse(node->getChildren().at(0));
-            node->setTrueList(node->getChildren().at(0)->getTrueList());
-            node->setFalseList(node->getChildren().at(0)->getFalseList());
-            node->setNextList(node->getChildren().at(0)->getNextList());
-            node->setIsEvaluated(node->getChildren().at(0)->getIsEvaluated());
-        }
-        else if (node->getRule() == "simple_expression : simple_expression ADDOP term")
-        {
-            for (Node *child : node->getChildren())
-            {
-                traverse(child);
-            }
-            icgFout << "\tPOP bx\n\tPOP ax" << endl;
-            performArithmeticOperation(node->getChildren().at(1)->getName());
-            icgFout << "\tPUSH ax" << endl;
-        }
-        else if (node->getRule() == "term : unary_expression")
-        {
-            traverse(node->getChildren().at(0));
-            node->setTrueList(node->getChildren().at(0)->getTrueList());
-            node->setFalseList(node->getChildren().at(0)->getFalseList());
-            node->setNextList(node->getChildren().at(0)->getNextList());
-            node->setIsEvaluated(node->getChildren().at(0)->getIsEvaluated());
-        }
-        else if (node->getRule() == "term : term MULOP unary_expression")
-        {
-            for (Node *child : node->getChildren())
-            {
-                traverse(child);
-            }
-            icgFout << "\tPOP bx" << endl;
-            icgFout << "\tPOP ax" << endl;
-            performArithmeticOperation(node->getChildren().at(1)->getName());
-            icgFout << "\tPUSH ax" << endl;
+            performDecrementOperations(node);
         }
         else if (node->getRule() == "unary_expression : ADDOP unary_expression")
         {
-            for (Node *child : node->getChildren())
-            {
-                traverse(child);
-            }
             if (node->getChildren().at(0)->getName() == "-")
             {
-                icgFout << "\tPOP ax" << endl;
-                icgFout << "\tNEG ax" << endl;
-                icgFout << "\tPUSH ax" << endl;
+                icgFout << "\tNEG AX\n";
             }
         }
         else if (node->getRule() == "unary_expression : NOT unary_expression")
         {
-            for (Node *child : node->getChildren())
-            {
-                traverse(child);
-            }
-            if (!(node->getChildren().at(1)->getTrueList().empty()) || !(node->getChildren().at(1)->getFalseList().empty()) || !(node->getChildren().at(1)->getNextList().empty()))
-            {
-                node->setTrueList(node->getChildren().at(1)->getFalseList());
-                node->setFalseList(node->getChildren().at(1)->getTrueList());
-            }
-            else
-            {
-                icgFout << "POP ax" << endl;
-                performLogicalOperation("NOT");
-                icgFout << "PUSH ax" << endl;
-            }
+            int intermediateLabel, finalLabel;
+            icgFout << "\tCMP AX, 0\n";
+            intermediateLabel = ++label;
+            icgFout << "\tJNE L" << intermediateLabel << "\n";
+            icgFout << "\tMOV AX, 1\n";
+            finalLabel = ++label;
+            icgFout << "\tJMP L" << finalLabel << "\n";
+            icgFout << "L" << intermediateLabel << ":\n";
+            icgFout << "\tMOV AX, 0\n";
+            icgFout << "L" << finalLabel << ":\n";
         }
-        else if (node->getRule() == "unary_expression : factor")
+        else if (node->getRule() == "arguments : arguments COMMA logic_expression" || node->getRule() == "arguments : logic_expression")
         {
-            traverse(node->getChildren().at(0));
-            node->setTrueList(node->getChildren().at(0)->getTrueList());
-            node->setFalseList(node->getChildren().at(0)->getFalseList());
-            node->setNextList(node->getChildren().at(0)->getNextList());
-            node->setIsEvaluated(node->getChildren().at(0)->getIsEvaluated());
+            icgFout << "\tPUSH AX" << endl;
         }
-
-        else
+        else if (node->getRule() == "statement : PRINTLN LPAREN ID RPAREN SEMICOLON")
         {
-            for (Node *child : node->getChildren())
+            if (node->getChildren().size() != 0)
             {
-                traverse(child);
+                icgFout << "\tCALL Print\n\tCALL Newline\n";
             }
         }
     }
     void generateIntermediateCode(ParseTree &pTree)
     {
-        initializeMemorySegment();
-        initializeDataSegment();
-        initializeCodeSegment();
         traverse(pTree.getCurrentNode());
+        icgFout << "END main\n";
+        icgFout.close();
     }
 };

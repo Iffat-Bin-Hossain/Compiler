@@ -18,7 +18,8 @@ ICG icg;
 int startLine;
 string currentFunctionReturnType="";
 vector<pair<pair<string,string>,bool>>currentFunctionParameters={};
-int currentOffset=0, previousOffset;
+vector<Node *> globals={};
+
 
 void declareFunction(string functionName, string returnType, int startLine, vector<pair<pair<string, string>, bool>> parameterList = {})
 {
@@ -133,14 +134,20 @@ void SaveData(string dataType, Node *node, int startLine)
 
 		if (searched == NULL)
 		{
+            
 			Node *toBeInserted = new Node(new SymbolInfo(element.first.second, "ID"), "", dataType);
 
 			if (element.second)
 			{
 				toBeInserted->setArrayStatus(true);
 			}
-			sTable.Insert(toBeInserted);
+            if(sTable.getCurrentScope()->getId()==1){
+                toBeInserted->setIsGlobal(true);
+                globals.push_back(toBeInserted);
+            }
+            sTable.Insert(toBeInserted);
 			element.first.first = dataType;
+			
 		}
 		else if (searched->getReturnOrDataType() != dataType)
 		{
@@ -152,6 +159,7 @@ void SaveData(string dataType, Node *node, int startLine)
 		}
 	}
 }
+
 
 void CheckVariableDeclaredOrNot(Node *node)
 {
@@ -562,8 +570,6 @@ parameter_list : parameter_list COMMA type_specifier ID {
 ;
 compound_statement : LCURL {
         sTable.EnterScope();
-        sTable.getCurrentScope()->setBaseOffset(currentOffset);
-        int offset=-2-currentFunctionParameters.size()*2;
         for (auto functionArgument : currentFunctionParameters) {
         string argumentName=functionArgument.first.second;
 			if (argumentName == "") {
@@ -571,8 +577,6 @@ compound_statement : LCURL {
 			}
 			Node* toBeInserted = new Node(new SymbolInfo(argumentName, "ID"),"", functionArgument.first.first);
 			toBeInserted->setArrayStatus(functionArgument.second);
-            toBeInserted->setStackOffset(offset);
-            offset=offset+2;
 			if (!sTable.Insert(toBeInserted)) {
                 cout<<"Line# " << $1->getStartLine() <<": " <<"Redefinition of parameter \'"+toBeInserted->getName() +"\'"<<std::endl;
 				break;
@@ -588,15 +592,12 @@ compound_statement : LCURL {
         $$->setEndLine($4->getEndLine());
         //$$->setScope(sTable->getCurrentScope());
         $$->makeChild({$1,$3,$4}); 
-        previousOffset=currentOffset;
-        currentOffset=sTable.getCurrentScope()->getBaseOffset();
+
         sTable.ExitScope();
      
 }
     | LCURL {
         sTable.EnterScope();
-        sTable.getCurrentScope()->setBaseOffset(currentOffset);
-        int offset=-2-currentFunctionParameters.size()*2;
         for (auto functionArgument : currentFunctionParameters) {
         string argumentName=functionArgument.first.second;
 			if (argumentName == "") {
@@ -604,8 +605,6 @@ compound_statement : LCURL {
 			}
 			Node* toBeInserted = new Node(new SymbolInfo(argumentName, "ID"),"", functionArgument.first.first);
 			toBeInserted->setArrayStatus(functionArgument.second);
-            toBeInserted->setStackOffset(offset);
-            offset=offset+2;
 			if (!sTable.Insert(toBeInserted)) {
                 cout<<"Line# " << $1->getStartLine() <<": " <<"Redefinition of parameter \'"+toBeInserted->getName() +"\'"<<std::endl;
 				break;
@@ -620,18 +619,12 @@ compound_statement : LCURL {
         $$->setStartLine($1->getStartLine());
         $$->setEndLine($3->getEndLine());
         $$->makeChild({$1,$3}); 
-        previousOffset=currentOffset;
-        currentOffset=sTable.getCurrentScope()->getBaseOffset();
-        if(previousOffset!=currentOffset) {
-            $$->setCompareOffset(false);
-            $$->setOffsetDifference(previousOffset-currentOffset);
-        }
+    
         sTable.ExitScope();
      
     }
     ;
 var_declaration : type_specifier declaration_list SEMICOLON {
-
         SymbolInfo *sInfo = new SymbolInfo("", "var_declaration");
         $$=new Node(sInfo,"var_declaration : type_specifier declaration_list SEMICOLON",$1->getReturnOrDataType());
         $$->setStartLine($1->getStartLine());

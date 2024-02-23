@@ -14,13 +14,11 @@ private:
    vector<pair<pair<string, string>, bool>> parameterList;
    string functionInfo; // Is it a declaration or a definition
    bool arrayStatus;    // Is it an array or not
+   bool isGlobal; // Is it a global or not
    int startLine;
    int endLine;
-   int stackOffset = -1; //-1 means global variable
-   bool compareOffset = true; // If previousOffset==currentOffset
-   int offsetDifference; // Previous offset ~ current Offset
-   bool isEvaluated = false; // Is a expression evaluated or not
-   vector<int> trueList, falseList, nextList;
+   int size=1; // For single variable size=1,for an Array size=array_size
+   int stackOffset;
 
 public:
    Node(SymbolInfo *symbol, string rule = "", string returnOrDataType = "")
@@ -53,24 +51,16 @@ public:
       }
    }
    bool getArrayStatus() { return arrayStatus; }
+   void setIsGlobal(bool isGlobal) { this->isGlobal = isGlobal; }
+   bool getIsGlobal() { return isGlobal; }
    void setStartLine(int startLine) { this->startLine = startLine; }
    int getStartLine() { return startLine; }
    void setEndLine(int endLine) { this->endLine = endLine; }
    int getEndLine() { return endLine; }
+   void setSize(int size) { this->size = size; }
+   int getSize() { return size;}
    void setStackOffset(int stackOffset) { this->stackOffset = stackOffset; }
-   int getStackOffset() { return stackOffset; }
-   void setCompareOffset(bool compareOffset) { this->compareOffset = compareOffset; }
-   bool getCompareOffset() { return compareOffset; }
-   void setOffsetDifference(int offsetDifference) { this->offsetDifference = offsetDifference; }
-   int getOffsetDifference() { return offsetDifference; }
-   void setIsEvaluated(bool isEvaluated) { this->isEvaluated = isEvaluated; }
-   bool getIsEvaluated() { return isEvaluated; }
-   void setTrueList(vector<int> trueList) { this->trueList = trueList; }
-   void setFalseList(vector<int> falseList) { this->falseList = falseList; }
-   void setNextList(vector<int> nextList) { this->nextList = nextList; }
-   vector<int> getTrueList() { return trueList; }
-   vector<int> getFalseList() { return falseList; }
-   vector<int> getNextList() { return nextList; }
+   int getStackOffset(){return stackOffset;}
    void makeChild(vector<Node *> childrenList)
    {
       for (auto child : childrenList)
